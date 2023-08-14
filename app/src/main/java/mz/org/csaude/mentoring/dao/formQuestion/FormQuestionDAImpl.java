@@ -11,15 +11,15 @@ import mz.org.csaude.mentoring.model.formQuestion.FormQuestion;
 
 public class FormQuestionDAImpl extends BaseDaoImpl<FormQuestion, Integer> implements FormQuestionDAO {
 
-    protected FormQuestionDAImpl(Class<FormQuestion> dataClass) throws SQLException {
+    public FormQuestionDAImpl(Class<FormQuestion> dataClass) throws SQLException {
         super(dataClass);
     }
 
-    protected FormQuestionDAImpl(ConnectionSource connectionSource, Class<FormQuestion> dataClass) throws SQLException {
+    public FormQuestionDAImpl(ConnectionSource connectionSource, Class<FormQuestion> dataClass) throws SQLException {
         super(connectionSource, dataClass);
     }
 
-    protected FormQuestionDAImpl(ConnectionSource connectionSource, DatabaseTableConfig<FormQuestion> tableConfig) throws SQLException {
+    public FormQuestionDAImpl(ConnectionSource connectionSource, DatabaseTableConfig<FormQuestion> tableConfig) throws SQLException {
         super(connectionSource, tableConfig);
     }
 }
