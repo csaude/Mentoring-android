@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import mz.org.csaude.mentoring.base.model.BaseModel;
 import mz.org.csaude.mentoring.dao.form.FormDAOImpl;
 import mz.org.csaude.mentoring.dao.session.SessionStatusDAOImpl;
+import mz.org.csaude.mentoring.dto.tutor.FormDTO;
 import mz.org.csaude.mentoring.model.career.Career;
 import mz.org.csaude.mentoring.model.partner.Partner;
 import mz.org.csaude.mentoring.model.programmaticArea.ProgrammaticArea;
@@ -49,6 +50,14 @@ public class Form extends BaseModel {
 
     @DatabaseField(columnName = COLUMN_TARGET_FILE)
     private int targetFile;
+
+    public Form(FormDTO formDTO) {
+        this.name = formDTO.getName();
+        this.code = formDTO.getCode();
+        this.description = formDTO.getDescription();
+        this.targetPatient = formDTO.getTargetPatient();
+        this.targetFile = formDTO.getTargetFile();
+    }
 
     @DatabaseField(columnName = COLUMN_PARTNER, canBeNull = false, foreign = true, foreignAutoRefresh = true )
     private Partner partner;

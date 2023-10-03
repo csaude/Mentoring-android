@@ -7,6 +7,7 @@ import java.util.List;
 
 import mz.org.csaude.mentoring.base.service.BaseServiceImpl;
 import mz.org.csaude.mentoring.dao.partner.PartnerDao;
+import mz.org.csaude.mentoring.dto.partner.PartnerDTO;
 import mz.org.csaude.mentoring.model.partner.Partner;
 import mz.org.csaude.mentoring.model.user.User;
 
@@ -54,6 +55,20 @@ public class PartnerServiceImpl extends BaseServiceImpl<Partner> implements Part
     @Override
     public Partner getById(int id) throws SQLException {
         return this.getById(id);
+    }
+
+    @Override
+    public void saveOrUpdatePartners(List<PartnerDTO> partnerDTOS) throws SQLException {
+
+        for(PartnerDTO partnerDTO : partnerDTOS){
+
+            boolean partinerExistance = this.partnerDao.checkPartnerExistance(partnerDTO.getUuid());
+            if(partinerExistance){
+                 this.partnerDao.createOrUpdate(new Partner(partnerDTO));
+            }
+
+        }
+
     }
 
     @Override

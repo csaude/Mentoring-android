@@ -13,4 +13,5 @@ import mz.org.csaude.mentoring.model.tutor.Tutor;
 public interface FormDAO extends Dao<Form, Integer> {
 
     List<Form> getAllOfTutor(Tutor tutor, Application application) throws SQLException;
+    boolean checkFormExistance(String uuid) throws SQLException;
 }

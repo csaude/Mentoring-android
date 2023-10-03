@@ -5,6 +5,8 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTableConfig;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import mz.org.csaude.mentoring.model.programmaticArea.ProgrammaticArea;
 
@@ -19,5 +21,12 @@ public class ProgrammaticAreaDAOImpl extends BaseDaoImpl<ProgrammaticArea, Integ
 
     public ProgrammaticAreaDAOImpl(ConnectionSource connectionSource, DatabaseTableConfig<ProgrammaticArea> tableConfig) throws SQLException {
         super(connectionSource, tableConfig);
+    }
+
+    @Override
+    public boolean checkProgrammaticAreaExist(String uuid) throws SQLException {
+        List<ProgrammaticArea> programmaticAreas = new ArrayList<>();
+        programmaticAreas  = this.queryForEq("uuid", uuid);
+        return programmaticAreas.isEmpty();
     }
 }

@@ -9,4 +9,5 @@ import java.sql.SQLException;
 public interface CareerDAO extends Dao<Career, Integer> {
 
     public boolean checkCareerExistance(final String uuid) throws SQLException;
+    Career getCareerByUuid(final String uuid) throws SQLException;
 }
