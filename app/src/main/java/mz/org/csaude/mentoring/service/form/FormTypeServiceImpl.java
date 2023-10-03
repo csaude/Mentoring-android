@@ -7,6 +7,7 @@ import java.util.List;
 
 import mz.org.csaude.mentoring.base.service.BaseServiceImpl;
 import mz.org.csaude.mentoring.dao.form.FormTypeDAO;
+import mz.org.csaude.mentoring.dto.tutor.FormTypeDTO;
 import mz.org.csaude.mentoring.model.form.FormType;
 import mz.org.csaude.mentoring.model.user.User;
 
@@ -53,5 +54,29 @@ public class FormTypeServiceImpl extends BaseServiceImpl<FormType> implements Fo
     @Override
     public FormType getById(int id) throws SQLException {
         return this.formTypeDAO.queryForId(id);
+    }
+
+    @Override
+    public void saveOrUpdateFormTypes(List<FormTypeDTO> formTypeDTOs) throws SQLException {
+
+        for(FormTypeDTO formTypeDTO : formTypeDTOs){
+         boolean existanceFormtype = this.formTypeDAO.checkFormTypeExistance(formTypeDTO.getUuid());
+
+         if(existanceFormtype){
+             this.formTypeDAO.createOrUpdate(new FormType(formTypeDTO));
+         }
+        }
+
+    }
+
+    @Override
+    public FormType saveOrUpdateFormType(FormType formType) throws SQLException {
+
+        List<FormType> formTypes = this.formTypeDAO.queryForEq("uuid", formType.getUuid());
+
+        if(formTypes.isEmpty()){
+            this.formTypeDAO.createOrUpdate(formType);
+        }
+        return formTypes.get(0);
     }
 }
