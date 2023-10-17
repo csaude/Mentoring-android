@@ -103,5 +103,10 @@ public class CareerServiceImpl extends BaseServiceImpl<Career> implements Career
         return careers.get(0);
     }
 
+    @Override
+    public Career getCareerByUuid(String uuid) throws SQLException {
+
+        return this.careerDAO.getCareerByUuid(uuid);
+    }
 
 }
