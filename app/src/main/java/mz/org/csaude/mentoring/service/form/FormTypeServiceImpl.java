@@ -54,4 +54,16 @@ public class FormTypeServiceImpl extends BaseServiceImpl<FormType> implements Fo
     public FormType getById(int id) throws SQLException {
         return this.formTypeDAO.queryForId(id);
     }
+
+    @Override
+    public FormType savedOrUpdateFormType(FormType formType) throws SQLException {
+
+        List<FormType> formTypeExist = this.formTypeDAO.queryForEq("uuid", formType.getUuid());
+
+        if(formTypeExist.isEmpty()){
+            this.formTypeDAO.createOrUpdate(formType);
+            return formType;
+        }
+        return formTypeExist.get(0);
+    }
 }

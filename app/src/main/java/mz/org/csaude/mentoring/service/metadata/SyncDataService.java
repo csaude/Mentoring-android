@@ -6,8 +6,10 @@ import mz.org.csaude.mentoring.base.auth.LoginRequest;
 import mz.org.csaude.mentoring.base.auth.LoginResponse;
 import mz.org.csaude.mentoring.dto.career.CareerDTO;
 import mz.org.csaude.mentoring.dto.career.CareerTypeDTO;
+import mz.org.csaude.mentoring.dto.form.FormDTO;
 import mz.org.csaude.mentoring.dto.location.CabinetDTO;
 import mz.org.csaude.mentoring.dto.location.HealthFacilityDTO;
+import mz.org.csaude.mentoring.dto.programmaticarea.ProgrammaticAreaDTO;
 import mz.org.csaude.mentoring.dto.setting.SettingDTO;
 import mz.org.csaude.mentoring.dto.tutor.TutorDTO;
 import mz.org.csaude.mentoring.dto.tutored.TutoredDTO;
@@ -55,5 +57,17 @@ public interface SyncDataService {
 
     @GET("/tutor/user/{userUuid}")
     Call<TutorDTO> getTutorByUserUuid(@Path("userUuid") String userUuid);
+
+    @GET("/forms/programaticarea/{programmaticAreaUuid}")
+    Call<FormDTO> getFormByProgrammaticAreaUuid(@Path("programmaticAreaUuid") String programmaticAreaUuid);
+
+    @GET("/forms/form/{limit}/{offset}")
+    Call<List<FormDTO>> getForms(@Path("limit") long limit , @Path("offset") long offset);
+
+    @GET("/programmaticareas/tutor-progammatic-area/{tutorUuid}")
+    Call<ProgrammaticAreaDTO> getProgrammaticAreaByTutorUuid(@Path("tutorUuid") String tutorUuid);
+
+    @GET("/programmaticareas/programmaticareas/{limit}/{offset}/")
+    Call<List<ProgrammaticAreaDTO>> getProgrammaticAreas(@Path("limit") long limit , @Path("offset") long offset);
 
 }
