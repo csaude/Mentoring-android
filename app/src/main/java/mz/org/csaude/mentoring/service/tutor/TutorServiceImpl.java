@@ -85,7 +85,7 @@ public class TutorServiceImpl extends BaseServiceImpl<Tutor> implements TutorSer
 
                 Tutor tutor = new Tutor(tutorDTO);
 
-                tutor.setCareer(careerService.getCareerByUuid(tutor.getCareer().getUuid()));
+                tutor.setCareer(careerService.getCareerByUuid(tutorDTO.getCareerDTO().getUuid()));
                 Partner partner = this.partnerService.savedOrUpdatePartner(new Partner(tutorDTO.getPartnerDTO()));
 
                 tutor.setPartner(partner);
@@ -95,5 +95,15 @@ public class TutorServiceImpl extends BaseServiceImpl<Tutor> implements TutorSer
             }
         }
 
+    }
+
+    @Override
+    public Tutor getTutorByUuid(String uuid) throws SQLException {
+        return this.tutorDAO.getTutorByUuid(uuid);
+    }
+
+    @Override
+    public Tutor getTutorByUser(User user) throws SQLException {
+        return this.tutorDAO.getTutorByUser(user);
     }
 }

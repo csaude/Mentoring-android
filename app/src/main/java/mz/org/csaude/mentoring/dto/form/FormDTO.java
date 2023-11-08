@@ -31,6 +31,9 @@ public class FormDTO implements Serializable {
 
     private Integer targetFile;
 
+    public FormDTO() {
+    }
+
     public FormDTO(Form form) {
         this.uuid = form.getUuid();
         this.code = form.getCode();

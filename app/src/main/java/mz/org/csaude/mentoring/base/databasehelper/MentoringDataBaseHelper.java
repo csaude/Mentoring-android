@@ -296,7 +296,7 @@ public class MentoringDataBaseHelper extends OrmLiteSqliteOpenHelper {
         return careerTypeDAO;
     }
 
-    public FormTypeDAO getFormType() throws SQLException {
+    public FormTypeDAO getFormTypeDAO() throws SQLException {
         if(formTypeDAO == null){
             formTypeDAO = getDao(FormType.class);
         }
@@ -382,6 +382,8 @@ public class MentoringDataBaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTableIfNotExists(connectionSource, PartnerSetting.class);
             TableUtils.createTableIfNotExists(connectionSource, TutorTutored.class);
             TableUtils.createTableIfNotExists(connectionSource, User.class);
+            TableUtils.createTableIfNotExists(connectionSource, ProgrammaticArea.class);
+
 
 
         } catch (SQLException e) {

@@ -21,7 +21,7 @@ public class ProgrammaticArea extends BaseModel {
     @DatabaseField(columnName = COLUMN_DESCRIPTION)
     private String description;
 
-    @DatabaseField(columnName = COLUMN_CODE, unique = true)
+    @DatabaseField(columnName = COLUMN_CODE)
     private String code;
 
     @DatabaseField(columnName = COLUMN_NAME, canBeNull = false)
@@ -31,6 +31,7 @@ public class ProgrammaticArea extends BaseModel {
     }
 
     public ProgrammaticArea(ProgrammaticAreaDTO programmaticAreaDTO) {
+        this.setUuid(programmaticAreaDTO.getUuid());
         this.description = programmaticAreaDTO.getDescription();
         this.code = programmaticAreaDTO.getCode();
         this.name = programmaticAreaDTO.getName();

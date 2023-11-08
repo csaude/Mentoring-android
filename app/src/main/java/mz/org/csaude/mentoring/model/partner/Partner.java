@@ -8,11 +8,12 @@ import mz.org.csaude.mentoring.base.model.BaseModel;
 import mz.org.csaude.mentoring.dao.partner.PartnerDaoImpl;
 import mz.org.csaude.mentoring.dto.partner.PartnerDTO;
 import mz.org.csaude.mentoring.dto.tutor.TutorDTO;
+import mz.org.csaude.mentoring.model.user.UserIndividual;
 
 @Data
 @DatabaseTable(tableName = Partner.TABLE_NAME, daoClass = PartnerDaoImpl.class)
 @EqualsAndHashCode(callSuper=false)
-public class Partner extends BaseModel {
+public class Partner extends BaseModel implements UserIndividual {
 
     public static final String TABLE_NAME = "partner";
 
@@ -29,13 +30,15 @@ public class Partner extends BaseModel {
     public Partner() {
     }
 
-    public Partner(String name, String description) {
+    public Partner(String name, String description, String uuid) {
         this.name = name;
         this.description = description;
+        this.setUuid(uuid);
     }
     public Partner(PartnerDTO partnerDTO) {
         this.name = partnerDTO.getName();
         this.description = partnerDTO.getDescription();
+        this.setUuid(partnerDTO.getUuid());
     }
     public String getName() {
         return name;

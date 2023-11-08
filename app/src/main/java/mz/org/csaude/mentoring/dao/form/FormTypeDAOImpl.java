@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 import mz.org.csaude.mentoring.model.form.FormType;
 
-public class FormTypeDAOImpl extends BaseDaoImpl<FormType, Integer> {
+public class FormTypeDAOImpl extends BaseDaoImpl<FormType, Integer> implements FormTypeDAO{
 
     public FormTypeDAOImpl(Class<FormType> dataClass) throws SQLException {
         super(dataClass);

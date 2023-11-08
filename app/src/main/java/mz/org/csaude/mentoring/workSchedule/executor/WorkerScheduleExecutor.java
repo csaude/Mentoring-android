@@ -73,13 +73,14 @@ public class WorkerScheduleExecutor {
                 .build();
         OneTimeWorkRequest userOneTimeWorkRequest = new OneTimeWorkRequest.Builder(UserWorker.class).addTag("ONE_TIME_USER_ID" + ONE_TIME_REQUEST_JOB_ID).setInputData(inputData).build();
         OneTimeWorkRequest tutorOneTimeWorkRequest = new OneTimeWorkRequest.Builder(TutorWorker.class).addTag("ONE_TIME_TUTOR_ID" + ONE_TIME_REQUEST_JOB_ID).build();
-        OneTimeWorkRequest tutoredOneTimeworkResquest = new OneTimeWorkRequest.Builder(TutoredWork.class).addTag("ONE_TIME_TUTORED_ID" + ONE_TIME_REQUEST_JOB_ID).build();
         OneTimeWorkRequest programmaticAreaOneTimeworkResquest = new OneTimeWorkRequest.Builder(ProgrammaticAreaWorker.class).addTag("ONE_TIME_PROGRAMMATICAREA_ID" + ONE_TIME_REQUEST_JOB_ID).build();
         OneTimeWorkRequest formOneTimeworkResquest = new OneTimeWorkRequest.Builder(FormWorker.class).addTag("ONE_TIME_FORM_ID" + ONE_TIME_REQUEST_JOB_ID).build();
+        OneTimeWorkRequest tutoredOneTimeworkResquest = new OneTimeWorkRequest.Builder(TutoredWork.class).addTag("ONE_TIME_TUTORED_ID" + ONE_TIME_REQUEST_JOB_ID).build();
 
 
-        workManager.beginUniqueWork("INITIAL_APP_SETUP", ExistingWorkPolicy.KEEP, userOneTimeWorkRequest).then(tutorOneTimeWorkRequest).then(tutoredOneTimeworkResquest)
-                .then(programmaticAreaOneTimeworkResquest).then(formOneTimeworkResquest).enqueue();
-        return formOneTimeworkResquest;
+        workManager.beginUniqueWork("INITIAL_APP_SETUP", ExistingWorkPolicy.KEEP, userOneTimeWorkRequest).then(tutorOneTimeWorkRequest)
+                .then(programmaticAreaOneTimeworkResquest).then(tutoredOneTimeworkResquest).then(formOneTimeworkResquest).
+                enqueue();
+        return tutoredOneTimeworkResquest;
     }
 }

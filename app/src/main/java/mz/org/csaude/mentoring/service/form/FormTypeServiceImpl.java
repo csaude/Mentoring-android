@@ -25,7 +25,7 @@ public class FormTypeServiceImpl extends BaseServiceImpl<FormType> implements Fo
     @Override
     public void init(Application application, User currentUser) throws SQLException {
         super.init(application, currentUser);
-        this.formTypeDAO = getDataBaseHelper().getFormType();
+        this.formTypeDAO = getDataBaseHelper().getFormTypeDAO();
     }
 
     @Override

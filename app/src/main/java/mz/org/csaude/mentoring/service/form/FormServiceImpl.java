@@ -3,6 +3,7 @@ package mz.org.csaude.mentoring.service.form;
 import android.app.Application;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import mz.org.csaude.mentoring.base.service.BaseServiceImpl;
@@ -75,8 +76,15 @@ public class FormServiceImpl extends BaseServiceImpl<Form> implements FormServic
     }
 
     @Override
-    public List<Form> getAll() throws SQLException {
-        return this.formDAO.queryForAll();
+    public List<Form> getAll(){
+
+        List<Form> forms = new ArrayList<>();
+        try {
+            forms = this.formDAO.queryForAll();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return forms;
     }
 
     @Override

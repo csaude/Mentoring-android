@@ -45,6 +45,6 @@ public class FormDAOImpl extends BaseDaoImpl<Form, Integer> implements FormDAO {
     @Override
     public boolean checkFormExistance(String uuid) throws SQLException {
         List<Form> forms = this.queryForEq("uuid", uuid);
-        return !forms.isEmpty();
+        return forms.isEmpty();
     }
 }

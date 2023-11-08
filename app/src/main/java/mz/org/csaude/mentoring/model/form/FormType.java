@@ -18,7 +18,7 @@ import mz.org.csaude.mentoring.model.career.CareerType;
 @EqualsAndHashCode(callSuper=false)
 public class FormType extends BaseModel {
 
-    public static final String COLUMN_TABLE_NAME = "career_type";
+    public static final String COLUMN_TABLE_NAME = "form_type";
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_CODE = "code";
 
@@ -31,6 +31,7 @@ public class FormType extends BaseModel {
     public FormType(FormTypeDTO formTypeDTO) {
         this.descripion = formTypeDTO.getDescription();
         this.code = formTypeDTO.getCode();
+        this.setUuid(formTypeDTO.getUuid());
     }
 
     public String getDescripion() {

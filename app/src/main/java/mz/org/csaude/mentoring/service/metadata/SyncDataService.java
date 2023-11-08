@@ -43,8 +43,11 @@ public interface SyncDataService {
     @GET("/careers/{offset}/{limit}")
     Call<List<CareerDTO>> getCareers(@Path("offset") long offset, @Path("limit") long limit);
 
-    @GET("/tutored/{offset}/{limit}")
-    Call<List<TutoredDTO>> getTutoreds(@Path("offset") long offset, @Path("limit") long limit);
+    @GET("/tutored/{limit}/{offset}")
+    Call<List<TutoredDTO>> getTutoreds(@Path("limit") long limit, @Path("offset") long offset );
+
+    @GET("/tutored/tutor/{tutorUuid}")
+    Call<List<TutoredDTO>> getTutoredsByUserUuid(@Path("tutorUuid") String tutorUuid);
 
     @POST("/login")
     Call<LoginResponse> login(@Body RequestBody body);
@@ -52,14 +55,17 @@ public interface SyncDataService {
     @GET("/user/getByCredencials/{username}/{password}")
     Call<UserDTO> getByCredencials(@Path("username") final String username, @Path("password") final String password);
 
-    @GET("/tutor/tutors/{limit}/{offset}")
+    @GET("/tutor/{limit}/{offset}")
     Call<List<TutorDTO>> getTutors(@Path("limit") long limit , @Path("offset") long offset);
 
     @GET("/tutor/user/{userUuid}")
     Call<TutorDTO> getTutorByUserUuid(@Path("userUuid") String userUuid);
 
     @GET("/forms/programaticarea/{programmaticAreaUuid}")
-    Call<FormDTO> getFormByProgrammaticAreaUuid(@Path("programmaticAreaUuid") String programmaticAreaUuid);
+    Call<List<FormDTO>> getFormByProgrammaticAreaUuid(@Path("programmaticAreaUuid") String programmaticAreaUuid);
+
+    @GET("/forms/programaticareas/{programmaticAreaUuids}")
+    Call<List<FormDTO>> getFormByProgrammaticAreaUuids(@Path("programmaticAreaUuids") Object[] programmaticAreaUuid);
 
     @GET("/forms/form/{limit}/{offset}")
     Call<List<FormDTO>> getForms(@Path("limit") long limit , @Path("offset") long offset);

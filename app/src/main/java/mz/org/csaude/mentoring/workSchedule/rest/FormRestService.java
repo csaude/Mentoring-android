@@ -14,9 +14,16 @@ import mz.org.csaude.mentoring.dto.form.FormDTO;
 import mz.org.csaude.mentoring.listner.rest.RestResponseListener;
 import mz.org.csaude.mentoring.model.career.Career;
 import mz.org.csaude.mentoring.model.form.Form;
+import mz.org.csaude.mentoring.model.programmaticArea.ProgrammaticArea;
+import mz.org.csaude.mentoring.model.tutor.Tutor;
+import mz.org.csaude.mentoring.model.user.User;
+import mz.org.csaude.mentoring.service.ProgrammaticArea.ProgrammaticAreaService;
+import mz.org.csaude.mentoring.service.ProgrammaticArea.ProgrammaticAreaServiceImpl;
 import mz.org.csaude.mentoring.service.form.FormService;
 import mz.org.csaude.mentoring.service.form.FormServiceImpl;
 import mz.org.csaude.mentoring.service.metadata.LoadMetadataServiceImpl;
+import mz.org.csaude.mentoring.service.tutor.TutorService;
+import mz.org.csaude.mentoring.service.tutor.TutorServiceImpl;
 import mz.org.csaude.mentoring.util.Utilities;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -24,13 +31,24 @@ import retrofit2.Response;
 
 public class FormRestService extends BaseRestService {
 
+    private TutorService tutorService;
+
+    private ProgrammaticAreaService programmaticAreaService;
+
+    private FormService formService;
     public FormRestService(Application application) {
         super(application);
     }
 
+    public FormRestService(Application application, User currentUser) {
+        super(application, currentUser);
+        this.tutorService = new TutorServiceImpl(application, currentUser);
+        this.formService = new FormServiceImpl(application, currentUser);
+    }
+
     public void restGetForms(long offset, long limit, RestResponseListener<Form> listener) {
 
-        Call<List<FormDTO>> formCall = syncDataService.getForms(offset, limit);
+        Call<List<FormDTO>> formCall = syncDataService.getForms( limit, offset);
 
         formCall.enqueue(new Callback<List<FormDTO>>() {
             @Override
@@ -66,6 +84,24 @@ public class FormRestService extends BaseRestService {
                 Log.i("METADATA LOAD --", t.getMessage(), t);
             }
         });
+
+    }
+
+    public void restGetAllFormsByProgramaticArea(RestResponseListener<Form> listener) {
+
+        List<Form> forms = new ArrayList<>();
+        try {
+            forms = this.formService.getAll();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        if(!Utilities.listHasElements(forms)){
+                    listener.doOnResponse(REQUEST_NO_DATA, forms);
+                } else {
+                    listener.doOnResponse(BaseRestService.REQUEST_SUCESS, forms);
+                 //   Toast.makeText(APP.getApplicationContext(), "Carregando as FORMS...", Toast.LENGTH_SHORT).show();
+                }
 
     }
 }

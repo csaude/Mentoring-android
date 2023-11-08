@@ -58,8 +58,6 @@ public class Form extends BaseModel {
         this.name = formDTO.getName();
         this.code = formDTO.getCode();
         this.description = formDTO.getDescription();
-        this.targetPatient = formDTO.getTargetPatient();
-        this.targetFile = formDTO.getTargetFile();
     }
 
     public String getName() {

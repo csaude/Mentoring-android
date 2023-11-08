@@ -14,6 +14,9 @@ public class ProgrammaticAreaDTO implements Serializable {
 
     private String name;
 
+    public ProgrammaticAreaDTO() {
+    }
+
     public ProgrammaticAreaDTO(ProgrammaticArea programmaticArea) {
         this.uuid = programmaticArea.getUuid();
         this.code = programmaticArea.getCode();
