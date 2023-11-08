@@ -43,7 +43,7 @@ public class UserRestService extends BaseRestService implements UserSyncService 
 
         SyncDataService syncDataService = getRetrofit().create(SyncDataService.class);
 
-        LoginRequest loginRequest = new LoginRequest(currentUser.getUserName(), currentUser.getPassword());
+        LoginRequest loginRequest = new LoginRequest(currentUser.getPassword(), currentUser.getUserName());
 
         RequestBody body = RequestBody.create(MediaType.parse("application/json"), gson.toJson(loginRequest));
 

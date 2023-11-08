@@ -64,6 +64,7 @@ public class Tutor extends BaseModel implements UserIndividual {
   }
 
   public Tutor(TutorDTO tutorDTO) {
+    this.setUuid(tutorDTO.getUuid());
     this.code = tutorDTO.getCode();
     this.name = tutorDTO.getName();
     this.surname = tutorDTO.getSunname();

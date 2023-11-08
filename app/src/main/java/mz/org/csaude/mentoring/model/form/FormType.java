@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import mz.org.csaude.mentoring.base.model.BaseModel;
 import mz.org.csaude.mentoring.dao.career.CareerDAOImpl;
 import mz.org.csaude.mentoring.dao.form.FormTypeDAOImpl;
+import mz.org.csaude.mentoring.dto.form.FormTypeDTO;
 import mz.org.csaude.mentoring.model.career.CareerType;
 
 @Data
@@ -17,7 +18,7 @@ import mz.org.csaude.mentoring.model.career.CareerType;
 @EqualsAndHashCode(callSuper=false)
 public class FormType extends BaseModel {
 
-    public static final String COLUMN_TABLE_NAME = "career_type";
+    public static final String COLUMN_TABLE_NAME = "form_type";
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_CODE = "code";
 
@@ -26,6 +27,12 @@ public class FormType extends BaseModel {
 
     @DatabaseField(columnName = COLUMN_CODE)
     private String code;
+
+    public FormType(FormTypeDTO formTypeDTO) {
+        this.descripion = formTypeDTO.getDescription();
+        this.code = formTypeDTO.getCode();
+        this.setUuid(formTypeDTO.getUuid());
+    }
 
     public String getDescripion() {
         return descripion;

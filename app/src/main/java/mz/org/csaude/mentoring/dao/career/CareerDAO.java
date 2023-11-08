@@ -11,6 +11,7 @@ import java.util.List;
 public interface CareerDAO extends Dao<Career, Integer> {
 
     public boolean checkCareerExistance(final String uuid) throws SQLException;
+    Career getCareerByUuid(final String uuid) throws SQLException;
 
     List<Career> findByCareerType(CareerType careerType) throws SQLException;
 }

@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import mz.org.csaude.mentoring.model.tutor.Tutor;
+import mz.org.csaude.mentoring.model.user.User;
 
 public class TutorDAOImpl extends BaseDaoImpl<Tutor, Integer> implements TutorDAO {
 
@@ -29,5 +30,17 @@ public class TutorDAOImpl extends BaseDaoImpl<Tutor, Integer> implements TutorDA
     public boolean checkTutorExistance(String uuid) throws SQLException {
         List<Tutor> tutors = this.queryForEq("uuid", uuid);
         return !tutors.isEmpty();
+    }
+
+    @Override
+    public Tutor getTutorByUuid(String uuid) throws SQLException {
+        List<Tutor> tutors = this.queryForEq("uuid", uuid);
+        return tutors.get(0);
+    }
+
+    @Override
+    public Tutor getTutorByUser(User user) throws SQLException {
+        List<Tutor> tutors = this.queryForEq("user_id", user);
+        return tutors.get(0);
     }
 }
