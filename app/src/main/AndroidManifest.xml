@@ -79,15 +79,13 @@
         <activity
             android:name=".view.session.SessionActivity"
             android:exported="true"
-            android:label="@string/title_activity_main"/>
+            android:label="@string/title_activity_main"
+            android:theme="@style/Theme.Mentoring.NoActionBar" />
 
         <activity
             android:name=".view.session.SessionClosureActivity"
             android:exported="true"
             android:theme="@style/Theme.Mentoring.NoActionBar" />
-        <activity
-            android:name=".view.tutor.CreateTutorActivity"
-            android:exported="false" />
     </application>
 
 </manifest>

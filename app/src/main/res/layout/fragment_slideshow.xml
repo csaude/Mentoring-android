@@ -1,22 +1,407 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
     tools:context=".view.home.ui.personalinfo.PersonalInfoFragment">
 
-    <TextView
-        android:id="@+id/text_slideshow"
+    <data>
+        <variable
+            name="viewModel"
+            type="mz.org.csaude.mentoring.view.home.ui.personalinfo.MentorVM" />
+
+        <variable
+            name="professionalCategoryAdapter"
+            type="mz.org.csaude.mentoring.adapter.spinner.listble.ListableSpinnerAdapter" />
+
+        <variable
+            name="provinceAdapter"
+            type="mz.org.csaude.mentoring.adapter.spinner.listble.ListableSpinnerAdapter" />
+
+        <variable
+            name="districtAdapter"
+            type="mz.org.csaude.mentoring.adapter.spinner.listble.ListableSpinnerAdapter" />
+
+        <variable
+            name="healthfacilityAdapter"
+            type="mz.org.csaude.mentoring.adapter.spinner.listble.ListableSpinnerAdapter" />
+        <variable
+            name="menteeLaborfoAdapter"
+            type="mz.org.csaude.mentoring.adapter.spinner.listble.ListableSpinnerAdapter" />
+        <variable
+            name="ngoAdapter"
+            type="mz.org.csaude.mentoring.adapter.spinner.listble.ListableSpinnerAdapter" />
+
+        <import type="android.view.View"/>
+        <import type="mz.org.csaude.mentoring.model.tutor.Tutor"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:elevation="6dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            <include layout="@layout/app_toolbar"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appBarLayout2"
+            android:padding="@dimen/dimen_15dp"
+            >
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/identification_data"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:background="@drawable/shape_normal"
+                        android:padding="3dp"
+                        android:onClick="@{(view) -> viewModel.changeInitialDataViewStatus(view)}"
+                        >
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="Identificação do Mentor"
+                            android:layout_weight="8"
+                            android:textColor="@color/white"
+                            android:gravity="center_vertical|left"
+                            android:paddingLeft="@dimen/dimen_10dp"/>
+
+                        <ImageButton
+                            android:id="@+id/btn_identification_data"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:background="@color/background_layout"
+                            android:onClick="@{(view) -> viewModel.changeInitialDataViewStatus(view)}"
+                            android:src="@drawable/baseline_expand_circle_down_24"
+                            android:layout_marginRight="2dp"
+                            android:layout_weight="1"
+                            />
+
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/identification_data_lyt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="4dp"
+                        android:onClick="@{(view) -> viewModel.changeInitialDataViewStatus(view)}">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text="Nome : "
+                            style="@style/input_labels"/>
+
+                        <EditText
+                            android:id="@+id/tutor_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/fields_background"
+                            style="@style/bottom_border_edit_text_style"
+                            android:text="@={viewModel.name}"
+                            android:hint="Nome"
+                            />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Apelido : "
+                            style="@style/input_labels"/>
+
+                        <EditText
+                            android:id="@+id/tutor_surname"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/fields_background"
+                            style="@style/bottom_border_edit_text_style"
+                            android:text="@={viewModel.surname}"
+                            android:hint="Surname"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text="Contacto : "
+                            style="@style/input_labels"
+                            />
+
+                        <EditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/fields_background"
+                            android:inputType="phone"
+                            android:hint="@string/telephone"
+                            android:text="@={viewModel.phoneNumber}"
+                            style="@style/bottom_border_edit_text_style"
+                            />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Email"
+                            style="@style/input_labels"
+                            />
+                        <EditText
+                            android:id="@+id/tutor_email"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textEmailAddress"
+                            android:background="@drawable/fields_background"
+                            android:hint="@string/email"
+                            android:text="@={viewModel.email}"
+                            style="@style/bottom_border_edit_text_style"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="NUIT"
+                            style="@style/input_labels"
+                            />
+                        <EditText
+                            android:id="@+id/tutor_nuit"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:background="@drawable/fields_background"
+                            android:hint="@string/nuit"
+                            style="@style/bottom_border_edit_text_style"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/laboral_data"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/shape_normal"
+                        android:orientation="horizontal"
+                        android:padding="3dp"
+                        android:onClick="@{(view) -> viewModel.changeInitialDataViewStatus(view)}"
+                        >
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="8"
+                            android:text="Informação Laboral"
+                            android:textColor="@color/white"
+                            android:paddingLeft="10dp"
+                            android:gravity="center_vertical|left"
+                            android:textSize="@dimen/dimen_15dp"/>
+
+                        <ImageButton
+                            android:id="@+id/btn_laboral_data"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:onClick="@{(view) -> viewModel.changeInitialDataViewStatus(view)}"
+                            android:background="@color/background_layout"
+                            android:src="@drawable/baseline_expand_circle_down_24"
+                            android:layout_marginRight="2dp"
+                            />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/laboral_lyt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:onClick="@{(view) -> viewModel.changeInitialDataViewStatus(view)}">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/professional_category"
+                            style="@style/input_labels"/>
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spn_professional_category"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/bottom_spinner_style"
+                            app:adapter="@{professionalCategoryAdapter}"
+                            bind:selectedOpt="@={viewModel.professionalCategory}"
+                            />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/vinculo_laboral"
+                            style="@style/input_labels"
+                            />
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spn_mentee_labor_info"
+                            style="@style/bottom_spinner_style"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            app:adapter="@{menteeLaborfoAdapter}"
+                            bind:selectedOpt="@={viewModel.menteeLabor}"
+
+                            />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="@{viewModel.ONGEmployee ? View.VISIBLE : View.GONE}"
+                            android:text="Nome da ONG"
+                            style="@style/input_labels"
+                            />
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spn_ngo"
+                            style="@style/bottom_spinner_style"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="@{viewModel.ONGEmployee ? View.VISIBLE : View.GONE}"
+                            app:adapter="@{ngoAdapter}"
+                            bind:selectedOpt="@={viewModel.selectedNgo}"
+                            />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Ano de Formação"
+                            style="@style/input_labels"
+                            />
+                        <EditText
+                            android:id="@+id/training_year"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:background="@drawable/fields_background"
+                            style="@style/bottom_border_edit_text_style"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/healt_unit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/dimen_10dp"
+                        android:background="@drawable/shape_normal"
+                        android:padding="3dp"
+                        android:onClick="@{(view) -> viewModel.changeInitialDataViewStatus(view)}"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="@dimen/dimen_0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="8"
+                            android:text="Unidade Sanitaria"
+                            android:textColor="@color/white"
+                            android:textSize="15sp"
+                            android:gravity="center_vertical|left"
+                            android:paddingLeft="@dimen/dimen_10dp"/>
+
+                        <ImageButton
+                            android:id="@+id/btn_healt_unit"
+                            android:layout_width="@dimen/dimen_0dp"
+                            android:layout_height="match_parent"
+                            android:onClick="@{(view) -> viewModel.changeInitialDataViewStatus(view)}"
+                            android:background="@color/background_layout"
+                            android:src="@drawable/baseline_expand_circle_down_24"
+                            android:layout_marginRight="@dimen/dimen_2dp"
+                            android:layout_weight="1"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/healt_unit_lyt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:onClick="@{(view) -> viewModel.changeInitialDataViewStatus(view)}">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Province *"
+                            style="@style/input_labels"
+                            />
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spn_province"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/bottom_spinner_style"
+                            app:adapter="@{provinceAdapter}"
+                            bind:selectedOpt= "@={viewModel.province}"
+                            />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Distric *"
+                            style="@style/input_labels"
+                            />
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spn_district"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/bottom_spinner_style"
+                            app:adapter="@{districtAdapter}"
+                            bind:selectedOpt="@={viewModel.district}"
+                            />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Unidade Sanitaria *"
+                            style="@style/input_labels"
+                            />
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spn_healthfacility"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/bottom_spinner_style"
+                            app:adapter="@{healthfacilityAdapter}"
+                            bind:selectedOpt="@={viewModel.healthFacility}"
+                            />
+
+                    </LinearLayout>
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Gravar"
+                        android:textStyle="bold"
+                        android:layout_marginTop="@dimen/dimen_15dp"
+                        android:layout_gravity="center"
+                        android:textAllCaps="false"
+                        android:onClick="@{() -> viewModel.update()}"
+                        />
+
+                </LinearLayout>
+
+            </ScrollView>
+
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</layout>

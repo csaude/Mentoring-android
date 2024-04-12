@@ -8,9 +8,7 @@ import androidx.databinding.Bindable;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import mz.org.csaude.mentoring.BR;
 import mz.org.csaude.mentoring.adapter.recyclerview.listable.Listble;
@@ -23,16 +21,11 @@ import mz.org.csaude.mentoring.model.location.Province;
 import mz.org.csaude.mentoring.model.partner.Partner;
 import mz.org.csaude.mentoring.model.professionalCategory.ProfessionalCategory;
 import mz.org.csaude.mentoring.model.tutor.Tutor;
-import mz.org.csaude.mentoring.model.tutored.Tutored;
-import mz.org.csaude.mentoring.service.career.CareerService;
 import mz.org.csaude.mentoring.service.professionalCategory.ProfessionalCategoryService;
 import mz.org.csaude.mentoring.service.session.SessionService;
 import mz.org.csaude.mentoring.service.tutor.TutorService;
-import mz.org.csaude.mentoring.service.tutored.TutoredService;
 import mz.org.csaude.mentoring.util.SimpleValue;
 import mz.org.csaude.mentoring.util.Utilities;
-import mz.org.csaude.mentoring.view.tutor.CreateTutorActivity;
-import mz.org.csaude.mentoring.view.tutored.TutoredActivity;
 
 public class MentorVM extends BaseViewModel {
 
@@ -62,10 +55,11 @@ public class MentorVM extends BaseViewModel {
         location = new Location();
 
         loadMeteeLabors();
+        preInit();
     }
 
     public void changeInitialDataViewStatus(View view){
-        getCreateTutorActivity().changeFormSectionVisibility(view);
+        getPersonalInfoFragment().changeFormSectionVisibility(view);
     }
 
     @Override
@@ -227,7 +221,7 @@ public class MentorVM extends BaseViewModel {
             //this.districts.add(new District());
             if (province.getId() <= 0) return;
             this.districts.addAll(getApplication().getDistrictService().getByProvinceAndMentor(this.location.getProvince(), getApplication().getCurrMentor()));
-            getCreateTutorActivity().reloadDistrcitAdapter();
+            getPersonalInfoFragment().reloadDistrcitAdapter();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -244,7 +238,7 @@ public class MentorVM extends BaseViewModel {
             if (district.getId() <= 0) return;
             //this.healthFacilities.add(new HealthFacility());
             this.healthFacilities.addAll(getApplication().getHealthFacilityService().getHealthFacilityByDistrictAndMentor((District) district, getApplication().getCurrMentor()));
-            getCreateTutorActivity().reloadHealthFacility();
+            getPersonalInfoFragment().reloadHealthFacility();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -317,8 +311,9 @@ public class MentorVM extends BaseViewModel {
         this.ONGEmployee = ONGEmployee;
         notifyPropertyChanged(BR.oNGEmployee);
     }
-    public CreateTutorActivity getCreateTutorActivity(){
-        return (CreateTutorActivity) super.getRelatedActivity();
+
+    public PersonalInfoFragment getPersonalInfoFragment(){
+        return (PersonalInfoFragment) super.getGenericFragment();
     }
 
     public List getAllPartners() {

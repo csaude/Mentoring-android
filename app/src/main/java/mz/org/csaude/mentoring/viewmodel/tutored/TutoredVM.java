@@ -367,10 +367,6 @@ public class TutoredVM extends BaseViewModel {
         notifyPropertyChanged(BR.oNGEmployee);
     }
 
-    private TutoredActivity getTutoredActivity() {
-        return (TutoredActivity) super.getRelatedActivity();
-    }
-
     public CreateTutoredActivity getCreateTutoredActivity() {
         return (CreateTutoredActivity) super.getRelatedActivity();
     }

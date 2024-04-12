@@ -60,6 +60,7 @@
     <string name="iniciar_ronda_mentorados">Iniciar Ronda - Mentorados</string>
     <string name="back">Voltar</string>
     <string name="save_and_continue">Gravar e Continuar</string>
+    <string name="save">Gravar</string>
     <string name="print">Imprimir</string>
 </resources>
 

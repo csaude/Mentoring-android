@@ -17,12 +17,12 @@
         android:label="Configurações"
         tools:layout="@layout/fragment_gallery" />
 
-    <activity
+
+    <fragment
         android:id="@+id/nav_personal_info"
-        android:name="mz.org.csaude.mentoring.view.tutor.CreateTutorActivity"
+        android:name="mz.org.csaude.mentoring.view.home.ui.personalinfo.PersonalInfoFragment"
         android:label="meus Dados"
-        tools:layout="@layout/activity_create_tutor"
-        />
+        tools:layout="@layout/fragment_slideshow" />
 
     <fragment
         android:id="@+id/nav_credentials"
