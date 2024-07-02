@@ -12,6 +12,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import mz.org.csaude.mentoring.base.model.BaseModel;
 import mz.org.csaude.mentoring.dao.mentorship.MentorshipDAOImpl;
+import mz.org.csaude.mentoring.dto.answer.AnswerDTO;
+import mz.org.csaude.mentoring.dto.mentorship.MentorshipDTO;
 import mz.org.csaude.mentoring.model.answer.Answer;
 import mz.org.csaude.mentoring.model.evaluationType.EvaluationType;
 import mz.org.csaude.mentoring.model.form.Form;
@@ -94,6 +96,44 @@ public class Mentorship extends BaseModel {
     private List<Answer> answers;
 
     public Mentorship() {
+    }
+
+    public Mentorship(MentorshipDTO mentorshipDTO) {
+        super(mentorshipDTO);
+        this.setStartDate(this.getStartDate());
+        this.setEndDate(this.getEndDate());
+        this.setIterationNumber(this.getIterationNumber());
+        this.setDemonstration(mentorshipDTO.isDemonstration());
+        this.setDemonstrationDetails(mentorshipDTO.getDemonstrationDetails());
+
+        if(mentorshipDTO.getMentor()!=null) {
+            this.setTutor(new Tutor(mentorshipDTO.getMentor()));
+        }
+        if(mentorshipDTO.getMentee()!=null) {
+            this.setTutored(new Tutored(mentorshipDTO.getMentee()));
+        }
+        if(mentorshipDTO.getSession()!=null) {
+            this.setSession(new Session(mentorshipDTO.getSession()));
+        }
+        if(mentorshipDTO.getForm()!=null) {
+            this.setForm(new Form(mentorshipDTO.getForm()));
+        }
+        if(mentorshipDTO.getCabinet()!=null) {
+            this.setCabinet(new Cabinet(mentorshipDTO.getCabinet()));
+        }
+        if(mentorshipDTO.getDoor()!=null) {
+            this.setDoor(new Door(mentorshipDTO.getDoor()));
+        }
+        if(mentorshipDTO.getEvaluationType()!=null) {
+            this.setEvaluationType(new EvaluationType(mentorshipDTO.getEvaluationType()));
+        }
+        if(mentorshipDTO.getAnswers()!=null) {
+            List<Answer> answerList = new ArrayList<>();
+            for (AnswerDTO answerDTO: mentorshipDTO.getAnswers()) {
+                answerList.add(new Answer(answerDTO));
+                this.setAnswers(answerList);
+            }
+        }
     }
 
     public Date getStartDate() {

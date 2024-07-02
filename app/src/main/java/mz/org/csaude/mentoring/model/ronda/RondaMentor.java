@@ -40,9 +40,12 @@ public class RondaMentor extends BaseModel {
         super(rondaMentorDTO);
         this.setStartDate(rondaMentorDTO.getStartDate());
         this.setEndDate(rondaMentorDTO.getEndDate());
-        this.setTutor(new Tutor(rondaMentorDTO.getMentor()));
-        this.setRonda(new Ronda());
-        this.getRonda().setUuid(rondaMentorDTO.getRonda().getUuid());
+        if(rondaMentorDTO.getMentor()!=null) {
+            this.setTutor(new Tutor(rondaMentorDTO.getMentor()));
+        }
+        if(rondaMentorDTO.getRonda()!=null) {
+            this.setRonda(new Ronda(rondaMentorDTO.getRonda()));
+        }
     }
 
     public Ronda getRonda() {

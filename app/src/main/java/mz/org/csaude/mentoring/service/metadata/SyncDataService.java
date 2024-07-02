@@ -26,6 +26,7 @@ import mz.org.csaude.mentoring.dto.resource.ResourceDTO;
 import mz.org.csaude.mentoring.dto.responseType.ResponseTypeDTO;
 import mz.org.csaude.mentoring.dto.ronda.RondaDTO;
 import mz.org.csaude.mentoring.dto.ronda.RondaTypeDTO;
+import mz.org.csaude.mentoring.dto.session.SessionDTO;
 import mz.org.csaude.mentoring.dto.session.SessionStatusDTO;
 import mz.org.csaude.mentoring.dto.setting.SettingDTO;
 import mz.org.csaude.mentoring.dto.tutor.TutorDTO;
@@ -138,10 +139,10 @@ public interface SyncDataService {
 
     @POST("/rondas/save")
     Call<List<RondaDTO>> postRondas(@Body List<RondaDTO> rondaDTOS);
-    @GET("/mentorships/getAllMentorshipSessionsOfMentor")
-    Call<List<MentorshipDTO>> getAllMentorshipSessionsOfMentor(@Query("mentorId") Long mentorId);
+    @GET("/sessions/getAllOfRondas")
+    Call<List<SessionDTO>> getAllOfRondas(@Query("rondasUuids") List<String> rondasUuids);
     @POST("/mentorships/save")
-    Call<List<MentorshipDTO>> postMenthorships(List<MentorshipDTO> mentorshipDTOS);
+    Call<List<MentorshipDTO>> postMenthorships(@Body List<MentorshipDTO> mentorshipDTOS);
 
     @GET("/sessionStatuses/getall")
     Call<List<SessionStatusDTO>> getSessionStatuses();

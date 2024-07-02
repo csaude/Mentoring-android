@@ -1,12 +1,15 @@
 package mz.org.csaude.mentoring.dto.mentorship;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import mz.org.csaude.mentoring.base.dto.BaseEntityDTO;
 import mz.org.csaude.mentoring.common.Syncable;
+import mz.org.csaude.mentoring.dto.answer.AnswerDTO;
 import mz.org.csaude.mentoring.dto.evaluationType.EvaluationTypeDTO;
 import mz.org.csaude.mentoring.dto.form.FormDTO;
 import mz.org.csaude.mentoring.dto.location.CabinetDTO;
@@ -14,6 +17,7 @@ import mz.org.csaude.mentoring.dto.location.HealthFacilityDTO;
 import mz.org.csaude.mentoring.dto.session.SessionDTO;
 import mz.org.csaude.mentoring.dto.tutor.TutorDTO;
 import mz.org.csaude.mentoring.dto.tutored.TutoredDTO;
+import mz.org.csaude.mentoring.model.answer.Answer;
 import mz.org.csaude.mentoring.model.mentorship.Mentorship;
 import mz.org.csaude.mentoring.util.SyncSatus;
 
@@ -21,11 +25,9 @@ import mz.org.csaude.mentoring.util.SyncSatus;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class MentorshipDTO extends BaseEntityDTO implements Syncable {
-    private String code;
     private Integer iterationNumber;
     private Date startDate;
     private Date endDate;
-    private HealthFacilityDTO healthFacility;
     private TutorDTO mentor;
     private TutoredDTO mentee;
     private SessionDTO session;
@@ -33,10 +35,16 @@ public class MentorshipDTO extends BaseEntityDTO implements Syncable {
     private CabinetDTO cabinet;
     private DoorDTO door;
     private EvaluationTypeDTO evaluationType;
+    private boolean demonstration;
+    private String demonstrationDetails;
+    private List<AnswerDTO> answers;
     public MentorshipDTO(Mentorship mentorship) {
         super(mentorship);
-        this.setCode(mentorship.getCode());
+        this.setStartDate(mentorship.getStartDate());
+        this.setEndDate(mentorship.getEndDate());
         this.setIterationNumber(mentorship.getIterationNumber());
+        this.setDemonstration(mentorship.isDemonstration());
+        this.setDemonstrationDetails(mentorship.getDemonstrationDetails());
         if(mentorship.getTutor()!=null) {
             this.setMentor(new TutorDTO(mentorship.getTutor()));
         }
@@ -58,14 +66,13 @@ public class MentorshipDTO extends BaseEntityDTO implements Syncable {
         if(mentorship.getEvaluationType()!=null) {
             this.setEvaluationType(new EvaluationTypeDTO(mentorship.getEvaluationType()));
         }
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
+        if(mentorship.getAnswers()!=null) {
+            List<AnswerDTO> answerDTOS = new ArrayList<>();
+            for (Answer answer: mentorship.getAnswers()) {
+                 answerDTOS.add(new AnswerDTO(answer));
+                 this.setAnswers(answerDTOS);
+            }
+        }
     }
 
     public Integer getIterationNumber() {
@@ -90,14 +97,6 @@ public class MentorshipDTO extends BaseEntityDTO implements Syncable {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
-    }
-
-    public HealthFacilityDTO getHealthFacility() {
-        return healthFacility;
-    }
-
-    public void setHealthFacility(HealthFacilityDTO healthFacility) {
-        this.healthFacility = healthFacility;
     }
 
     public TutorDTO getMentor() {
@@ -155,34 +154,16 @@ public class MentorshipDTO extends BaseEntityDTO implements Syncable {
         this.evaluationType = evaluationType;
     }
 
-    public Mentorship getMentorship() {
-        Mentorship mentorship = new Mentorship();
-        mentorship.setUuid(this.getUuid());
-        mentorship.setStartDate(this.getStartDate());
-        mentorship.setEndDate(this.getEndDate());
-        mentorship.setIterationNumber(this.getIterationNumber());
-        mentorship.setCreatedAt(this.getCreatedAt());
-        mentorship.setUpdatedAt(this.getUpdatedAt());
+    public List<AnswerDTO> getAnswers() {
+        return answers;
+    }
 
-        if(this.getMentor()!=null) {
-            mentorship.setTutor(this.getMentor().getTutor());
-        }
-        if(this.getMentee()!=null) {
-            mentorship.setTutored(this.getMentee().getMentee());
-        }
-        if(this.getSession()!=null) {
-            mentorship.setSession(this.getSession().getSession());
-        }
-        if(this.getForm()!=null) {
-            mentorship.setForm(this.getForm().getForm());
-        }
-        if(this.getCabinet()!=null) {
-            mentorship.setCabinet(this.getCabinet().getCabinet());
-        }
-        if(this.getDoor()!=null) {
-            mentorship.setDoor(this.getDoor().getDoor());
-        }
-        return mentorship;
+    public void setAnswers(List<AnswerDTO> answers) {
+        this.answers = answers;
+    }
+
+    public Mentorship getMentorship() {
+        return new Mentorship(this);
     }
 
     @Override
@@ -193,5 +174,21 @@ public class MentorshipDTO extends BaseEntityDTO implements Syncable {
     @Override
     public SyncSatus getSyncSatus() {
         return this.syncSatus;
+    }
+
+    public boolean isDemonstration() {
+        return demonstration;
+    }
+
+    public void setDemonstration(boolean demonstration) {
+        this.demonstration = demonstration;
+    }
+
+    public String getDemonstrationDetails() {
+        return demonstrationDetails;
+    }
+
+    public void setDemonstrationDetails(String demonstrationDetails) {
+        this.demonstrationDetails = demonstrationDetails;
     }
 }

@@ -6,6 +6,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import lombok.EqualsAndHashCode;
 import mz.org.csaude.mentoring.base.model.BaseModel;
 import mz.org.csaude.mentoring.dao.answer.AnswerDAOImpl;
+import mz.org.csaude.mentoring.dto.answer.AnswerDTO;
 import mz.org.csaude.mentoring.model.form.Form;
 import mz.org.csaude.mentoring.model.formQuestion.FormQuestion;
 import mz.org.csaude.mentoring.model.indicator.Indicator;
@@ -47,6 +48,19 @@ public class Answer extends BaseModel {
     }
 
     public Answer() {
+    }
+    public Answer(AnswerDTO answerDTO) {
+        super(answerDTO);
+        this.setValue(answerDTO.getValue());
+        if(answerDTO.getForm()!=null) {
+            this.setForm(answerDTO.getForm().getForm());
+        }
+        if(answerDTO.getQuestion()!=null) {
+            this.setQuestion(answerDTO.getQuestion().getQuestionObj());
+        }
+        if(answerDTO.getMentorship()!=null) {
+            this.setMentorship(new Mentorship(answerDTO.getMentorship()));
+        }
     }
 
     public Form getForm() {

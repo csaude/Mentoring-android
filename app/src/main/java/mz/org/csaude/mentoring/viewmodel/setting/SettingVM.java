@@ -17,6 +17,7 @@ import mz.org.csaude.mentoring.base.viewModel.BaseViewModel;
 import mz.org.csaude.mentoring.model.setting.Setting;
 import mz.org.csaude.mentoring.service.setting.SettingService;
 import mz.org.csaude.mentoring.service.setting.SettingServiceImpl;
+import mz.org.csaude.mentoring.util.Utilities;
 import mz.org.csaude.mentoring.workSchedule.executor.WorkerScheduleExecutor;
 
 public class SettingVM extends BaseViewModel {
@@ -25,24 +26,19 @@ public class SettingVM extends BaseViewModel {
 
     private SettingService settingService;
     private WorkerScheduleExecutor workerScheduleExecutor;
-
-    private SharedPreferences sharedPreferences;
-
     public int sessionSyncTime;
-
     public int metadataSyncTime;
 
     public SettingVM(@NonNull Application application) {
         super(application);
         this.settingService = new SettingServiceImpl(application);
         workerScheduleExecutor = WorkerScheduleExecutor.getInstance(getApplication());
-        this.sharedPreferences = ((MentoringApplication) application).getMentoringSharedPreferences();
+        this.sessionSyncTime = this.getApplication().getMentoringSharedPreferences().getInt(SESSION_SYNC_TIME, 2);
+        this.metadataSyncTime = this.getApplication().getMentoringSharedPreferences().getInt(METADATA_SYNC_TIME, 2);
     }
 
     @Override
     public void preInit() {
-        this.sessionSyncTime = this.sharedPreferences.getInt(SESSION_SYNC_TIME, 2);
-        this.metadataSyncTime = this.sharedPreferences.getInt(METADATA_SYNC_TIME, 2);
     }
     @Bindable
     public String getDescription() {
@@ -90,13 +86,33 @@ public class SettingVM extends BaseViewModel {
     }
 
     public void saveSessionSyncTime() {
-        SharedPreferences.Editor editor = this.sharedPreferences.edit();
+        SharedPreferences.Editor editor = this.getApplication().getMentoringSharedPreferences().edit();
         editor.putInt(SESSION_SYNC_TIME, this.sessionSyncTime);
         editor.commit();
     }
     public void saveMetadataSyncTime() {
-        SharedPreferences.Editor editor = this.sharedPreferences.edit();
+        SharedPreferences.Editor editor = this.getApplication().getMentoringSharedPreferences().edit();
         editor.putInt(METADATA_SYNC_TIME, this.metadataSyncTime);
         editor.commit();
+    }
+
+    @Bindable
+    public String getSessionSyncTime() {
+        return Utilities.parseIntToString(this.getApplication().getMentoringSharedPreferences().getInt(SESSION_SYNC_TIME, 2));
+    }
+
+    public void setSessionSyncTime(String sessionSyncTime) {
+        this.sessionSyncTime = Integer.parseInt(sessionSyncTime);
+        this.notifyPropertyChanged(BR.sessionSyncTime);
+    }
+
+    @Bindable
+    public String getMetadataSyncTime() {
+        return Utilities.parseIntToString(this.getApplication().getMentoringSharedPreferences().getInt(METADATA_SYNC_TIME, 2));
+    }
+
+    public void setMetadataSyncTime(String metadataSyncTime) {
+        this.metadataSyncTime = Integer.parseInt(metadataSyncTime);
+        this.notifyPropertyChanged(BR.metadataSyncTime);
     }
 }

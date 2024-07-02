@@ -88,7 +88,7 @@ public class Employee extends BaseModel implements Listble {
     }
 
     public Employee(EmployeeDTO employeeDTO) {
-        this.setUuid(employeeDTO.getUuid());
+        super(employeeDTO);
         this.setName(employeeDTO.getName());
         this.setSurname(employeeDTO.getSurname());
         this.setNuit(employeeDTO.getNuit());

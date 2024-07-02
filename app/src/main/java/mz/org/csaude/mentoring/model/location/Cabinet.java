@@ -27,7 +27,7 @@ public class Cabinet extends BaseModel {
         this.name = name;
     }
     public Cabinet(CabinetDTO dto) {
-        this.setUuid(dto.getUuid());
+        super(dto);
         this.setName(dto.getName());
     }
 

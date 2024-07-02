@@ -41,13 +41,6 @@ public class TutoredDTO extends BaseEntityDTO {
     }
 
     public Tutored getMentee() {
-        Tutored tutored = new Tutored();
-        tutored.setUuid(this.getUuid());
-        tutored.setCreatedAt(this.getCreatedAt());
-        tutored.setUpdatedAt(this.getUpdatedAt());
-        if(this.getEmployeeDTO()!=null) {
-            tutored.setEmployee(this.getEmployeeDTO().getEmployee());
-        }
-        return tutored;
+        return new Tutored(this);
     }
 }

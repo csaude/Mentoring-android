@@ -6,11 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import mz.org.csaude.mentoring.base.fragment.GenericFragment;
 import mz.org.csaude.mentoring.base.viewModel.BaseViewModel;
 import mz.org.csaude.mentoring.databinding.FragmentGalleryBinding;
+import mz.org.csaude.mentoring.viewmodel.setting.SettingVM;
 
 public class SettingsFragment extends GenericFragment {
 
@@ -25,6 +27,12 @@ public class SettingsFragment extends GenericFragment {
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        binding.setViewModel(getRelatedViewModel());
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
@@ -32,6 +40,11 @@ public class SettingsFragment extends GenericFragment {
 
     @Override
     public BaseViewModel initViewModel() {
-        return  new ViewModelProvider(this).get(SettingsVM.class);
+        return  new ViewModelProvider(this).get(SettingVM.class);
+    }
+
+    @Override
+    public SettingVM getRelatedViewModel() {
+        return (SettingVM) super.getRelatedViewModel();
     }
 }

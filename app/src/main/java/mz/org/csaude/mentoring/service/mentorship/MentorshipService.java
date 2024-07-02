@@ -16,7 +16,7 @@ public interface MentorshipService extends BaseService<Mentorship> {
     void saveOrUpdateMentorships(List<MentorshipDTO> mentorshipDTOS) throws SQLException;
     Mentorship saveOrUpdateMentorship(MentorshipDTO mentorshipDTO) throws SQLException;
 
-    List<Mentorship> getAllNotSynced() throws SQLException;
+    List<Mentorship> getAllNotSynced(Application application) throws SQLException;
 
     List<Mentorship> getAllOfRonda(Ronda ronda) throws SQLException;
 

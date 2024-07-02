@@ -28,7 +28,7 @@ public class ProfessionalCategory extends BaseModel implements Listble{
 
 
     public ProfessionalCategory(ProfessionalCategoryDTO professionalCategoryDTO) {
-        this.setUuid(professionalCategoryDTO.getUuid());
+        super(professionalCategoryDTO);
         this.setDescription(professionalCategoryDTO.getDescription());
         this.setCode(professionalCategoryDTO.getCode());
     }

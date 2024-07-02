@@ -47,7 +47,7 @@ public class EmployeeDTO extends BaseEntityDTO {
             this.setLocationDTOSet(setLocations(employee.getLocations()));
         }
         if(employee.getProfessionalCategory() != null) this.setProfessionalCategoryDTO(new ProfessionalCategoryDTO(employee.getProfessionalCategory()));
-       if(employee.getPartner() != null) this.setPartnerDTO(new PartnerDTO((Partner) employee.getPartner()));
+       if(employee.getPartner() != null) this.setPartnerDTO(new PartnerDTO(employee.getPartner()));
     }
 
     private List<LocationDTO> setLocations(List<Location> locationSet) {
@@ -131,30 +131,6 @@ public class EmployeeDTO extends BaseEntityDTO {
     }
 
     public Employee getEmployee() {
-        Employee employee = new Employee();
-        employee.setUuid(this.getUuid());
-        employee.setName(this.getName());
-        employee.setSurname(this.getSurname());
-        employee.setNuit(this.getNuit());
-        employee.setTrainingYear(this.getTrainingYear());
-        employee.setPhoneNumber(this.getPhoneNumber());
-        employee.setEmail(this.getEmail());
-        employee.setCreatedAt(this.getCreatedAt());
-        employee.setUpdatedAt(this.getUpdatedAt());
-        if(this.getProfessionalCategoryDTO()!=null) {
-            employee.setProfessionalCategory(this.getProfessionalCategoryDTO().getProfessionalCategory());
-        }
-        if(this.getPartnerDTO()!=null) {
-            employee.setPartner(this.partnerDTO.getPartner());
-        }
-        if(this.getLocationDTOSet()!=null && !this.getLocationDTOSet().isEmpty()) {
-            List<Location> locations = new ArrayList<>();
-            for (LocationDTO locationDTO: this.getLocationDTOSet()) {
-                Location location = locationDTO.getLocation();
-                locations.add(location);
-            }
-            employee.setLocations(locations);
-        }
-        return employee;
+        return new Employee(this);
     }
 }

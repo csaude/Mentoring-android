@@ -19,6 +19,8 @@ import mz.org.csaude.mentoring.dto.ronda.RondaDTO;
 import mz.org.csaude.mentoring.dto.tutored.TutoredDTO;
 import mz.org.csaude.mentoring.listner.rest.RestResponseListener;
 import mz.org.csaude.mentoring.model.ronda.Ronda;
+import mz.org.csaude.mentoring.model.tutor.Tutor;
+import mz.org.csaude.mentoring.model.user.User;
 import mz.org.csaude.mentoring.service.ronda.RondaService;
 import mz.org.csaude.mentoring.service.ronda.RondaServiceImpl;
 import mz.org.csaude.mentoring.util.SyncSatus;
@@ -34,7 +36,17 @@ public class RondaRestService extends BaseRestService {
     }
 
     public void restGetRondas(RestResponseListener<Ronda> listener){
-        Call<List<RondaDTO>> rondasCall = syncDataService.getAllOfMentor(getApplication().getCurrMentor().getUuid());
+        Tutor mentor = getApplication().getCurrMentor();
+        if(mentor==null) {
+            try {
+                User user =  getApplication().getUserService().getCurrentUser();
+                if(user==null) return;
+                mentor = getApplication().getTutorService().getByEmployee(user.getEmployee());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        Call<List<RondaDTO>> rondasCall = syncDataService.getAllOfMentor(mentor.getUuid());
 
         rondasCall.enqueue(new Callback<List<RondaDTO>>() {
             @Override
@@ -46,7 +58,7 @@ public class RondaRestService extends BaseRestService {
                         List<Ronda> rondas = new ArrayList<>();
 
                         for (RondaDTO rondaDTO: data) {
-                            Ronda ronda = rondaDTO.getRonda();
+                            Ronda ronda = new Ronda(rondaDTO);
                             ronda.setSyncStatus(SyncSatus.SENT);
                             rondaDTO.getHealthFacility().getHealthFacilityObj().setSyncStatus(SyncSatus.SENT);
                             rondas.add(ronda);

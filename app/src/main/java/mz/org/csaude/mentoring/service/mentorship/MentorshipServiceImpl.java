@@ -146,8 +146,8 @@ public class MentorshipServiceImpl extends BaseServiceImpl<Mentorship> implement
     }
 
     @Override
-    public List<Mentorship> getAllNotSynced() throws SQLException {
-        return this.mentorshipDAO.getAllNotSynced();
+    public List<Mentorship> getAllNotSynced(Application application) throws SQLException {
+        return this.mentorshipDAO.getAllNotSynced(application);
     }
 
     @Override

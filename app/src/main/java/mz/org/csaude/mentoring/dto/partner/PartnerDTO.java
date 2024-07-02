@@ -31,12 +31,6 @@ public class PartnerDTO extends BaseEntityDTO {
         this.description = description;
     }
     public Partner getPartner() {
-        Partner partner = new Partner();
-        partner.setUuid(this.getUuid());
-        partner.setDescription(this.getDescription());
-        partner.setName(this.getName());
-        partner.setCreatedAt(this.getCreatedAt());
-        partner.setUpdatedAt(this.getUpdatedAt());
-        return partner;
+        return new Partner(this);
     }
 }

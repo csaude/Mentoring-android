@@ -13,7 +13,7 @@ import mz.org.csaude.mentoring.model.session.Session;
 
 public interface MentorshipDAO extends MentoringBaseDao<Mentorship, Integer> {
      List<Mentorship> getMentorshipByTutor(Application application, String uuidTutor)throws SQLException;
-     List<Mentorship> getAllNotSynced() throws SQLException;
+     List<Mentorship> getAllNotSynced(Application application) throws SQLException;
 
     List<Mentorship> getAllOfRonda(Ronda ronda, MentoringApplication application);
 

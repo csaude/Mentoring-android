@@ -28,13 +28,6 @@ public class TutorDTO extends BaseEntityDTO {
     }
 
     public Tutor getTutor() {
-        Tutor tutor = new Tutor();
-        tutor.setUuid(this.getUuid());
-        tutor.setCreatedAt(this.getCreatedAt());
-        tutor.setUpdatedAt(this.getUpdatedAt());
-        if(this.getEmployeeDTO()!=null) {
-            tutor.setEmployee(this.getEmployeeDTO().getEmployee());
-        }
-        return tutor;
+        return new Tutor(this);
     }
 }

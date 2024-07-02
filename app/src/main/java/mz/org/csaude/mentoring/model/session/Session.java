@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import mz.org.csaude.mentoring.base.model.BaseModel;
 import mz.org.csaude.mentoring.dao.session.SessionDAOImpl;
+import mz.org.csaude.mentoring.dto.session.SessionDTO;
 import mz.org.csaude.mentoring.model.form.Form;
 import mz.org.csaude.mentoring.model.mentorship.Mentorship;
 import mz.org.csaude.mentoring.model.ronda.Ronda;
@@ -77,6 +78,28 @@ public class Session extends BaseModel {
     private String obsevations;
 
     public Session() {
+    }
+
+    public Session(SessionDTO sessionDTO) {
+        super(sessionDTO);
+        this.setStartDate(sessionDTO.getStartDate());
+        this.setEndDate(sessionDTO.getEndDate());
+        this.setPerformedDate(sessionDTO.getPerformedDate());
+        this.setPointsToImprove(sessionDTO.getPointsToImprove());
+        this.setStrongPoints(sessionDTO.getStrongPoints());
+        this.setObsevations(sessionDTO.getObsevations());
+        if(sessionDTO.getSessionStatus()!=null) {
+            this.setStatus(new SessionStatus(sessionDTO.getSessionStatus()));
+        }
+        if(sessionDTO.getMentee()!=null) {
+            this.setTutored(new Tutored(sessionDTO.getMentee()));
+        }
+        if(sessionDTO.getRonda()!=null) {
+            this.setRonda(new Ronda(sessionDTO.getRonda()));
+        }
+        if(sessionDTO.getForm()!=null) {
+            this.setForm(new Form(sessionDTO.getForm()));
+        }
     }
 
     public Session(Date startDate, Date endDate, Date performedDate, SessionStatus status) {

@@ -50,8 +50,7 @@ public class RondaMentee extends BaseModel {
             this.setTutored(new Tutored(rondaMenteeDTO.getMentee()));
         }
         if(rondaMenteeDTO.getRonda()!=null) {
-            this.setRonda(new Ronda());
-            this.getRonda().setUuid(rondaMenteeDTO.getRonda().getUuid());
+            this.setRonda(new Ronda(rondaMenteeDTO.getRonda()));
         }
     }
 

@@ -15,7 +15,7 @@ public class ProfessionalCategoryDTO extends BaseEntityDTO {
     private String description;
 
     public ProfessionalCategoryDTO(ProfessionalCategory professionalCategory){
-        this.setUuid(professionalCategory.getUuid());
+        super(professionalCategory);
         this.setCode(professionalCategory.getCode());
         this.setDescription(professionalCategory.getDescription());
     }
@@ -36,13 +36,7 @@ public class ProfessionalCategoryDTO extends BaseEntityDTO {
         this.description = description;
     }
     public ProfessionalCategory getProfessionalCategory() {
-        ProfessionalCategory professionalCategory = new ProfessionalCategory();
-        professionalCategory.setUuid(this.getUuid());
-        professionalCategory.setCode(this.getCode());
-        professionalCategory.setDescription(this.getDescription());
-        professionalCategory.setCreatedAt(this.getCreatedAt());
-        professionalCategory.setUpdatedAt(this.getUpdatedAt());
-        return professionalCategory;
+        return new ProfessionalCategory(this);
     }
 
 }

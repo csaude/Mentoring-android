@@ -1,5 +1,6 @@
 package mz.org.csaude.mentoring.model.session;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import mz.org.csaude.mentoring.base.model.BaseModel;
 import mz.org.csaude.mentoring.dao.session.SessionStatusDAOImpl;
+import mz.org.csaude.mentoring.dto.session.SessionStatusDTO;
 
 @Data
 @DatabaseTable(tableName = SessionStatus.TABLE_NAME, daoClass = SessionStatusDAOImpl.class)
@@ -31,6 +33,12 @@ public class SessionStatus extends BaseModel {
     public SessionStatus() {
     }
 
+    public SessionStatus(SessionStatusDTO sessionStatusDTO) {
+        super(sessionStatusDTO);
+        this.setDescription(sessionStatusDTO.getDescription());
+        this.setCode(sessionStatusDTO.getCode());
+    }
+
     public SessionStatus(String description, String code) {
         this.description = description;
         this.code = code;
@@ -52,6 +60,7 @@ public class SessionStatus extends BaseModel {
         this.code = code;
     }
 
+    @JsonIgnore
     public boolean isCompleted() {
         return this.code.equals(COMPLETE);
     }

@@ -12,4 +12,6 @@ public interface UserService extends BaseService<User> {
     User getByUserNameAndPassword(User currentUser);
 
     void updatePassword(User relatedRecord) throws SQLException;
+
+    User getCurrentUser() throws SQLException;
 }

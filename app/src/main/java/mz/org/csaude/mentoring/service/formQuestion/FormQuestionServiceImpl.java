@@ -6,16 +6,21 @@ import java.sql.SQLException;
 import java.util.List;
 
 import mz.org.csaude.mentoring.base.service.BaseServiceImpl;
+import mz.org.csaude.mentoring.dao.evaluation.EvaluationTypeDAO;
+import mz.org.csaude.mentoring.dao.form.FormDAO;
 import mz.org.csaude.mentoring.dao.formQuestion.FormQuestionDAO;
 import mz.org.csaude.mentoring.dao.question.QuestionDAO;
 import mz.org.csaude.mentoring.dao.question.QuestionsCategoryDAO;
+import mz.org.csaude.mentoring.dao.responseType.ResponseTypeDAO;
 import mz.org.csaude.mentoring.dto.form.FormQuestionDTO;
 import mz.org.csaude.mentoring.dto.question.QuestionCategoryDTO;
 import mz.org.csaude.mentoring.dto.question.QuestionDTO;
+import mz.org.csaude.mentoring.model.evaluationType.EvaluationType;
 import mz.org.csaude.mentoring.model.form.Form;
 import mz.org.csaude.mentoring.model.formQuestion.FormQuestion;
 import mz.org.csaude.mentoring.model.question.Question;
 import mz.org.csaude.mentoring.model.question.QuestionsCategory;
+import mz.org.csaude.mentoring.model.responseType.ResponseType;
 import mz.org.csaude.mentoring.model.user.User;
 
 public class FormQuestionServiceImpl extends BaseServiceImpl<FormQuestion> implements FormQuestionService {
@@ -23,6 +28,9 @@ public class FormQuestionServiceImpl extends BaseServiceImpl<FormQuestion> imple
     FormQuestionDAO formQuestionDAO;
     QuestionDAO questionDAO;
     QuestionsCategoryDAO questionsCategoryDAO;
+    FormDAO formDAO;
+    ResponseTypeDAO responseTypeDAO;
+    EvaluationTypeDAO evaluationTypeDAO;
     public FormQuestionServiceImpl(Application application) {
         super(application);
     }
@@ -33,6 +41,9 @@ public class FormQuestionServiceImpl extends BaseServiceImpl<FormQuestion> imple
         this.formQuestionDAO = getDataBaseHelper().getFormQuestionDAO();
         this.questionDAO = getDataBaseHelper().getQuestionDAO();
         this.questionsCategoryDAO = getDataBaseHelper().getQuestionsCategoryDAO();
+        this.formDAO = getDataBaseHelper().getFormDAO();
+        this.responseTypeDAO = getDataBaseHelper().getResponseTypeDAO();
+        this.evaluationTypeDAO = getDataBaseHelper().getEvaluationTypeDAO();
     }
     @Override
     public FormQuestion save(FormQuestion record) throws SQLException {
@@ -97,7 +108,6 @@ public class FormQuestionServiceImpl extends BaseServiceImpl<FormQuestion> imple
     @Override
     public void saveOrUpdate(List<FormQuestion> formQuestions) throws SQLException {
         for (FormQuestion fQuestion : formQuestions) {
-
             Question q = this.questionDAO.getByUuid(fQuestion.getQuestion().getUuid());
             if(q!=null) {
                 fQuestion.getQuestion().setId(q.getId());
@@ -106,8 +116,24 @@ public class FormQuestionServiceImpl extends BaseServiceImpl<FormQuestion> imple
             if (qc != null) {
                 fQuestion.getQuestion().getQuestionsCategory().setId(qc.getId());
             }
+            Form f = this.formDAO.getByUuid(fQuestion.getForm().getUuid());
+            if(f!=null) {
+                fQuestion.getForm().setId(f.getId());
+            }
+            EvaluationType ev = this.evaluationTypeDAO.getByUuid(fQuestion.getEvaluationType().getUuid());
+            if(ev!=null) {
+                fQuestion.getEvaluationType().setId(ev.getId());
+            }
+            ResponseType rt = this.responseTypeDAO.getByUuid(fQuestion.getResponseType().getUuid());
+            if(rt!=null) {
+                fQuestion.getResponseType().setId(rt.getId());
+            }
             getApplication().getQuestionsCategoryService().saveOrUpdateQuestionCategory(fQuestion.getQuestion().getQuestionsCategory());
             this.questionDAO.createOrUpdate(fQuestion.getQuestion());
+            FormQuestion fq = this.formQuestionDAO.getByUuid(fQuestion.getUuid());
+            if(fq!=null) {
+                fQuestion.setId(fq.getId());
+            }
             this.formQuestionDAO.createOrUpdate(fQuestion);
         }
     }

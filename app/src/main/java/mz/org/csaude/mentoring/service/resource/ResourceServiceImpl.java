@@ -30,7 +30,11 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
 
     @Override
     public void savedOrUpdateResource(Resource resource) throws SQLException {
-          this.resourceDAO.create(resource);
+          Resource r = this.resourceDAO.getByUuid(resource.getUuid());
+          if(r!=null) {
+              resource.setId(r.getId());
+          }
+          this.resourceDAO.createOrUpdate(resource);
     }
 
     @Override

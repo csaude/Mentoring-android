@@ -487,6 +487,7 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
                     formQuestion.getAnswer().setMentorship(this.mentorship);
                     formQuestion.getAnswer().setForm(this.mentorship.getForm());
                     formQuestion.getAnswer().setValue("");
+                    //formQuestion.getAnswer().setFormQuestion(formQuestion);
                     loadQuestionMap(formQuestion,formQuestion.getQuestion().getQuestionsCategory());
                 }
                 setCurrQuestionCategory(this.questionMap.firstKey());

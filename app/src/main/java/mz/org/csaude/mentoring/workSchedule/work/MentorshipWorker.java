@@ -25,8 +25,6 @@ public class MentorshipWorker extends BaseWorker<Mentorship> {
     public void doOnlineSearch(long offset, long limit) throws SQLException {
         if (Utilities.stringHasValue(requestType) && requestType.equalsIgnoreCase(String.valueOf(Http.POST))) {
             getApplication().getMentorshipRestService().restPostMentorships(this);
-        } else {
-            getApplication().getMentorshipRestService().restGetMentorships(this);
         }
     }
 

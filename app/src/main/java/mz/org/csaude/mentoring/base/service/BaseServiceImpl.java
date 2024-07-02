@@ -43,7 +43,7 @@ public abstract class BaseServiceImpl<T extends BaseModel> implements BaseServic
         return app;
     }
 
-    public User getCurrentUser() {
+    public User getCurrentUser() throws SQLException {
         return ((MentoringApplication) this.application).getAuthenticatedUser();
     }
 

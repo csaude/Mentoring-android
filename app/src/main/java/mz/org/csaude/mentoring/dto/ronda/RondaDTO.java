@@ -115,38 +115,6 @@ public class RondaDTO extends BaseEntityDTO {
         this.rondaMentors = rondaMentors;
     }
     public Ronda getRonda() {
-        Ronda ronda = new Ronda();
-        ronda.setUuid(this.getUuid());
-        ronda.setDescription(this.getDescription());
-        ronda.setStartDate(this.getStartDate());
-        ronda.setEndDate(this.getEndDate());
-        ronda.setCreatedAt(this.getCreatedAt());
-        ronda.setUpdatedAt(this.getUpdatedAt());
-        if(this.getLifeCycleStatus()!=null) {
-            ronda.setLifeCycleStatus(this.getLifeCycleStatus());
-        }
-        if(this.getRondaType()!=null) {
-            ronda.setRondaType(this.getRondaType().getRondaType());
-        }
-        if(this.getHealthFacility()!=null) {
-            ronda.setHealthFacility(this.getHealthFacility().getHealthFacilityObj());
-        }
-        if(this.getRondaMentors()!=null && !this.getRondaMentors().isEmpty()) {
-            List<RondaMentor> rondaMentors = new ArrayList<>();
-            for (RondaMentorDTO rondaMentorDTO: this.getRondaMentors()) {
-                RondaMentor rondaMentor = rondaMentorDTO.getRondaMentor();
-                rondaMentors.add(rondaMentor);
-            }
-            ronda.setRondaMentors(rondaMentors);
-        }
-        if(this.getRondaMentees()!=null && !this.getRondaMentees().isEmpty()) {
-            List<RondaMentee> rondaMentees = new ArrayList<>();
-            for (RondaMenteeDTO rondaMenteeDTO: this.getRondaMentees()) {
-                RondaMentee rondaMentee = rondaMenteeDTO.getRondaMentee();
-                rondaMentees.add(rondaMentee);
-            }
-            ronda.setRondaMentees(rondaMentees);
-        }
-        return ronda;
+        return new Ronda(this);
     }
 }

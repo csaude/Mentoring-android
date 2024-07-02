@@ -15,11 +15,15 @@ import java.util.List;
 import mz.org.csaude.mentoring.base.application.MentoringApplication;
 import mz.org.csaude.mentoring.base.dao.MentoringBaseDaoImpl;
 import mz.org.csaude.mentoring.base.databasehelper.MentoringDataBaseHelper;
+import mz.org.csaude.mentoring.model.evaluationType.EvaluationType;
 import mz.org.csaude.mentoring.model.form.Form;
+import mz.org.csaude.mentoring.model.location.Cabinet;
+import mz.org.csaude.mentoring.model.mentorship.Door;
 import mz.org.csaude.mentoring.model.mentorship.Mentorship;
 import mz.org.csaude.mentoring.model.ronda.Ronda;
 import mz.org.csaude.mentoring.model.session.Session;
 import mz.org.csaude.mentoring.model.tutor.Tutor;
+import mz.org.csaude.mentoring.model.tutored.Tutored;
 import mz.org.csaude.mentoring.util.SyncSatus;
 
 public class MentorshipDAOImpl extends MentoringBaseDaoImpl<Mentorship, Integer> implements MentorshipDAO{
@@ -50,7 +54,7 @@ public class MentorshipDAOImpl extends MentoringBaseDaoImpl<Mentorship, Integer>
     }
 
     @Override
-    public List<Mentorship> getAllNotSynced() throws SQLException {
+    public List<Mentorship> getAllNotSynced(Application application) throws SQLException {
         return queryForEq(Form.COLUMN_SYNC_STATUS, SyncSatus.PENDING);
     }
 

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import mz.org.csaude.mentoring.base.model.BaseModel;
 import mz.org.csaude.mentoring.dao.mentorship.DoorDAOImpl;
+import mz.org.csaude.mentoring.dto.mentorship.DoorDTO;
 
 @Data
 @DatabaseTable(tableName = Door.TABLE_NAME, daoClass = DoorDAOImpl.class)
@@ -25,6 +26,12 @@ public class Door extends BaseModel {
     @DatabaseField(columnName = COLUMN_CODE, unique = true)
     private String code;
     public Door() {
+    }
+
+    public Door(DoorDTO doorDTO) {
+        super(doorDTO);
+        this.setDescription(doorDTO.getDescription());
+        this.setCode(doorDTO.getCode());
     }
 
     public Door(String description, String code) {

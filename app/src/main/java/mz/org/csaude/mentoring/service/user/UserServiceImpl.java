@@ -99,4 +99,9 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
            this.update(user);
         }
     }
+
+    @Override
+    public User getCurrentUser() throws SQLException {
+        return userDao.queryForAll().get(0);
+    }
 }

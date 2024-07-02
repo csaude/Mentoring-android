@@ -19,7 +19,9 @@ import mz.org.csaude.mentoring.model.form.Form;
 import mz.org.csaude.mentoring.model.formQuestion.FormQuestion;
 import mz.org.csaude.mentoring.model.location.Location;
 import mz.org.csaude.mentoring.model.partner.Partner;
+import mz.org.csaude.mentoring.model.tutor.Tutor;
 import mz.org.csaude.mentoring.model.tutored.Tutored;
+import mz.org.csaude.mentoring.model.user.User;
 import mz.org.csaude.mentoring.service.evaluationType.EvaluationTypeService;
 import mz.org.csaude.mentoring.service.evaluationType.EvaluationTypeServiceImpl;
 import mz.org.csaude.mentoring.service.form.FormService;
@@ -40,7 +42,17 @@ public class FormRestService extends BaseRestService {
     }
 
     public void restGetForm(RestResponseListener<Form> listener){
-        Call<List<FormDTO>> formCall = syncDataService.getFormsByMentor(getApplication().getCurrMentor().getUuid());
+        Tutor mentor = getApplication().getCurrMentor();
+        if(mentor==null) {
+            try {
+                User user =  getApplication().getUserService().getCurrentUser();
+                if(user==null) return;
+                mentor = getApplication().getTutorService().getByEmployee(user.getEmployee());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        Call<List<FormDTO>> formCall = syncDataService.getFormsByMentor(mentor.getUuid());
         FormService formService = getApplication().getFormService();
 
         formCall.enqueue(new Callback<List<FormDTO>>() {

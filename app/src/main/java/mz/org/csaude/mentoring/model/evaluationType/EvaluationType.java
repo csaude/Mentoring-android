@@ -1,5 +1,6 @@
 package mz.org.csaude.mentoring.model.evaluationType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -59,9 +60,11 @@ public class EvaluationType extends BaseModel {
         this.code = code;
     }
 
+    @JsonIgnore
     public boolean isPatientEvaluation() {
         return this.code.equals(EvaluationType.CONSULTA);
     }
+    @JsonIgnore
     public boolean isFichaEvaluation() {
         return this.code.equals(EvaluationType.FICHA);
     }
