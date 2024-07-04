@@ -22,9 +22,9 @@ public class AnswerDTO extends BaseEntityDTO {
     public AnswerDTO(Answer answer) {
         super(answer);
         this.setValue(answer.getValue());
-        if(answer.getMentorship()!=null) {
+        /*if(answer.getMentorship()!=null) {
             this.setMentorship(new MentorshipDTO(answer.getMentorship()));
-        }
+        }*/
         if(answer.getForm()!=null) {
             this.setForm(new FormDTO(answer.getForm()));
         }

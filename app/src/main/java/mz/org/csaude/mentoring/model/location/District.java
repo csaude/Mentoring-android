@@ -35,7 +35,7 @@ public class District extends BaseModel {
     }
 
     public District(DistrictDTO districtDTO) {
-        this.setUuid(districtDTO.getUuid());
+        super(districtDTO);
         this.setDescription(districtDTO.getDescription());
         if(districtDTO.getProvinceDTO() != null) this.setProvince(new Province(districtDTO.getProvinceDTO()));
     }

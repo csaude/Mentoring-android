@@ -37,6 +37,7 @@ import mz.org.csaude.mentoring.workSchedule.work.ResponseTypeWorker;
 import mz.org.csaude.mentoring.workSchedule.work.RondaTypeWorker;
 import mz.org.csaude.mentoring.workSchedule.work.RondaWorker;
 import mz.org.csaude.mentoring.workSchedule.work.SessionStatusWorker;
+import mz.org.csaude.mentoring.workSchedule.work.SessionWorker;
 import mz.org.csaude.mentoring.workSchedule.work.TimeOfDayWorker;
 import mz.org.csaude.mentoring.workSchedule.work.TutorWorker;
 import mz.org.csaude.mentoring.workSchedule.work.TutoredWorker;
@@ -140,11 +141,8 @@ public class WorkerScheduleExecutor {
         Data inputData = new Data.Builder().putString("requestType", String.valueOf(Http.POST)).build();
         OneTimeWorkRequest sessionPostTimeWorkRequest = new OneTimeWorkRequest.Builder(MentorshipWorker.class)
                 .addTag("ONE_TIME_MENTORSHIPS_ID" + ONE_TIME_REQUEST_JOB_ID).setInputData(inputData).build();
-        OneTimeWorkRequest sessionGetTimeWorkRequest = new OneTimeWorkRequest.Builder(SessionWorker.class)
-                .addTag("ONE_TIME_SESSIONS_ID" + ONE_TIME_REQUEST_JOB_ID).build();
         workManager
                 .beginWith(sessionPostTimeWorkRequest)
-                .then(sessionGetTimeWorkRequest)
                 .enqueue();
         return sessionPostTimeWorkRequest;
     }
@@ -193,10 +191,15 @@ public class WorkerScheduleExecutor {
                 .setInputData(inputData)
                 .setInitialDelay(2, TimeUnit.HOURS).build();
 
-        PeriodicWorkRequest sessionPeriodicWorkRequest = new PeriodicWorkRequest.Builder(MentorshipWorker.class, this.getSessionSyncInterval(), TimeUnit.HOURS)
+        PeriodicWorkRequest mentorshipPeriodicWorkRequest = new PeriodicWorkRequest.Builder(MentorshipWorker.class, this.getSessionSyncInterval(), TimeUnit.HOURS)
                 .addTag("PERIODIC_MENTORSHIPS_ID" + ONE_TIME_REQUEST_JOB_ID)
                 .setConstraints(constraints)
                 .setInputData(inputData)
+                .setInitialDelay(2, TimeUnit.HOURS).build();
+
+        PeriodicWorkRequest sessionsPeriodicTimeWorkRequest = new PeriodicWorkRequest.Builder(SessionWorker.class, this.getSessionSyncInterval(), TimeUnit.HOURS)
+                .addTag("ONE_TIME_SESSIONS_ID" + ONE_TIME_REQUEST_JOB_ID)
+                .setConstraints(constraints)
                 .setInitialDelay(2, TimeUnit.HOURS).build();
 
         //workManager.enqueue(hfPeriodicTimeWorkRequest);
@@ -204,7 +207,8 @@ public class WorkerScheduleExecutor {
         workManager.enqueue(mentorFormsPeriodicTimeWorkRequest);
         workManager.enqueue(mentorFormsQuestionsPeriodicTimeWorkRequest);
         workManager.enqueue(mentorRondasPeriodicTimeWorkRequest);
-        workManager.enqueue(sessionPeriodicWorkRequest);
+        workManager.enqueue(mentorshipPeriodicWorkRequest);
+        workManager.enqueue(sessionsPeriodicTimeWorkRequest);
     }
 
     private int getMetadataSyncInterval(){

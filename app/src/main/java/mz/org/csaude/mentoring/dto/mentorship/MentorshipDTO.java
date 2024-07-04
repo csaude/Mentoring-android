@@ -70,8 +70,8 @@ public class MentorshipDTO extends BaseEntityDTO implements Syncable {
             List<AnswerDTO> answerDTOS = new ArrayList<>();
             for (Answer answer: mentorship.getAnswers()) {
                  answerDTOS.add(new AnswerDTO(answer));
-                 this.setAnswers(answerDTOS);
             }
+            this.setAnswers(answerDTOS);
         }
     }
 

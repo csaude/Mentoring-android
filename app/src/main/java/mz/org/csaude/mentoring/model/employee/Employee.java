@@ -2,6 +2,8 @@ package mz.org.csaude.mentoring.model.employee;
 
 import androidx.core.util.PatternsCompat;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -25,6 +27,7 @@ import mz.org.csaude.mentoring.util.Utilities;
 
 
 @DatabaseTable(tableName = Employee.TABLE_NAME, daoClass = EmployeeDAOImpl.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Employee extends BaseModel implements Listble {
 
     public static final String TABLE_NAME = "employee";
@@ -95,7 +98,7 @@ public class Employee extends BaseModel implements Listble {
         this.setTrainingYear(employeeDTO.getTrainingYear());
         this.setEmail(employeeDTO.getEmail());
         this.setPhoneNumber(employeeDTO.getPhoneNumber());
-        this.setLocations(retriveLocations(employeeDTO.getLocationDTOSet()));
+        if(employeeDTO.getLocationDTOSet()!=null) this.setLocations(retriveLocations(employeeDTO.getLocationDTOSet()));
         if(employeeDTO.getProfessionalCategoryDTO() != null) this.setProfessionalCategory(new ProfessionalCategory(employeeDTO.getProfessionalCategoryDTO()));
         if(employeeDTO.getPartnerDTO() != null) this.setPartner(new Partner(employeeDTO.getPartnerDTO()));
     }

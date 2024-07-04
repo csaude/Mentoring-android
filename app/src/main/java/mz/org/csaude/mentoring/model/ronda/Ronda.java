@@ -156,6 +156,7 @@ public class Ronda extends BaseModel implements Listble {
         this.sessions = sessions;
     }
 
+    @JsonIgnore
     public boolean isRondaZero() {
         return this.rondaType.getCode().equals("SESSAO_ZERO");
     }
