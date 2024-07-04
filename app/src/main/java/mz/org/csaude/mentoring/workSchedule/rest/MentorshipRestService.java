@@ -13,6 +13,7 @@ import mz.org.csaude.mentoring.base.service.BaseRestService;
 import mz.org.csaude.mentoring.dto.mentorship.MentorshipDTO;
 import mz.org.csaude.mentoring.listner.rest.RestResponseListener;
 import mz.org.csaude.mentoring.model.answer.Answer;
+import mz.org.csaude.mentoring.model.location.Location;
 import mz.org.csaude.mentoring.model.mentorship.Mentorship;
 import mz.org.csaude.mentoring.service.mentorship.MentorshipService;
 import mz.org.csaude.mentoring.service.mentorship.MentorshipServiceImpl;
@@ -37,6 +38,10 @@ public class MentorshipRestService extends BaseRestService {
                 for (Answer answer: answers) {
                     answer.setMentorship(mentorship);
                 }
+                /*List<Location> mentorLocations = getApplication().getLocationService().getAllOfEmploee(mentorship.getTutor().getEmployee());
+                mentorship.getTutor().getEmployee().setLocations(mentorLocations);
+                List<Location> menteeLocations = getApplication().getLocationService().getAllOfEmploee(mentorship.getTutored().getEmployee());
+                mentorship.getTutored().getEmployee().setLocations(menteeLocations);*/
                 mentorship.setAnswers(answers);
             }
             List<MentorshipDTO> mentorshipDTOList = Utilities.parse(mentorships, MentorshipDTO.class);

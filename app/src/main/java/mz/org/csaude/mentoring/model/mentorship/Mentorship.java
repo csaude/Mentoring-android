@@ -1,5 +1,7 @@
 package mz.org.csaude.mentoring.model.mentorship;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -93,6 +95,7 @@ public class Mentorship extends BaseModel {
 
     @DatabaseField(columnName = COLUMN_DEMOSTRATION_DETAILS)
     private String demonstrationDetails;
+    @JsonBackReference
     private List<Answer> answers;
 
     public Mentorship() {
@@ -261,10 +264,12 @@ public class Mentorship extends BaseModel {
         return this.endDate != null;
     }
 
+    @JsonIgnore
     public boolean isPatientEvaluation() {
         return this.evaluationType.isPatientEvaluation();
     }
 
+    @JsonIgnore
     public boolean isFileEvaluation() {
         return this.evaluationType.isFichaEvaluation();
     }

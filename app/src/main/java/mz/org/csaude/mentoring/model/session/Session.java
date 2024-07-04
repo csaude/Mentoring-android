@@ -1,5 +1,6 @@
 package mz.org.csaude.mentoring.model.session;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -180,6 +181,7 @@ public class Session extends BaseModel {
         this.form = form;
     }
 
+    @JsonIgnore
     public boolean isCompleted() {
         return this.status.isCompleted();
     }

@@ -11,7 +11,6 @@ import mz.org.csaude.mentoring.model.location.Province;
 @EqualsAndHashCode(callSuper = true)
 public class ProvinceDTO extends BaseEntityDTO {
 
-    private String uuid;
     private String designation;
     public ProvinceDTO(Province province) {
         super(province);
@@ -25,11 +24,6 @@ public class ProvinceDTO extends BaseEntityDTO {
     }
 
     public Province getProvince() {
-        Province province = new Province();
-        province.setUuid(this.getUuid());
-        province.setDescription(this.getDesignation());
-        province.setCreatedAt(this.getCreatedAt());
-        province.setUpdatedAt(this.getUpdatedAt());
-        return province;
+        return new Province(this);
     }
 }

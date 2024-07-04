@@ -40,8 +40,8 @@ public class Province extends BaseModel implements Listble {
     }
 
     public Province(ProvinceDTO provinceDTO) {
+        super(provinceDTO);
         this.setDescription(provinceDTO.getDesignation());
-        this.setUuid(provinceDTO.getUuid());
     }
 
 
