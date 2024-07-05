@@ -1,6 +1,7 @@
 package mz.org.csaude.mentoring.dao.session;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import mz.org.csaude.mentoring.base.application.MentoringApplication;
@@ -15,4 +16,5 @@ public interface SessionDAO extends MentoringBaseDao<Session, Integer> {
     List<Session> queryForAllOfRonda(Ronda currRonda) throws SQLException;
     List<Session> queryForAllOfMentee(Tutored selectedMentee);
     List<Session> queryForAllOfMentor(Tutored selectedMentor);
+    List<Session> getAllOfRondaPending(Ronda ronda, Date startDate) throws SQLException;
 }

@@ -16,6 +16,7 @@ import mz.org.csaude.mentoring.model.ronda.RondaMentee;
 import mz.org.csaude.mentoring.model.ronda.RondaMentor;
 import mz.org.csaude.mentoring.model.rondatype.RondaType;
 import mz.org.csaude.mentoring.model.tutor.Tutor;
+import mz.org.csaude.mentoring.util.DateUtilities;
 import mz.org.csaude.mentoring.util.LifeCycleStatus;
 import mz.org.csaude.mentoring.util.SyncSatus;
 import mz.org.csaude.mentoring.workSchedule.work.MentoringDataBaseHelper;
@@ -66,4 +67,22 @@ public class RondaDAOImpl extends MentoringBaseDaoImpl<Ronda, Integer> implement
 
         return rondaQueryBuilder.orderBy(Employee.COLUMN_ID, true).query();
     }
+
+    @Override
+    public List<Ronda> getAllByMentor(Tutor tutor, MentoringApplication mentoringApplication) throws SQLException {
+
+        QueryBuilder<RondaMentor, Integer> rondaMentorQueryBuilder = MentoringDataBaseHelper.getInstance(mentoringApplication.getApplicationContext()).getRondaMentorDAO().queryBuilder();
+        rondaMentorQueryBuilder.where().eq(RondaMentor.COLUMN_TUTOR, tutor.getId());
+
+        QueryBuilder<RondaMentee, Integer> rondaMenteeQueryBuilder = MentoringDataBaseHelper.getInstance(mentoringApplication.getApplicationContext()).getRondaMenteeDAO().queryBuilder();
+
+        QueryBuilder<Ronda, Integer> rondaQueryBuilder = MentoringDataBaseHelper.getInstance(mentoringApplication.getApplicationContext()).getRondaDAO().queryBuilder();
+        rondaQueryBuilder.join(rondaMentorQueryBuilder).join(rondaMenteeQueryBuilder)
+                .where().eq(Ronda.COLUMN_LIFE_CYCLE_STATUS, LifeCycleStatus.ACTIVE);
+
+
+        return rondaQueryBuilder.orderBy(Ronda.COLUMN_START_DATE, true).query();
+    }
+
+
 }

@@ -3,9 +3,11 @@ package mz.org.csaude.mentoring.view.home;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -17,13 +19,18 @@ import mz.org.csaude.mentoring.R;
 import mz.org.csaude.mentoring.base.activity.BaseActivity;
 import mz.org.csaude.mentoring.base.viewModel.BaseViewModel;
 import mz.org.csaude.mentoring.databinding.ActivityMainBinding;
+import mz.org.csaude.mentoring.databinding.ActivityNotificationsBinding;
 import mz.org.csaude.mentoring.databinding.NavHeaderMainBinding;
+import mz.org.csaude.mentoring.view.home.ui.notifications.NotificationsActivity;
+import mz.org.csaude.mentoring.view.home.ui.notifications.NotificationsVM;
+import mz.org.csaude.mentoring.viewmodel.tutored.TutoredVM;
 
 public class MainActivity extends BaseActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
 
+    private ActivityNotificationsBinding activityNotificationsBinding;
     ProgressDialog progressDialog;
 
     @Override
@@ -73,15 +80,38 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public BaseViewModel initViewModel() {
-        return null;
+        return new ViewModelProvider(this).get(NotificationsVM.class);
     }
 
+    @Override
+    public NotificationsVM getRelatedViewModel() {
+        return (NotificationsVM) super.getRelatedViewModel();
+    }
 
+    public NotificationsVM getRelatedNotificationsView(){
+        return (NotificationsVM) super.getRelatedViewModel();
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if(progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getTitle() != null) {
+            switch (item.getTitle().toString()) {
+                case "Notificações":
+                    getRelatedNotificationsView().getRelatedActivity().nextActivity(NotificationsActivity.class);
+                    return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+            }
+        }
+        else{
+            return super.onOptionsItemSelected(item);
+    }
     }
 }

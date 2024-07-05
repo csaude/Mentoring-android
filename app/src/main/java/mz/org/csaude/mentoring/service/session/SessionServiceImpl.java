@@ -6,6 +6,8 @@ import com.j256.ormlite.misc.TransactionManager;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,7 @@ import mz.org.csaude.mentoring.model.session.Session;
 import mz.org.csaude.mentoring.model.session.SessionRecommendedResource;
 import mz.org.csaude.mentoring.model.session.SessionSummary;
 import mz.org.csaude.mentoring.model.tutored.Tutored;
+import mz.org.csaude.mentoring.util.DateUtilities;
 
 public class SessionServiceImpl extends BaseServiceImpl<Session> implements SessionService{
 
@@ -181,5 +184,14 @@ public class SessionServiceImpl extends BaseServiceImpl<Session> implements Sess
             sessionSummary.setNaoCount(sessionSummary.getNaoCount() + 1);
         }
         return sessionSummary;
+    }
+
+    @Override
+    public List<Session> getAllOfRondaPending(Ronda ronda) throws SQLException {
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, 5);
+        Date startDate = cal.getTime();
+        return this.sessionDAO.getAllOfRondaPending(ronda, startDate);
     }
 }

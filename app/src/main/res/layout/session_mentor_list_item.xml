@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="mz.org.csaude.mentoring.view.home.ui.notifications.NotificationsVM" />
+        <variable
+            name="session"
+            type="mz.org.csaude.mentoring.model.session.Session" />
+
+        <import type="mz.org.csaude.mentoring.util.Utilities"/>
+        <import type="mz.org.csaude.mentoring.util.DateUtilities"/>
+        <import type="mz.org.csaude.mentoring.util.SyncSatus"/>
+        <import type="android.view.View"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/dimen_10dp"
+        android:background="@drawable/ronda_item_back"
+        android:padding="@dimen/dimen_10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="@{session.tutored.employee.fullName}"
+                    android:padding="@dimen/dimen_4dp"
+                    android:drawableLeft="@drawable/ic_person"
+                    android:textSize="@dimen/dimen_12dp"
+                    android:gravity="center_vertical"
+                    android:drawablePadding="8dp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:drawableStart="@drawable/ic_calendar"
+                    android:text="@{DateUtilities.formatToDDMMYYYY(session.startDate)}"
+                   />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

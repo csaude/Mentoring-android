@@ -1,6 +1,7 @@
 package mz.org.csaude.mentoring.service.session;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -19,4 +20,7 @@ public interface SessionService extends BaseService<Session> {
     List<SessionSummary> generateSessionSummary(Session session);
 
     void saveRecommendedResources(Session session, List<SessionRecommendedResource> recommendedResources) throws SQLException;
+
+    List<Session> getAllOfRondaPending(Ronda ronda) throws SQLException;
+
 }

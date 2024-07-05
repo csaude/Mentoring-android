@@ -6,6 +6,7 @@ import com.j256.ormlite.table.DatabaseTableConfig;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import mz.org.csaude.mentoring.base.application.MentoringApplication;
@@ -63,4 +64,12 @@ public class SessionDAOImpl extends MentoringBaseDaoImpl<Session, Integer> imple
     public List<Session> queryForAllOfMentor(Tutored selectedMentor) {
         return null;
     }
+
+    @Override
+    public List<Session> getAllOfRondaPending(Ronda ronda, Date startDate) throws SQLException {
+        return this.queryBuilder().orderBy(Session.COLUMN_START_DATE, true).where().eq(Session.COLUMN_RONDA, ronda.getId()).and().gt(Session.COLUMN_START_DATE, startDate)
+                .and().isNull(Session.COLUMN_END_DATE).query();
+    }
+
+
 }

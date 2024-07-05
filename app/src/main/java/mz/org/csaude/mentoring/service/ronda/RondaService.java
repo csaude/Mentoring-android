@@ -23,4 +23,6 @@ public interface RondaService extends BaseService<Ronda> {
     Ronda saveOrUpdateRonda(RondaDTO rondaDTO) throws SQLException;
 
     Ronda getFullyLoadedRonda(Ronda ronda)  throws SQLException;
+
+    List<Ronda> getAllByMentor(Tutor tutor, MentoringApplication mentoringApplication) throws SQLException;
 }

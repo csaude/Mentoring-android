@@ -216,4 +216,9 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
     public Ronda getById(int id) throws SQLException {
         return this.rondaDAO.queryForId(id);
     }
+    @Override
+    public List<Ronda> getAllByMentor(Tutor tutor, MentoringApplication mentoringApplication) throws SQLException {
+        return this.rondaDAO.getAllByMentor(tutor, mentoringApplication);
+    }
+
 }
