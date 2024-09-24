@@ -59,6 +59,7 @@ import mz.org.csaude.mentoring.base.activity.BaseActivity;
 import mz.org.csaude.mentoring.base.model.BaseModel;
 import mz.org.csaude.mentoring.listner.dialog.IDialogListener;
 import mz.org.csaude.mentoring.listner.dialog.IListbleDialogListener;
+import mz.org.csaude.mentoring.view.login.LoginActivity;
 
 public class Utilities {
 
@@ -619,9 +620,16 @@ public class Utilities {
         LayoutInflater inflater = mContext.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_popup, null);
         dialog.setContentView(dialogView);
+        dialog.setCancelable(false);
+        EditText endTime = dialogView.findViewById(R.id.endTime);
+
+        if( mContext instanceof LoginActivity){
+            endTime.setVisibility(View.GONE);
+        }else{
+            endTime.setVisibility(View.VISIBLE);
+        }
 
         TextView msg = dialogView.findViewById((R.id.alertMessage));
-        EditText endTime = dialogView.findViewById(R.id.endTime);
         Button cancelButton = dialogView.findViewById(R.id.cancelButton);
         Button confirmButton = dialogView.findViewById(R.id.confirmButton);
 
@@ -643,8 +651,12 @@ public class Utilities {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String endTimeValue = endTime.getText().toString();
-                listener.doOnConfirmed(endTimeValue);
+                if(mContext instanceof LoginActivity){
+                    listener.doOnConfirmed();
+                }else{
+                    String endTimeValue = endTime.getText().toString();
+                    listener.doOnConfirmed(endTimeValue);
+                }
                 dialog.dismiss();
             }
         });

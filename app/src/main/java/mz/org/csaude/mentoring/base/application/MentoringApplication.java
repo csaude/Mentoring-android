@@ -665,4 +665,14 @@ public class MentoringApplication  extends Application {
         editor.putInt(PREF_METADATA_SYNC_TIME, encryptedSharedPreferences.getInt(PREF_METADATA_SYNC_TIME, 2));
         editor.apply();
     }
+
+    public Date getDefaultLastSyncDate(){
+
+        String StringLastSyncDate = encryptedSharedPreferences.getString(LAST_SYNC_DATE, null);
+        Date lastSyncDate = null;
+        if(StringLastSyncDate != null){
+            lastSyncDate =  DateUtilities.createDate(StringLastSyncDate, DateUtilities.DATE_FORMAT);
+        }
+        return lastSyncDate;
+    }
 }

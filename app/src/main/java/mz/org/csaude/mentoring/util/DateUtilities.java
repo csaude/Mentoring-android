@@ -542,4 +542,26 @@ public class DateUtilities {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
         return dateFormatter.format(new Date());
     }
+
+    public static boolean isSameDay(Date date1, Date date2) {
+        Calendar cal1 = Calendar.getInstance();
+        Calendar cal2 = Calendar.getInstance();
+
+        cal1.setTime(date1);
+        cal2.setTime(date2);
+
+        // Zerar horas, minutos, segundos e milissegundos
+        cal1.set(Calendar.HOUR_OF_DAY, 0);
+        cal1.set(Calendar.MINUTE, 0);
+        cal1.set(Calendar.SECOND, 0);
+        cal1.set(Calendar.MILLISECOND, 0);
+
+        cal2.set(Calendar.HOUR_OF_DAY, 0);
+        cal2.set(Calendar.MINUTE, 0);
+        cal2.set(Calendar.SECOND, 0);
+        cal2.set(Calendar.MILLISECOND, 0);
+
+        return cal1.getTime().equals(cal2.getTime());
+    }
+
 }

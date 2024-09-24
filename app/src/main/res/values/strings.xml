@@ -242,6 +242,7 @@
     <string name="meus_dados">Meus Dados</string>
     <string name="mentor">Mentor</string>
     <string name="sair">Sair</string>
+    <string name="data_not_synchronized">Você tem dados que não estão Syncronizados com o Servidor a mais de 7 dias. para continuar deve syncronizar.</string>
 
     <string name="evaluation_end">Fim da Avaliação</string>
     <string name="demostration_needed">Houve necessidade de demonstração</string>
