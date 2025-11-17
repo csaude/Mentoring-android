@@ -57,8 +57,6 @@ public class CreateTutoredActivity extends BaseActivity implements IDialogListen
         // Estado inicial (secção aberta/fechada)
         getRelatedViewModel().setInitialDataVisible(true);
 
-        // Prepara adapters async
-        initAdapters();
 
         // Se veio para editar
         if (getIntent() != null && getIntent().getExtras() != null) {
@@ -70,6 +68,8 @@ public class CreateTutoredActivity extends BaseActivity implements IDialogListen
                 getRelatedViewModel().setPendingTutored(relatedTutored);
             }
         }
+        // Prepara adapters async
+        initAdapters();
 
         // Listeners dos cabeçalhos para expand/colapse (se preferires só via binding, pode remover)
         setSectionToggleListeners();

@@ -13,6 +13,7 @@ import java.util.Date;
 
 import mz.org.csaude.mentoring.base.model.BaseModel;
 import mz.org.csaude.mentoring.dto.ronda.RondaMenteeDTO;
+import mz.org.csaude.mentoring.model.tutored.FlowHistory;
 import mz.org.csaude.mentoring.model.tutored.Tutored;
 import mz.org.csaude.mentoring.util.DateUtilities;
 
@@ -54,6 +55,7 @@ public class RondaMentee extends BaseModel {
     @Relation(parentColumn = COLUMN_MENTEE, entityColumn = "id")
     @Ignore
     private Tutored tutored;
+
 
     @NonNull
     @ColumnInfo(name = COLUMN_START_DATE)

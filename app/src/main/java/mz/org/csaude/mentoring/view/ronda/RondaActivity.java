@@ -82,20 +82,28 @@ public class RondaActivity extends BaseActivity {
         selectBottomItemFor(getRelatedViewModel().getRondaTypeCode(), bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
+                case R.id.nav_home:
+                    finish();
+                    return true;
+
                 case R.id.nav_zero:
                     getRelatedViewModel().setRondaType(RondaTypeCode.ZERO);
-                    break;
+                    getRelatedViewModel().initSearch();
+                    return true;
+
                 case R.id.nav_ciclo:
                     getRelatedViewModel().setRondaType(RondaTypeCode.MENTORIA_INTERNA);
-                    break;
+                    getRelatedViewModel().initSearch();
+                    return true;
+
                 case R.id.nav_semestral:
                     getRelatedViewModel().setRondaType(RondaTypeCode.SEMESTRAL);
-                    break;
+                    getRelatedViewModel().initSearch();
+                    return true;
+
                 default:
                     return false;
             }
-            getRelatedViewModel().initSearch();
-            return true;
         });
 
         // Search
@@ -111,15 +119,6 @@ public class RondaActivity extends BaseActivity {
 
         // Load inicial
         getRelatedViewModel().initSearch();
-
-        mentoringCycleListBinding.bottomNav.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_home) {
-                finish();
-                return true;
-            } else {
-                return true;
-            }
-        });
     }
 
     private void setupSearch(SearchBar searchBar, SearchView searchView) {
@@ -251,7 +250,7 @@ public class RondaActivity extends BaseActivity {
 
         if (rondasRecyclerView.getItemDecorationCount() == 0) {
             int space = getResources().getDimensionPixelSize(R.dimen.dimen_8dp);
-            rondasRecyclerView.addItemDecoration(new VerticalSpaceItemDecoration(space, true));
+            rondasRecyclerView.addItemDecoration(new VerticalSpaceItemDecoration(space, false));
         }
 
         rondaAdapter = new RondaAdapter(rondasRecyclerView, getRelatedViewModel().getSearchResults(), this);

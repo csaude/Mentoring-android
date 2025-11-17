@@ -384,23 +384,9 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
         return true;
     }
 
-
     @Override
     public CreateMentorshipActivity getRelatedActivity() {
         return (CreateMentorshipActivity) super.getRelatedActivity();
-    }
-
-    public void previousStep() {
-        if (isTableSelectionStep()) {
-            setCurrMentorshipStep(CURR_MENTORSHIP_STEP_MENTEE_SELECTION);
-        } else if (isMenteeSelectionStep()) {
-            setCurrMentorshipStep(CURR_MENTORSHIP_STEP_PERIOD_SELECTION);
-        } else if (isPeriodSelectionStep()) {
-            setCurrMentorshipStep(CURR_MENTORSHIP_STEP_QUESTION_SELECTION);
-        } else if (isQuestionSelectionStep()) {
-            finnalizeMentorship();
-        }
-        notifyPropertyChanged(BR.currMentorshipStep);
     }
 
     public void setRonda(Ronda ronda) {
@@ -538,9 +524,10 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
 
     public List<Tutored> getMentees() {
         try {
-            this.tutoreds = getApplication().getTutoredService().getAllOfRondaForZeroEvaluation(this.mentorship.getSession().getRonda());
-            for (Tutored tutored :this.tutoreds) {
-                tutored.setListType(Listble.ListTypes.UNDEFINED);
+            this.tutoreds = getApplication().getTutoredService()
+                    .getAllOfRondaForZeroEvaluation(this.mentorship.getSession().getRonda());
+            for (Tutored tutored : this.tutoreds) {
+                tutored.setListType(Listble.ListTypes.MENTORSHIP_MENTEE_SELECTION);
             }
             return this.tutoreds;
         } catch (SQLException e) {

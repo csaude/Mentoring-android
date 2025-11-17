@@ -15,8 +15,10 @@ import mz.org.csaude.mentoring.dao.tutored.TutoredDao;
 import mz.org.csaude.mentoring.model.location.HealthFacility;
 import mz.org.csaude.mentoring.model.location.Location;
 import mz.org.csaude.mentoring.model.ronda.Ronda;
+import mz.org.csaude.mentoring.model.ronda.RondaMentee;
 import mz.org.csaude.mentoring.model.tutored.EnumFlowHistory;
 import mz.org.csaude.mentoring.model.tutored.EnumFlowHistoryProgressStatus;
+import mz.org.csaude.mentoring.model.tutored.FlowHistory;
 import mz.org.csaude.mentoring.model.tutored.Tutored;
 import mz.org.csaude.mentoring.service.employee.EmployeeService;
 import mz.org.csaude.mentoring.service.employee.EmployeeServiceImpl;
@@ -189,5 +191,19 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
             }
         }
         return tutoreds;
+    }
+
+    @Override
+    public void updateFlowHistory(List<RondaMentee> rondaMentees, EnumFlowHistoryProgressStatus enumFlowHistoryProgressStatus) {
+        for (RondaMentee rondaMentee : rondaMentees) {
+            Tutored tutored = tutoredDao.queryForId(rondaMentee.getMenteeId());
+            for (FlowHistory flowHistory : tutored.getFlowHistory()) {
+                if (flowHistory.getEstagio().code().equals(EnumFlowHistory.RONDA_CICLO.code())) {
+                    flowHistory.setEstado(enumFlowHistoryProgressStatus);
+                }
+                tutoredDao.update(tutored);
+            }
+        }
+
     }
 }

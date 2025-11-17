@@ -62,19 +62,26 @@ public class RondaSearchVM extends SearchVM<Ronda> implements IDialogListener, S
     // --- Create / Navigation ---
     public void createNewRonda() {
         Map<String, Object> params = new HashMap<>();
-
-        // If caller didn't set the entity, resolve from enum now
-        if (rondaType == null) {
+        getExecutorService().execute(() -> {
             try {
-                rondaType = getApplication().getRondaTypeService()
-                        .getRondaTypeByCode(rondaTypeCode.code());
+                rondaType = getApplication().getRondaTypeService().getRondaTypeByCode(rondaTypeCode.code());
+                resetTitle();
+                params.put("rondaType", rondaType);
+                params.put("title", title);
+                getApplication().getApplicationStep().changetocreate();
+                runOnMainThread(() -> getRelatedActivity().nextActivityFinishingCurrent(CreateRondaActivity.class, params));
             } catch (SQLException ignored) { }
-        }
+        });
+    }
 
-        params.put("rondaType", rondaType);
-        params.put("title", title);
-        getApplication().getApplicationStep().changetocreate();
-        getRelatedActivity().nextActivityFinishingCurrent(CreateRondaActivity.class, params);
+    private void resetTitle() {
+        if (rondaType.isRondaMentoria()) {
+            title = getRelatedActivity().getString(R.string.ronda_mentoria);
+        } else if (rondaType.isSessaoZero()) {
+            title = getRelatedActivity().getString(R.string.ronda_zero);
+        } else if (rondaType.isRondaSemestral()) {
+            title = getRelatedActivity().getString(R.string.ronda_semestral);
+        }
     }
 
     // --- Title ---

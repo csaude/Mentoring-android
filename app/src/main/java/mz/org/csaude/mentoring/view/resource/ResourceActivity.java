@@ -35,6 +35,7 @@ import mz.org.csaude.mentoring.base.viewModel.BaseViewModel;
 import mz.org.csaude.mentoring.databinding.ActivityResourceBinding;
 import mz.org.csaude.mentoring.model.resourceea.Node;
 import mz.org.csaude.mentoring.util.Utilities;
+import mz.org.csaude.mentoring.view.common.VerticalSpaceItemDecoration;
 import mz.org.csaude.mentoring.viewmodel.resource.ResourceVM;
 
 public class ResourceActivity extends BaseActivity {
@@ -192,12 +193,9 @@ public class ResourceActivity extends BaseActivity {
 
         rcvResources.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
-        // Material divider (M3 look)
         if (rcvResources.getItemDecorationCount() == 0) {
-            MaterialDividerItemDecoration div =
-                    new MaterialDividerItemDecoration(this, RecyclerView.VERTICAL);
-            div.setLastItemDecorated(false);
-            rcvResources.addItemDecoration(div);
+            int space = getResources().getDimensionPixelSize(R.dimen.dimen_8dp);
+            rcvResources.addItemDecoration(new VerticalSpaceItemDecoration(space, false));
         }
 
         resourceAdapter = new ResourceAdapter(rcvResources, getRelatedViewModel().getNodeList(), this);

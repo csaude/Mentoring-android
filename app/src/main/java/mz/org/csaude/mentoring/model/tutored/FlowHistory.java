@@ -16,13 +16,13 @@ public class FlowHistory implements Serializable {
 
     @SerializedName("classificação")
     @Nullable
-    private Integer classificacao;
+    private Double classificacao;
 
     public FlowHistory() {}
 
     public FlowHistory(EnumFlowHistory estagio,
                        EnumFlowHistoryProgressStatus estado,
-                       @Nullable Integer classificacao) {
+                       @Nullable Double classificacao) {
         this.estagio = estagio;
         this.estado = estado;
         this.classificacao = classificacao;
@@ -34,6 +34,6 @@ public class FlowHistory implements Serializable {
     public EnumFlowHistoryProgressStatus getEstado() { return estado; }
     public void setEstado(EnumFlowHistoryProgressStatus estado) { this.estado = estado; }
 
-    @Nullable public Integer getClassificacao() { return classificacao; }
-    public void setClassificacao(@Nullable Integer classificacao) { this.classificacao = classificacao; }
+    @Nullable public Double getClassificacao() { return classificacao; }
+    public void setClassificacao(@Nullable Double classificacao) { this.classificacao = classificacao; }
 }
