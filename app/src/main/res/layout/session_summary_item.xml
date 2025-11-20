@@ -15,11 +15,10 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         app:cardUseCompatPadding="false"
-        app:cardCornerRadius="16dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="?attr/colorSurface">
+        bind:cardCornerRadius="@dimen/dimen_0dp"
+        app:cardBackgroundColor="?attr/colorSurfaceVariant">
 
         <RelativeLayout
             android:id="@+id/sinais_vitais_layout"
@@ -27,7 +26,7 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <!-- Título -->
+            <!-- Título (esquerda) -->
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/sinais_vitais_title"
                 android:layout_width="wrap_content"
@@ -37,29 +36,58 @@
                 android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold" />
 
-            <!-- SIM -->
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/sim_count"
+            <!-- SIM (logo abaixo do título, à esquerda) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/sim_status_card"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/sinais_vitais_title"
-                android:layout_marginTop="8dp"
-                android:text='@{Utilities.concatStrings(Utilities.parseIntToString(sessionSummary.simCount), "SIM", " - ")}'
-                android:textSize="14sp"
-                android:textColor="?attr/colorPrimary" />
+                android:minHeight="0dp"
+                android:layout_marginTop="@dimen/dimen_4dp"
+                app:cardUseCompatPadding="false"
+                app:strokeWidth="0dp"
+                app:cardElevation="0dp"
+                android:padding="@dimen/dimen_m3dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Pill"
+                app:cardBackgroundColor="@color/status_closed_bg">
 
-            <!-- NÃO -->
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/nao_count"
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/sim_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/dimen_5dp"
+                    android:text='@{Utilities.concatStrings(Utilities.parseIntToString(sessionSummary.simCount), "SIM", " - ")}'
+                    android:textSize="14sp"
+                    android:textColor="@color/white" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- NÃO (abaixo de SIM, à esquerda) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/nao_status_card"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/sim_count"
-                android:layout_marginTop="4dp"
-                android:text='@{Utilities.concatStrings(Utilities.parseIntToString(sessionSummary.naoCount), "NÃO", " - ")}'
-                android:textSize="14sp"
-                android:textColor="?attr/colorError" />
+                android:layout_below="@id/sim_status_card"
+                android:minHeight="0dp"
+                android:layout_marginTop="@dimen/dimen_4dp"
+                app:cardUseCompatPadding="false"
+                app:strokeWidth="0dp"
+                app:cardElevation="0dp"
+                android:padding="@dimen/dimen_m3dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Pill"
+                app:cardBackgroundColor="@color/status_open_bg">
 
-            <!-- Indicador circular + percentagem -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/nao_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text='@{Utilities.concatStrings(Utilities.parseIntToString(sessionSummary.naoCount), "NÃO", " - ")}'
+                    android:textSize="14sp"
+                    android:layout_marginHorizontal="@dimen/dimen_5dp"
+                    android:textColor="?attr/colorError" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Indicador circular + percentagem (direita) -->
             <RelativeLayout
                 android:id="@+id/progress_layout"
                 android:layout_width="72dp"
@@ -76,9 +104,8 @@
                     app:indicatorDirectionCircular="clockwise"
                     app:indicatorInset="6dp"
                     app:indicatorColor="?attr/colorPrimary"
-                    app:trackColor="?attr/colorSurfaceVariant"
+                    app:trackColor="@color/white"
                     app:progress="@{sessionSummary.progressPercentage}" />
-
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/progress_percentage"
@@ -92,5 +119,6 @@
             </RelativeLayout>
 
         </RelativeLayout>
+
     </com.google.android.material.card.MaterialCardView>
 </layout>

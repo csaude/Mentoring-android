@@ -58,7 +58,7 @@
                 android:text="@string/app_name"
                 android:textStyle="bold"
                 android:textSize="24sp"
-                android:textColor="@color/button_dark_back"
+                android:textColor="?attr/colorOnSurface"
                 android:letterSpacing="0.15"
                 android:textAlignment="center"
                 app:layout_constraintTop_toBottomOf="@id/logoCard"
@@ -73,7 +73,7 @@
                 android:layout_marginTop="4dp"
                 android:text="@string/app_name_checkPoint"
                 android:textSize="16sp"
-                android:textColor="@color/button_dark_back"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textAlignment="center"
                 app:layout_constraintTop_toBottomOf="@id/titlePrimary"
                 app:layout_constraintStart_toStartOf="parent"
@@ -98,9 +98,9 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Mentor.M3.TextInput.Outlined"
                 app:startIconDrawable="@drawable/ic_person"
-                app:startIconTint="@color/colorPrimaryDark"
+                app:startIconTint="?attr/colorPrimary"
                 android:enabled="@{!viewModel.authenticating}"
                 android:hint="@string/username">
 
@@ -110,7 +110,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress|textNoSuggestions"
                     android:singleLine="true"
-                    android:textColor="@color/button_dark_back"
+                    android:textColor="?attr/colorOnSurface"
                     android:text="@={viewModel.userName}"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -122,11 +122,11 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Mentor.M3.TextInput.Outlined"
                 app:startIconDrawable="@drawable/ic_lock"
-                app:startIconTint="@color/colorPrimaryDark"
+                app:startIconTint="?attr/colorPrimary"
                 app:endIconMode="password_toggle"
-                app:endIconTint="@color/colorPrimaryDark"
+                app:endIconTint="?attr/colorPrimary"
                 android:enabled="@{!viewModel.authenticating}"
                 android:hint="@string/password">
 
@@ -136,11 +136,11 @@
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
                     android:singleLine="true"
-                    android:textColor="@color/button_dark_back"
+                    android:textColor="?attr/colorOnSurface"
                     android:text="@={viewModel.userPassword}"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Remember me + (opcional) Esqueci a senha -->
+            <!-- Remember me -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -156,7 +156,7 @@
                     android:checked="@{viewModel.remeberMe}"
                     android:onClick="@{() -> viewModel.changeRemeberMeStatus()}"
                     android:text="@string/remember_me"
-                    android:textColor="@color/button_dark_back"
+                    android:textColor="?attr/colorOnSurface"
                     android:enabled="@{!viewModel.authenticating}"/>
 
             </LinearLayout>
@@ -197,7 +197,7 @@
                     android:layout_weight="1"
                     android:text="@{viewModel.authMesg}"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="@color/button_dark_back"/>
+                    android:textColor="?attr/colorOnSurface"/>
             </LinearLayout>
 
             <!-- Biometria -->

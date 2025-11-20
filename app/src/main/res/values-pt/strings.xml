@@ -339,4 +339,16 @@
     <string name="download">Baixar</string>
     <string name="sem_registos">Nenhum recurso disponível para visualizar.</string>
     <string name="ronda_semestral">Sessão Semestral</string>
+    <string name="saved_successfully">Ronda/Ciclo guardado com sucesso.</string>
+    <string name="empty_evaluation_location">Deve indicar o local da avaliação.</string>
+    <string name="identification">Identificação</string>
+    <string name="nav_credentials">Credenciais</string>
+    <string name="nav_logout">Sair</string>
+    <string name="nav_personal_info">Meus Dados</string>
+    <string name="nav_settings">Configurações</string>
+    <string name="mentor_type_required">Por favor indicar o tipo de mentor!</string>
+    <string name="error_loading_evaluation_location">Não foi possível identificar o locar da avaliação.</string>
+    <string name="no_evaluation_location_selected">Por favor indicar o locar da avaliação.</string>
+    <string name="select_session_end_date">Data fim da sessão</string>
+    <string name="select_next_session_date">Data da próxima sessão</string>
 </resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- labels dos inputs no dark mode (claras) -->
+    <color name="input_labels">#E0E0E0</color>  <!-- ou #FFFFFFFF se quiser bem branco -->
+
+    <!-- se quiseres ajustar fundos no dark mode -->
+    <color name="card_back">#1F2933</color>          <!-- fundo mais escuro para cards -->
+    <color name="spinner_back_color">#252B36</color> <!-- fundo de spinners -->
+    <color name="background_layout">#121212</color>  <!-- fundo geral da app -->
+    <color name="list_header_bg">#1E2733</color>
+
+    <!-- se usares estas cores de texto em estilos, podes reforçar aqui também -->
+    <color name="text_primary_light">#FFFFFF</color>
+    <color name="text_secondary_light">#B0B0B0</color>
+
+</resources>

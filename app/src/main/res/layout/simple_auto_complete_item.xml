@@ -3,12 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="@dimen/dimen_4dp">
+    android:padding="@dimen/dimen_4dp"
+    android:gravity="center_vertical"
+    android:background="?attr/colorSurface">
+
     <ImageView
         android:id="@+id/item_icon"
         android:layout_width="@dimen/dimen_0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
     <TextView
         android:id="@+id/label"
@@ -18,9 +21,8 @@
         android:padding="@dimen/dimen_4dp"
         android:layout_gravity="center_vertical"
         style="@style/spinner_label"
-        android:text="Mentorando"
-        android:textStyle="bold"
-        />
+        android:textStyle="bold" />
+
     <TextView
         android:id="@+id/extra_info"
         android:layout_width="0dp"
@@ -29,8 +31,6 @@
         android:padding="@dimen/dimen_4dp"
         android:textAlignment="textEnd"
         style="@style/spinner_label"
-        android:text="info"
-        android:textColor="@color/background_layout"
-        android:textStyle="bold"
-        />
+        android:textColor="?attr/colorPrimary"
+        android:textStyle="bold" />
 </LinearLayout>
