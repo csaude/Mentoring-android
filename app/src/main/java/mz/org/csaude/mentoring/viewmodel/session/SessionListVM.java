@@ -127,16 +127,6 @@ public class SessionListVM extends SearchVM<Session>  implements IDialogListener
     }
 
     public void createSession() {
-
-        if (currRondaMentee.getEndDate() != null) {
-            Setting setting = getApplication().getSetting(Constants.MUX_DAYS_ON_RONDA_WITHOUT_SESSION);
-            String message = getRelatedActivity().getString(
-                    R.string.ronda_mentee_closed,
-                    setting.getSettingValueAsInt(),
-                    selectedMentee.getEmployee().getFullName()
-            );
-            Utilities.displayAlertDialog(getRelatedActivity(), message).show();
-        } else
         if (this.searchResults.size() < 4) {
             for (Session session : this.searchResults) {
                 if (!session.isCompleted()) {

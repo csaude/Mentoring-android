@@ -117,6 +117,14 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
                 rondaMentee.setTutored(t);
 
                 this.rondaMenteeDAO.insert(rondaMentee);
+
+                for (FlowHistory flowHistory: t.getFlowHistory()) {
+                    if (flowHistory.getEstagio().code().equals(EnumFlowHistory.RONDA_CICLO.code())) {
+                        flowHistory.setEstado(EnumFlowHistoryProgressStatus.INICIO);
+                    }
+                }
+
+                tutoredDao.update(t);
             }
         return ronda;
     }
