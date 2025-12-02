@@ -4,42 +4,58 @@ import java.util.Date;
 
 import mz.org.csaude.mentoring.base.dto.BaseEntityDTO;
 import mz.org.csaude.mentoring.dto.tutored.TutoredDTO;
+import mz.org.csaude.mentoring.dto.tutored.FlowHistoryDTO;
 import mz.org.csaude.mentoring.model.ronda.RondaMentee;
-import mz.org.csaude.mentoring.model.tutored.EnumFlowHistory;
-import mz.org.csaude.mentoring.model.tutored.FlowHistory;
-
 
 public class RondaMenteeDTO extends BaseEntityDTO {
+
     private Date startDate;
     private Date endDate;
     private TutoredDTO mentee;
     private RondaDTO ronda;
 
-    // NEW: carry flow history at the RondaMentee level
-    private FlowHistory flowHistory;
+    // Agora usando o DTO, não a entidade
+    private FlowHistoryDTO flowHistoryMenteeAuxDTO;
+
+    public RondaMenteeDTO() { }
 
     public RondaMenteeDTO(RondaMentee rondaMentee) {
         super(rondaMentee);
+
         this.setStartDate(rondaMentee.getStartDate());
         if (rondaMentee.getEndDate() != null) {
             this.setEndDate(rondaMentee.getEndDate());
         }
-        if (rondaMentee.getTutored() != null) {
-            this.setMentee(new TutoredDTO(rondaMentee.getTutored()));
-        }
-        if (rondaMentee.getRonda() != null) {
-            this.setRonda(new RondaDTO(rondaMentee.getRonda()));
-        }
 
-        for (FlowHistory fh : rondaMentee.getTutored().getFlowHistory()) {
-            if (!fh.getEstagio().code().equals(EnumFlowHistory.SESSAO_ZERO.code())) {
-                this.setFlowHistory(fh);
+        if (rondaMentee.getTutored() != null) {
+            // Constrói o DTO do mentorando (já carrega a lista de FlowHistoryDTO)
+            TutoredDTO menteeDTO = new TutoredDTO(rondaMentee.getTutored());
+            this.setMentee(menteeDTO);
+
+            // Se tiver histórico no DTO, escolhe o que NÃO é SESSAO_ZERO (ex.: RONDA_CICLO, SEMESTRAL, etc.)
+            if (menteeDTO.getFlowHistoryMenteeAuxDTO() != null &&
+                    !menteeDTO.getFlowHistoryMenteeAuxDTO().isEmpty()) {
+
+                FlowHistoryDTO selected = null;
+
+                for (FlowHistoryDTO fhDto : menteeDTO.getFlowHistoryMenteeAuxDTO()) {
+
+                    if (selected == null ||
+                            (fhDto.getSeq() != null && selected.getSeq() != null && fhDto.getSeq() > selected.getSeq())) {
+
+                        selected = fhDto;
+                    }
+                }
+
+                this.flowHistoryMenteeAuxDTO = selected;
+
             }
         }
 
+        if (rondaMentee.getRonda() != null) {
+            this.setRonda(new RondaDTO(rondaMentee.getRonda()));
+        }
     }
-
-    public RondaMenteeDTO() { }
 
     public Date getStartDate() { return startDate; }
     public void setStartDate(Date startDate) { this.startDate = startDate; }
@@ -53,8 +69,8 @@ public class RondaMenteeDTO extends BaseEntityDTO {
     public RondaDTO getRonda() { return ronda; }
     public void setRonda(RondaDTO ronda) { this.ronda = ronda; }
 
-    public FlowHistory getFlowHistory() { return flowHistory; }
-    public void setFlowHistory(FlowHistory flowHistory) { this.flowHistory = flowHistory; }
+    public FlowHistoryDTO getFlowHistoryMenteeAuxDTO() { return flowHistoryMenteeAuxDTO; }
+    public void setFlowHistoryMenteeAuxDTO(FlowHistoryDTO flowHistoryMenteeAuxDTO) { this.flowHistoryMenteeAuxDTO = flowHistoryMenteeAuxDTO; }
 
     public RondaMentee getRondaMentee() {
         RondaMentee rondaMentee = new RondaMentee();
@@ -73,26 +89,11 @@ public class RondaMenteeDTO extends BaseEntityDTO {
         if (this.getRonda() != null) {
             rondaMentee.setRonda(this.getRonda().getRonda());
         }
+
+        // O FlowHistory real é gerido pela camada de serviço
+        // (FlowHistory table + vínculo ao Tutored/Ronda),
+        // por isso não mapeamos aqui para a entidade.
+
         return rondaMentee;
-    }
-
-    // ---- helpers (compile even if entity doesn't yet have flow history) ----
-    private boolean hasRondaMenteeFlowHistory(RondaMentee rm) {
-        try {
-            rm.getClass().getMethod("getFlowHistory");
-            Object val = rm.getClass().getMethod("getFlowHistory").invoke(rm);
-            return val != null;
-        } catch (Exception ignore) {
-            return false;
-        }
-    }
-
-    private boolean canSetRondaMenteeFlowHistory(RondaMentee rm) {
-        try {
-            rm.getClass().getMethod("setFlowHistory", FlowHistory.class);
-            return true;
-        } catch (Exception ignore) {
-            return false;
-        }
     }
 }

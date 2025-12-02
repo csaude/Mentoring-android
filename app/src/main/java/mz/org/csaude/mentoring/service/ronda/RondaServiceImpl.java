@@ -1,6 +1,7 @@
 package mz.org.csaude.mentoring.service.ronda;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.room.Transaction;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 import mz.org.csaude.mentoring.base.application.MentoringApplication;
 import mz.org.csaude.mentoring.base.service.BaseServiceImpl;
+import mz.org.csaude.mentoring.dao.flowhistory.FlowHistoryDao;
 import mz.org.csaude.mentoring.dao.location.DistrictDAO;
 import mz.org.csaude.mentoring.dao.location.HealthFacilityDAO;
 import mz.org.csaude.mentoring.dao.ronda.RondaDAO;
@@ -51,6 +53,7 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
     RondaTypeDAO rondaTypeDAO;
     TutorDAO tutorDAO;
     TutoredDao tutoredDao;
+    private FlowHistoryDao flowHistoryDao;
 
     public RondaServiceImpl(Application application) {
         super(application);
@@ -67,6 +70,7 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
         this.rondaTypeDAO = getDataBaseHelper().getRondaTypeDAO();
         this.tutorDAO = getDataBaseHelper().getTutorDAO();
         this.tutoredDao = getDataBaseHelper().getTutoredDao();
+        this.flowHistoryDao = getDataBaseHelper().getFlowHistoryDao();
     }
 
     @Override
@@ -82,13 +86,20 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
                 r.setRondaMentees(rondaMenteeDAO.getAllOfRonda(ronda.getId()));
                 for (RondaMentee rondaMentee: r.getRondaMentees()) {
                     Tutored t = this.tutoredDao.queryForId(rondaMentee.getMenteeId());
-                    for (FlowHistory flowHistory: t.getFlowHistory()) {
-                        if (flowHistory.getEstagio().code().equals(EnumFlowHistory.RONDA_CICLO.code())) {
-                            flowHistory.setEstado(EnumFlowHistoryProgressStatus.AGUARDA_INICIO);
-                        }
-                    }
+                    t.setFlowHistory(flowHistoryDao.getByTutored(t.getId()));
+                    EnumFlowHistory enumFlowHistory = ronda.isRondaMentoria() ? EnumFlowHistory.RONDA_CICLO : EnumFlowHistory.SESSAO_ZERO;
+                    if (!t.isOnStatus(enumFlowHistory, EnumFlowHistoryProgressStatus.INICIO)) {
+                        FlowHistory fh = new FlowHistory(
+                                t.getId(),
+                                enumFlowHistory,
+                                EnumFlowHistoryProgressStatus.INICIO,
+                                0.0,
+                                t.determineNextSeq()
+                        );
+                        t.getFlowHistory().add(fh);
+                        flowHistoryDao.insert(fh);
 
-                    tutoredDao.update(t);
+                    }
                 }
             } else {
                 this.rondaDAO.insert(ronda);
@@ -108,8 +119,7 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
             }
             for (RondaMentee rondaMentee: ronda.getRondaMentees()) {
                 Tutored t = this.tutoredDao.getByUuid(rondaMentee.getTutored().getUuid());
-                t.setFlowHistory(rondaMentee.getTutored().getFlowHistory());
-                tutoredDao.update(t);
+                t.setFlowHistory(flowHistoryDao.getByTutored(t.getId()));
 
                 rondaMentee.setRonda(ronda);
                 rondaMentee.setSyncStatus(ronda.getSyncStatus());
@@ -118,15 +128,23 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
 
                 this.rondaMenteeDAO.insert(rondaMentee);
 
-                for (FlowHistory flowHistory: t.getFlowHistory()) {
-                    if (flowHistory.getEstagio().code().equals(EnumFlowHistory.RONDA_CICLO.code())) {
-                        flowHistory.setEstado(EnumFlowHistoryProgressStatus.INICIO);
-                    }
-                }
+                advanceFlowHistory(ronda, t);
 
-                tutoredDao.update(t);
             }
         return ronda;
+    }
+
+    private void advanceFlowHistory(Ronda ronda, Tutored t) {
+        EnumFlowHistory enumFlowHistory = ronda.isRondaMentoria() ? EnumFlowHistory.RONDA_CICLO : EnumFlowHistory.SESSAO_ZERO;
+        FlowHistory fh = new FlowHistory(
+                t.getId(),
+                enumFlowHistory,
+                EnumFlowHistoryProgressStatus.INICIO,
+                0.0,
+                t.determineNextSeq()
+        );
+        t.getFlowHistory().add(fh);
+        flowHistoryDao.insert(fh);
     }
 
     @Override
@@ -141,7 +159,11 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
             ronda.setRondaType(this.rondaTypeDAO.queryForId(ronda.getRondaTypeId()));
             ronda.setHealthFacility(getApplication().getHealthFacilityService().getById(ronda.getHealthFacilityId()));
             //ronda.setRondaMentors(this.rondaMentorDAO.getRondaMentors(ronda.getId()));
-            //ronda.setRondaMentees(this.rondaMenteeDAO.getAllOfRonda(ronda.getId()));
+            ronda.setRondaMentees(this.rondaMenteeDAO.getAllOfRonda(ronda.getId()));
+            for (RondaMentee rondaMentee : ronda.getRondaMentees()) {
+                rondaMentee.setTutored(tutoredDao.queryForId(rondaMentee.getMenteeId()));
+                rondaMentee.getTutored().setFlowHistory(flowHistoryDao.getByTutored(rondaMentee.getMenteeId()));
+            }
         }
         return rondas;
     }
@@ -268,12 +290,8 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
             this.rondaMentorDAO.deleteByRonda(record.getId());
             for (RondaMentee rm : record.getRondaMentees()) {
                 rm.setTutored(tutoredDao.queryForId(rm.getMenteeId()));
-                for (FlowHistory flowHistory: rm.getTutored().getFlowHistory()) {
-                    if (flowHistory.getEstagio().code().equals(EnumFlowHistory.RONDA_CICLO.code())) {
-                        flowHistory.setEstado(EnumFlowHistoryProgressStatus.AGUARDA_INICIO);
-                    }
-                }
-                tutoredDao.update(rm.getTutored());
+                rm.getTutored().setFlowHistory(flowHistoryDao.getByTutored(rm.getMenteeId()));
+                flowHistoryDao.delete(rm.getTutored().getLastFlowHistory().getId());
             }
             this.rondaMenteeDAO.deleteByRonda(record.getId());
             this.rondaDAO.delete(record);
@@ -336,31 +354,52 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
         for (RondaMentee rondaMentee : ronda.getRondaMentees()) {
             if (rondaMentee == null || rondaMentee.getTutored() == null) continue;
 
-            Mentorship mentorship = retrievePerformanceMentorship(ronda, rondaMentee.getTutored());
+            Tutored tutored = rondaMentee.getTutored();
+
+            Mentorship mentorship = retrievePerformanceMentorship(ronda, tutored);
             Double performance = calculatePerformance(mentorship);
 
             if (performance == null) continue;
 
-            // Atualiza apenas o estágio RONDA_CICLO
-            if (Utilities.listHasElements(rondaMentee.getTutored().getFlowHistory())) {
-                for (FlowHistory fh : rondaMentee.getTutored().getFlowHistory()) {
-                    if (fh != null &&
-                            fh.getEstagio() != null &&
-                            EnumFlowHistory.RONDA_CICLO.code().equals(fh.getEstagio().code())) {
+            // Carrega histórico atual desse mentorando
+            List<FlowHistory> history = flowHistoryDao.getByTutored(tutored.getId());
+            int nextSeq = determineNextSeq(tutored.getId());
 
-                        fh.setClassificacao(performance);
+            if (ronda.isRondaMentoria()) {
+                EnumFlowHistoryProgressStatus status =
+                        (performance >= 86)
+                                ? EnumFlowHistoryProgressStatus.TERMINADO
+                                : EnumFlowHistoryProgressStatus.AGUARDA_INICIO;
 
-                        if (performance >= 86) {
-                            fh.setEstado(EnumFlowHistoryProgressStatus.TERMINADO);
-                        } else {
-                            fh.setEstado(EnumFlowHistoryProgressStatus.AGUARDA_INICIO);
-                        }
-                        tutoredDao.update(rondaMentee.getTutored());
-                    }
-                }
+                FlowHistory fh = new FlowHistory(
+                        tutored.getId(),
+                        EnumFlowHistory.RONDA_CICLO,
+                        status,
+                        performance,
+                        nextSeq
+                );
+                flowHistoryDao.insert(fh);
+
+            } else if (ronda.isRondaZero()) {
+
+                FlowHistory fh = new FlowHistory(
+                        tutored.getId(),
+                        EnumFlowHistory.RONDA_CICLO,
+                        EnumFlowHistoryProgressStatus.AGUARDA_INICIO,
+                        performance,
+                        nextSeq
+                );
+                flowHistoryDao.insert(fh);
             }
         }
     }
+
+    private int determineNextSeq(int tutoredId) {
+        Integer max = flowHistoryDao.getMaxSeqForTutored(tutoredId);
+        return (max == null ? 1 : max + 1);
+    }
+
+
 
     /**
      * Retorna o desempenho em percentagem considerando apenas respostas SIM e NAO:

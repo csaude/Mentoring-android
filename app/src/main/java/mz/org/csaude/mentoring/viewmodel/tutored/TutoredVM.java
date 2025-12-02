@@ -82,7 +82,7 @@ public class TutoredVM extends SearchVM<Tutored>
     private String savingMessage = null;
     private final MutableLiveData<Boolean> skipZeroSession = new MutableLiveData<>(false);
 
-    // ====== NOVO: filtro de estágio ======
+    // ====== filtro de estágio ======
     private volatile StageFilter stageFilter = StageFilter.ALL;
 
     public TutoredVM(@NonNull Application application) {
@@ -106,31 +106,31 @@ public class TutoredVM extends SearchVM<Tutored>
     public String getCurrentQuery() { return currentQuery; }
 
     public StageFilter getStageFilter() { return stageFilter; }
-    public void setStageFilter(StageFilter stageFilter) {
-        if (stageFilter == null) stageFilter = StageFilter.ALL;
-        this.stageFilter = stageFilter;
+    public void setStageFilter(StageFilter filter) {
+        this.stageFilter = (filter == null) ? StageFilter.ALL : filter;
     }
 
-    /** Recarrega lista aplicando filtro de estágio + texto de pesquisa. */
+    /**
+     * Recarrega lista aplicando filtro de estágio (no BD) + texto de pesquisa (em memória).
+     */
     public void reloadWithFilter() {
         getExecutorService().execute(() -> {
             try {
-                List<Tutored> base = doSearch(0, 9999);
+                // 1) Busca já filtrando por estágio no BD (usa flow_history normalizado)
+                List<Location> mentorLocations =
+                        getApplication().getCurrMentor().getEmployee().getLocations();
+
+                List<Tutored> base = tutoredService.getAllByStageFilter(stageFilter, mentorLocations);
                 if (base == null) base = new ArrayList<>();
 
-                // 1) estágio
-                List<Tutored> stageFiltered = new ArrayList<>();
-                for (Tutored t : base) {
-                    if (matchesStage(t, stageFilter)) stageFiltered.add(t);
-                }
-
-                // 2) texto
+                // 2) Filtro de texto (nome / telefone)
                 final String q = (getCurrentQuery() == null) ? "" : getCurrentQuery().trim().toLowerCase();
                 List<Tutored> finalFiltered = new ArrayList<>();
+
                 if (q.isEmpty()) {
-                    finalFiltered = stageFiltered;
+                    finalFiltered = base;
                 } else {
-                    for (Tutored t : stageFiltered) {
+                    for (Tutored t : base) {
                         String name = (t.getEmployee() != null && t.getEmployee().getFullName() != null)
                                 ? t.getEmployee().getFullName().toLowerCase() : "";
                         String phone = (t.getEmployee() != null && t.getEmployee().getPhoneNumber() != null)
@@ -139,41 +139,14 @@ public class TutoredVM extends SearchVM<Tutored>
                     }
                 }
 
-                // 3) publicar
+                // 3) Publica
                 setSearchResults(finalFiltered);
                 runOnMainThread(this::displaySearchResults);
+
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         });
-    }
-
-    // Put anywhere in the class (e.g., near matchesStage)
-    private FlowHistory latestFlow(Tutored t) {
-        if (t == null || t.getFlowHistory() == null || t.getFlowHistory().isEmpty()) return null;
-        return t.getFlowHistory().get(t.getFlowHistory().size() - 1);
-    }
-
-    protected boolean matchesStage(Tutored t, StageFilter filter) {
-        if (filter == null || filter == StageFilter.ALL) return true;
-        if (t == null) return false;
-
-        FlowHistory fh = latestFlow(t);
-        if (fh == null || fh.getEstagio() == null || fh.getEstado() == null) return false;
-
-        final EnumFlowHistoryProgressStatus NEED = EnumFlowHistoryProgressStatus.AGUARDA_INICIO;
-
-        switch (filter) {
-            case AWAIT_ZERO:
-                return fh.getEstagio() == EnumFlowHistory.SESSAO_ZERO && fh.getEstado() == NEED;
-            case START_ROUND:
-                return fh.getEstagio() == EnumFlowHistory.RONDA_CICLO && fh.getEstado() == NEED;
-            case SEMESTRAL:
-                return fh.getEstagio() == EnumFlowHistory.SESSAO_SEMESTRAL && fh.getEstado() == NEED;
-            case ALL:
-            default:
-                return true;
-        }
     }
 
     // ====== fluxo de busca base ======
@@ -187,7 +160,7 @@ public class TutoredVM extends SearchVM<Tutored>
 
     @Override public void preInit() { }
 
-    // ====== getters/setters de campos do formulário (inalterados) ======
+    // ====== getters/setters de campos do formulário ======
     @Bindable public String getName() {
         if (this.tutored == null || this.tutored.getEmployee() == null) return null;
         return this.tutored.getEmployee().getName();
@@ -245,7 +218,9 @@ public class TutoredVM extends SearchVM<Tutored>
     }
 
     @Bindable public String getTrainingYear() {
-        if (this.tutored == null || this.tutored.getEmployee() == null || this.tutored.getEmployee().getTrainingYear() == null || this.tutored.getEmployee().getTrainingYear() <= 0) return null;
+        if (this.tutored == null || this.tutored.getEmployee() == null
+                || this.tutored.getEmployee().getTrainingYear() == null
+                || this.tutored.getEmployee().getTrainingYear() <= 0) return null;
         return String.valueOf(this.tutored.getEmployee().getTrainingYear());
     }
     public void setTrainingYear(String trainingYear) {
@@ -297,7 +272,9 @@ public class TutoredVM extends SearchVM<Tutored>
     private void doSave(){
         Log.d("TutoredVM", "isEditMode=" + getCurrentStep().isApplicationStepEdit());
 
-        runOnMainThread(() -> setSaveUiState(SaveUiState.RUNNING, getRelatedActivity().getString(R.string.saving_tutored)));
+        runOnMainThread(() ->
+                setSaveUiState(SaveUiState.RUNNING,
+                        getRelatedActivity().getString(R.string.saving_tutored)));
 
         getExecutorService().execute(() -> {
             try {
@@ -326,22 +303,24 @@ public class TutoredVM extends SearchVM<Tutored>
                 location.setLifeCycleStatus(LifeCycleStatus.ACTIVE);
                 tutored.getEmployee().addLocation(location);
 
-                // === UPDATED: flowHistory as LIST (append) ===
+                // === FlowHistory inicial (zero) como LIST, sem depender de tutoredId ===
                 boolean skip = Boolean.TRUE.equals(skipZeroSession.getValue());
 
-                FlowHistory zeroStage = new FlowHistory(
-                        EnumFlowHistory.SESSAO_ZERO,
-                        skip ? EnumFlowHistoryProgressStatus.ISENTO
-                                : EnumFlowHistoryProgressStatus.AGUARDA_INICIO,
-                        null
-                );
+                FlowHistory zeroStage = new FlowHistory();
+                zeroStage.setEstagio(EnumFlowHistory.SESSAO_ZERO);
+                zeroStage.setEstado(skip
+                        ? EnumFlowHistoryProgressStatus.ISENTO
+                        : EnumFlowHistoryProgressStatus.AGUARDA_INICIO);
+                zeroStage.setClassificacao(null);
+                zeroStage.setSeq(1);
 
                 List<FlowHistory> histories = tutored.getFlowHistory();
                 if (histories == null) histories = new ArrayList<>();
                 histories.clear();
                 histories.add(zeroStage);
                 tutored.setFlowHistory(histories);
-                // === END UPDATED ===
+                // === FIM FlowHistory inicial ===
+
                 String error = this.tutored.validade();
                 if (Utilities.stringHasValue(error)) {
                     runOnMainThread(() -> setSaveUiState(SaveUiState.ERROR, error));
@@ -353,7 +332,8 @@ public class TutoredVM extends SearchVM<Tutored>
             } catch (Exception e) {
                 Log.e("MentorVM", e.getMessage());
                 runOnMainThread(() ->
-                        setSaveUiState(SaveUiState.ERROR, getRelatedActivity().getString(R.string.failed_to_save_tutored))
+                        setSaveUiState(SaveUiState.ERROR,
+                                getRelatedActivity().getString(R.string.failed_to_save_tutored))
                 );
             }
         });
@@ -369,13 +349,15 @@ public class TutoredVM extends SearchVM<Tutored>
             }
 
             runOnMainThread(() ->
-                    setSaveUiState(SaveUiState.SUCCESS, getRelatedActivity().getString(R.string.tutored_data_saved_success))
+                    setSaveUiState(SaveUiState.SUCCESS,
+                            getRelatedActivity().getString(R.string.tutored_data_saved_success))
             );
 
         } catch (SQLException e) {
             Log.e("MentorVM", e.getMessage());
             runOnMainThread(() ->
-                    setSaveUiState(SaveUiState.ERROR, getRelatedActivity().getString(R.string.failed_to_save_tutored))
+                    setSaveUiState(SaveUiState.ERROR,
+                            getRelatedActivity().getString(R.string.failed_to_save_tutored))
             );
         }
     }
@@ -401,7 +383,8 @@ public class TutoredVM extends SearchVM<Tutored>
                     this.tutored.setEmployee(employee);
 
                     // Garante que a categoria profissional é carregada
-                    if (employee.getProfessionalCategory() == null && employee.getProfessionalCategoryId() != null) {
+                    if (employee.getProfessionalCategory() == null
+                            && employee.getProfessionalCategoryId() != null) {
                         ProfessionalCategory category = getApplication()
                                 .getProfessionalCategoryService()
                                 .getById(employee.getProfessionalCategoryId());
@@ -414,11 +397,12 @@ public class TutoredVM extends SearchVM<Tutored>
                 throw new RuntimeException("Erro ao carregar o funcionário do Tutored", e);
             }
 
-            // LÓGICA DE DEFINIÇÃO DE SKIPZEROSESSION
+            // LÓGICA DE DEFINIÇÃO DE SKIPZEROSESSION (olhando histórico normalizado já carregado no Tutored)
             boolean skipZero = false;
             if (tutored.getFlowHistory() != null && !tutored.getFlowHistory().isEmpty()) {
                 for (FlowHistory history : tutored.getFlowHistory()) {
-                    if (history.getEstado() == EnumFlowHistoryProgressStatus.ISENTO && history.getEstagio() == EnumFlowHistory.SESSAO_ZERO) {
+                    if (history.getEstado() == EnumFlowHistoryProgressStatus.ISENTO
+                            && history.getEstagio() == EnumFlowHistory.SESSAO_ZERO) {
                         skipZero = true;
                         break; // já encontramos, podemos parar
                     }
@@ -426,10 +410,7 @@ public class TutoredVM extends SearchVM<Tutored>
             }
 
             boolean finalSkipZero = skipZero;
-            runOnMainThread(() -> {
-                setSkipZeroSession(finalSkipZero); // 🔥 Atualiza a flag observável
-            });
-
+            runOnMainThread(() -> setSkipZeroSession(finalSkipZero));
 
             runOnMainThread(() -> {
                 if (this.tutored.getEmployee() != null &&
@@ -443,17 +424,21 @@ public class TutoredVM extends SearchVM<Tutored>
                         try {
                             // Buscar instâncias completas
                             if (location.getProvince() == null && location.getProvinceId() != null) {
-                                Province province = getApplication().getProvinceService().getById(location.getProvinceId());
+                                Province province = getApplication().getProvinceService()
+                                        .getById(location.getProvinceId());
                                 location.setProvince(province);
                             }
 
                             if (location.getDistrict() == null && location.getDistrictId() != null) {
-                                District district = getApplication().getDistrictService().getById(location.getDistrictId());
+                                District district = getApplication().getDistrictService()
+                                        .getById(location.getDistrictId());
                                 location.setDistrict(district);
                             }
 
-                            if (location.getHealthFacility() == null && location.getHealthFacilityId() != null) {
-                                HealthFacility hf = getApplication().getHealthFacilityService().getById(location.getHealthFacilityId());
+                            if (location.getHealthFacility() == null
+                                    && location.getHealthFacilityId() != null) {
+                                HealthFacility hf = getApplication().getHealthFacilityService()
+                                        .getById(location.getHealthFacilityId());
                                 location.setHealthFacility(hf);
                             }
 
@@ -520,7 +505,6 @@ public class TutoredVM extends SearchVM<Tutored>
         });
     }
 
-
     private Tutored pendingTutored;
 
     public void setPendingTutored(Tutored t) {
@@ -534,7 +518,6 @@ public class TutoredVM extends SearchVM<Tutored>
         }
     }
 
-
     public Location getLocation() { return location; }
     public void setLocation(Location location) { this.location = location; }
 
@@ -544,28 +527,32 @@ public class TutoredVM extends SearchVM<Tutored>
     @Bindable public Listble getProvince() { return this.location.getProvince(); }
     public void setProvince(Listble province) {
         this.location.setProvince((Province) province);
-        getExecutorService().execute(()-> {
+        getExecutorService().execute(() -> {
             try {
                 this.districts.clear();
                 this.healthFacilities.clear();
                 if (province.getId() == null) return;
                 this.districts.addAll(getApplication().getDistrictService()
-                        .getByProvinceAndMentor(this.location.getProvince(), getApplication().getCurrMentor()));
-                getRelatedActivity().runOnUiThread(()-> getCreateTutoredActivity().reloadDistrcitAdapter());
+                        .getByProvinceAndMentor(this.location.getProvince(),
+                                getApplication().getCurrMentor()));
+                getRelatedActivity().runOnUiThread(
+                        () -> getCreateTutoredActivity().reloadDistrcitAdapter());
             } catch (SQLException e) { e.printStackTrace(); }
         });
     }
 
     @Bindable public Listble getDistrict(){ return this.location.getDistrict(); }
     public void setDistrict(Listble district){
-        getExecutorService().execute(()-> {
+        getExecutorService().execute(() -> {
             try {
                 this.location.setDistrict((District) district);
                 this.healthFacilities.clear();
                 if (district.getId() == null) return;
                 this.healthFacilities.addAll(getApplication().getHealthFacilityService()
-                        .getHealthFacilityByDistrictAndMentor((District) district, getApplication().getCurrMentor()));
-                getRelatedActivity().runOnUiThread(()-> getCreateTutoredActivity().reloadHealthFacility());
+                        .getHealthFacilityByDistrictAndMentor((District) district,
+                                getApplication().getCurrMentor()));
+                getRelatedActivity().runOnUiThread(
+                        () -> getCreateTutoredActivity().reloadHealthFacility());
             } catch (SQLException e) { e.printStackTrace(); }
         });
     }
@@ -603,7 +590,8 @@ public class TutoredVM extends SearchVM<Tutored>
             setONGEmployee(false);
             getExecutorService().execute(() -> {
                 try {
-                    this.tutored.getEmployee().setPartner(getApplication().getPartnerService().getMISAU());
+                    this.tutored.getEmployee().setPartner(
+                            getApplication().getPartnerService().getMISAU());
                 } catch (SQLException e) { throw new RuntimeException(e); }
             });
         }
@@ -619,13 +607,13 @@ public class TutoredVM extends SearchVM<Tutored>
     @Override public BaseActivity getRelatedActivity() { return super.getRelatedActivity(); }
 
     public void createNewTutored() {
-        getCurrentStep().changetocreate(); // <-- ADICIONA ESTA LINHA
+        getCurrentStep().changetocreate();
         getRelatedActivity().nextActivityFinishingCurrent(CreateTutoredActivity.class);
     }
 
     public List getAllPartners() { return this.partners; }
     public void getPartnersList() {
-        getExecutorService().execute(()-> {
+        getExecutorService().execute(() -> {
             try { setPartners(getApplication().getPartnerService().getAll()); }
             catch (SQLException e) { throw new RuntimeException(e); }
         });
@@ -652,11 +640,11 @@ public class TutoredVM extends SearchVM<Tutored>
             }
         } else {
             runOnMainThread(() ->
-                    setSaveUiState(SaveUiState.ERROR, getRelatedActivity().getString(R.string.server_unavailable))
+                    setSaveUiState(SaveUiState.ERROR,
+                            getRelatedActivity().getString(R.string.server_unavailable))
             );
         }
     }
-
 
     public void nextStep() { }
 
@@ -669,7 +657,8 @@ public class TutoredVM extends SearchVM<Tutored>
 
     @Override
     public List<Tutored> doSearch(long offset, long limit) throws SQLException {
-        return this.tutoredService.getAllPagenated(getApplication().getCurrMentor().getEmployee().getLocations(), offset, limit);
+        return this.tutoredService.getAllPagenated(
+                getApplication().getCurrMentor().getEmployee().getLocations(), offset, limit);
     }
 
     @Override
@@ -694,31 +683,39 @@ public class TutoredVM extends SearchVM<Tutored>
     }
 
     private void editTutoredFromServer(String uuid) {
-        loading = Utilities.showLoadingDialog(getRelatedActivity(), getRelatedActivity().getString(R.string.processando));
+        loading = Utilities.showLoadingDialog(
+                getRelatedActivity(),
+                getRelatedActivity().getString(R.string.processando));
 
-        getApplication().getTutoredRestService().restGetTutoredByUuid(uuid, new RestResponseListener<Tutored>() {
-            @Override
-            public void doOnResponse(String flag, List<Tutored> tutoreds) {
-                dismissProgress(loading);
-                Tutored updatedTutored = tutoreds.get(0);
-                runOnMainThread(() -> {
-                    Map<String, Object> params = new HashMap<>();
-                    params.put("relatedRecord", updatedTutored);
-                    getCurrentStep().changeToEdit();
-                    getRelatedActivity().nextActivityFinishingCurrent(CreateTutoredActivity.class, params);
+        getApplication().getTutoredRestService().restGetTutoredByUuid(uuid,
+                new RestResponseListener<Tutored>() {
+                    @Override
+                    public void doOnResponse(String flag, List<Tutored> tutoreds) {
+                        dismissProgress(loading);
+                        Tutored updatedTutored = tutoreds.get(0);
+                        runOnMainThread(() -> {
+                            Map<String, Object> params = new HashMap<>();
+                            params.put("relatedRecord", updatedTutored);
+                            getCurrentStep().changeToEdit();
+                            getRelatedActivity().nextActivityFinishingCurrent(
+                                    CreateTutoredActivity.class, params);
+                        });
+                    }
+
+                    @Override
+                    public void doOnRestErrorResponse(String errorMsg) {
+                        dismissProgress(loading);
+                        runOnMainThread(() ->
+                                Utilities.displayAlertDialog(
+                                        getRelatedActivity(), errorMsg).show());
+                    }
                 });
-            }
-
-            @Override
-            public void doOnRestErrorResponse(String errorMsg) {
-                dismissProgress(loading);
-                runOnMainThread(() -> Utilities.displayAlertDialog(getRelatedActivity(), errorMsg).show());
-            }
-        });
     }
 
     public void initMenteeEdition(Tutored selectedTutored) {
-        loading = Utilities.showLoadingDialog(getRelatedActivity(), getRelatedActivity().getString(R.string.verifying_connection));
+        loading = Utilities.showLoadingDialog(
+                getRelatedActivity(),
+                getRelatedActivity().getString(R.string.verifying_connection));
 
         getApplication().isServerOnline((isOnline, isSlow) -> {
             dismissProgress(loading);
@@ -726,7 +723,10 @@ public class TutoredVM extends SearchVM<Tutored>
                 if (isSlow) showSlowConnectionWarning(getRelatedActivity());
                 editTutoredFromServer(selectedTutored.getUuid());
             } else {
-                Utilities.displayAlertDialog(getRelatedActivity(), getRelatedActivity().getString(R.string.server_unavailable)).show();
+                Utilities.displayAlertDialog(
+                        getRelatedActivity(),
+                        getRelatedActivity().getString(R.string.server_unavailable)
+                ).show();
             }
         });
     }

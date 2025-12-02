@@ -18,6 +18,7 @@ import mz.org.csaude.mentoring.dao.career.CareerTypeDAO;
 import mz.org.csaude.mentoring.dao.employee.EmployeeDAO;
 import mz.org.csaude.mentoring.dao.evaluation.EvaluationTypeDAO;
 import mz.org.csaude.mentoring.dao.evaluationLocation.EvaluationLocationDAO;
+import mz.org.csaude.mentoring.dao.flowhistory.FlowHistoryDao;
 import mz.org.csaude.mentoring.dao.form.FormDAO;
 import mz.org.csaude.mentoring.dao.form.FormTypeDAO;
 import mz.org.csaude.mentoring.dao.formSection.FormSectionDAO;
@@ -89,6 +90,7 @@ import mz.org.csaude.mentoring.model.session.SessionRecommendedResource;
 import mz.org.csaude.mentoring.model.session.SessionStatus;
 import mz.org.csaude.mentoring.model.setting.Setting;
 import mz.org.csaude.mentoring.model.tutor.Tutor;
+import mz.org.csaude.mentoring.model.tutored.FlowHistory;
 import mz.org.csaude.mentoring.model.tutored.Tutored;
 import mz.org.csaude.mentoring.model.user.User;
 import mz.org.csaude.mentoring.util.Converters;
@@ -102,7 +104,8 @@ import mz.org.csaude.mentoring.util.Converters;
                 CareerType.class, FormType.class, Door.class, IterationType.class, Province.class, QuestionType.class,
                 SessionStatus.class, User.class, Ronda.class, RondaType.class, RondaMentee.class, RondaMentor.class,
                 ProfessionalCategory.class, Employee.class, Location.class, EvaluationType.class, ResponseType.class,
-                Resource.class, SessionRecommendedResource.class, FormSection.class, Section.class, EvaluationLocation.class
+                Resource.class, SessionRecommendedResource.class, FormSection.class, Section.class, EvaluationLocation.class,
+                FlowHistory.class
         },
         version = 6,
         exportSchema = false
@@ -150,13 +153,14 @@ public abstract class MentoringDatabase extends RoomDatabase {
     public abstract SectionDAO getSectionDAO();
     public abstract FormSectionDAO getFormSectionDAO();
     public abstract EvaluationLocationDAO getEvaluationLocationDAO();
+    public abstract FlowHistoryDao getFlowHistoryDao();
+
 
     // Migration 4 -> 5: add flow_history column to Tutored
     private static final Migration MIGRATION_4_5 = new Migration(4, 5) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase db) {
-            db.execSQL("ALTER TABLE " + Tutored.COLUMN_TABLE_NAME + " ADD COLUMN "
-                    + Tutored.COLUMN_FLOW_HISTORY + " TEXT");
+
         }
     };
 

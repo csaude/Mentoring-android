@@ -9,6 +9,8 @@ import androidx.room.Update;
 import java.util.List;
 import java.util.Set;
 
+import mz.org.csaude.mentoring.model.tutored.EnumFlowHistory;
+import mz.org.csaude.mentoring.model.tutored.EnumFlowHistoryProgressStatus;
 import mz.org.csaude.mentoring.model.tutored.Tutored;
 
 @Dao
@@ -71,7 +73,7 @@ public interface TutoredDao {
     void insertAll(List<Tutored> tutoredList);
 
     @Update
-    void update(Tutored tutored);
+    int update(Tutored tutored);
 
     @Update
     void updateAll(List<Tutored> tutoredList);
@@ -99,18 +101,43 @@ public interface TutoredDao {
 
     @Query("SELECT DISTINCT t.* " +
             "FROM tutored t " +
+            "JOIN flow_history fh ON fh.tutored_id = t.id " +
             "JOIN employee e ON e.id = t.employee_id " +
             "JOIN location l ON e.id = l.employee_id " +
             "WHERE t.life_cycle_status = 'ACTIVE' " +
-            "AND t.flow_history IS NOT NULL " +
-            // Garante que estagio e estado estão no MESMO objeto JSON
-            "AND ( " +
-            "   INSTR(t.flow_history, '\"estagio\":\"' || :flowCode || '\",\"estado\":\"' || :statusCode || '\"') > 0 " +
-            "   OR INSTR(t.flow_history, '\"estado\":\"' || :statusCode || '\",\"estagio\":\"' || :flowCode || '\"') > 0 " +
+            // pega apenas o FlowHistory MAIS RECENTE do mentorando
+            "AND fh.seq = ( " +
+            "   SELECT MAX(fh2.seq) " +
+            "   FROM flow_history fh2 " +
+            "   WHERE fh2.tutored_id = t.id " +
             ") " +
+            "AND fh.estagio = :flowCode " +
+            "AND fh.estado = :statusCode " +
             "AND l.health_facility_id = :hfId " +
             "ORDER BY e.surname COLLATE NOCASE, e.name COLLATE NOCASE")
-    List<Tutored> findByFlowHistory(String flowCode, String statusCode, Integer hfId);
+    List<Tutored> findByFlowHistory(EnumFlowHistory flowCode,
+                                    EnumFlowHistoryProgressStatus statusCode,
+                                    Integer hfId);
+
+    @Query("SELECT DISTINCT t.* " +
+            "FROM tutored t " +
+            "JOIN employee e ON e.id = t.employee_id " +
+            "JOIN location l ON e.id = l.employee_id " +
+            "JOIN flow_history fh ON fh.tutored_id = t.id " +
+            "WHERE t.life_cycle_status = 'ACTIVE' " +
+            "AND l.health_facility_id IN (:healthFacilityIds) " +
+            // pega apenas o FlowHistory MAIS RECENTE
+            "AND fh.seq = ( " +
+            "   SELECT MAX(fh2.seq) " +
+            "   FROM flow_history fh2 " +
+            "   WHERE fh2.tutored_id = t.id " +
+            ") " +
+            "AND fh.estagio = :flowCode " +
+            "AND fh.estado  = :statusCode " +
+            "ORDER BY e.surname COLLATE NOCASE, e.name COLLATE NOCASE")
+    List<Tutored> findByLatestFlowAndStatus(List<Integer> healthFacilityIds,
+                                            EnumFlowHistory flowCode,
+                                            EnumFlowHistoryProgressStatus statusCode);
 
 
 

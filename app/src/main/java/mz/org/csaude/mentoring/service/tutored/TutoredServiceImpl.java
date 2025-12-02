@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import mz.org.csaude.mentoring.base.service.BaseServiceImpl;
+import mz.org.csaude.mentoring.dao.flowhistory.FlowHistoryDao;
 import mz.org.csaude.mentoring.dao.tutored.TutoredDao;
 import mz.org.csaude.mentoring.model.location.HealthFacility;
 import mz.org.csaude.mentoring.model.location.Location;
@@ -24,6 +25,8 @@ import mz.org.csaude.mentoring.service.employee.EmployeeService;
 import mz.org.csaude.mentoring.service.employee.EmployeeServiceImpl;
 import mz.org.csaude.mentoring.util.LifeCycleStatus;
 import mz.org.csaude.mentoring.util.SyncSatus;
+import mz.org.csaude.mentoring.util.Utilities;
+import mz.org.csaude.mentoring.viewmodel.tutored.StageFilter;
 
 public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements TutoredService{
 
@@ -31,6 +34,7 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
 
 
     EmployeeService employeeService;
+    FlowHistoryDao flowHistoryDao;
 
     public TutoredServiceImpl(Application application) {
         super(application);
@@ -41,10 +45,12 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
         super.init(application);
         this.tutoredDao = getDataBaseHelper().getTutoredDao();
         this.employeeService = new EmployeeServiceImpl(application);
+        this.flowHistoryDao = getDataBaseHelper().getFlowHistoryDao();
     }
 
     public Tutored save(Tutored tutored) throws SQLException {
         tutored.setId((int) this.tutoredDao.insert(tutored));
+        if (Utilities.listHasElements(tutored.getFlowHistory())) flowHistoryDao.insertAll(tutored.getFlowHistory());
         return tutored;
 
     }
@@ -65,6 +71,7 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
         List<Tutored> tutoreds = this.tutoredDao.queryForAll();
         for (Tutored tutored : tutoreds) {
             tutored.setEmployee(getApplication().getEmployeeService().getById(tutored.getEmployeeId()));
+            tutored.setFlowHistory(flowHistoryDao.getByTutored(tutored.getId()));
         }
         return tutoreds;
     }
@@ -73,6 +80,7 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
     public Tutored getById(int id) throws SQLException {
         Tutored tutored = this.tutoredDao.queryForId(id);
         tutored.setEmployee(getApplication().getEmployeeService().getById(tutored.getEmployeeId()));
+        tutored.setFlowHistory(flowHistoryDao.getByTutored(tutored.getId()));
         return tutored;
     }
 
@@ -92,24 +100,64 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
     @Override
     public Tutored savedOrUpdateTutored(Tutored tutored) throws SQLException {
 
-        Tutored t = this.tutoredDao.getByUuid(tutored.getUuid());
-        if (t != null) {
-            tutored.setId(t.getId());
-            tutored.setEmployee(getApplication().getEmployeeService().saveOrUpdateEmployee(tutored.getEmployee()));
+        Tutored existing = this.tutoredDao.getByUuid(tutored.getUuid());
+
+        // Garante que o Employee está persistido
+        tutored.setEmployee(
+                getApplication()
+                        .getEmployeeService()
+                        .saveOrUpdateEmployee(tutored.getEmployee())
+        );
+
+        if (existing != null) {
+            // manter o mesmo ID
+            tutored.setId(existing.getId());
             this.update(tutored);
         } else {
-            tutored.setEmployee(getApplication().getEmployeeService().saveOrUpdateEmployee(tutored.getEmployee()));
+            // novo registo
             this.save(tutored);
+            // se o teu save NÃO setar o ID de volta no objeto,
+            // podes reconsultar por UUID:
+            if (tutored.getId() == null) {
+                Tutored persisted = tutoredDao.getByUuid(tutored.getUuid());
+                if (persisted != null) {
+                    tutored.setId(persisted.getId());
+                }
+            }
+        }
+
+        // --- Persistir FlowHistory normalizado ---
+        if (tutored.getId() != null && Utilities.listHasElements(tutored.getFlowHistory())) {
+
+            // 1) apaga o histórico antigo deste mentorando
+            flowHistoryDao.deleteByTutoredId(tutored.getId());
+
+            // 2) insere o histórico atual vindo do objeto
+            int fallbackSeq = 1;
+            for (FlowHistory fh : tutored.getFlowHistory()) {
+                if (fh == null) continue;
+
+                fh.setTutoredId(tutored.getId());
+
+                // se vier sem seq definido, gera uma sequência incremental
+                if (fh.getSeq() == null) {
+                    fh.setSeq(fallbackSeq++);
+                }
+
+                flowHistoryDao.insert(fh);
+            }
         }
 
         return tutored;
     }
+
 
     @Override
     public List<Tutored> getAllOfRonda(Ronda currRonda) throws SQLException {
         List<Tutored> tutoreds =  this.tutoredDao.getAllOfRonda(currRonda.getId());
         for (Tutored tutored : tutoreds) {
             tutored.setEmployee(getApplication().getEmployeeService().getById(tutored.getEmployeeId()));
+            tutored.setFlowHistory(flowHistoryDao.getByTutored(tutored.getId()));
         }
         return tutoreds;
     }
@@ -119,6 +167,7 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
         List<Tutored> tutoreds =  this.tutoredDao.getAllOfRondaForZeroEvaluation(currRonda.getId());
         for (Tutored tutored : tutoreds) {
             tutored.setEmployee(getApplication().getEmployeeService().getById(tutored.getEmployeeId()));
+            tutored.setFlowHistory(flowHistoryDao.getByTutored(tutored.getId()));
         }
         return tutoreds;
     }
@@ -128,6 +177,7 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
         List<Tutored> tutoreds = this.tutoredDao.getAllOfHealthFacility(healthFacility.getId(), String.valueOf(LifeCycleStatus.ACTIVE));
         for (Tutored tutored : tutoreds) {
             tutored.setEmployee(getApplication().getEmployeeService().getById(tutored.getEmployeeId()));
+            tutored.setFlowHistory(flowHistoryDao.getByTutored(tutored.getId()));
         }
         return tutoreds;
     }
@@ -139,6 +189,7 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
         for (Tutored tutored : tutoreds) {
             tutored.setEmployee(getApplication().getEmployeeService().getById(tutored.getEmployeeId()));
             tutored.getEmployee().setLocations(getApplication().getLocationService().getAllOfEmploee(tutored.getEmployee()));
+            tutored.setFlowHistory(flowHistoryDao.getByTutored(tutored.getId()));
         }
         return tutoreds;
     }
@@ -148,6 +199,7 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
         List<Tutored> tutoreds = this.tutoredDao.getAllForMentoringRound(healthFacility.getId(), String.valueOf(LifeCycleStatus.ACTIVE), zeroEvaluation);
         for (Tutored tutored : tutoreds) {
             tutored.setEmployee(getApplication().getEmployeeService().getById(tutored.getEmployeeId()));
+            tutored.setFlowHistory(flowHistoryDao.getByTutored(tutored.getId()));
         }
         return tutoreds;
     }
@@ -167,6 +219,7 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
         for (Tutored tutored : tutoreds) {
             try {
                 tutored.setEmployee(getApplication().getEmployeeService().getById(tutored.getEmployeeId()));
+                tutored.setFlowHistory(flowHistoryDao.getByTutored(tutored.getId()));
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -178,20 +231,31 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
     public List<Tutored> getByFlowHistory(EnumFlowHistory flow,
                                           EnumFlowHistoryProgressStatus status,
                                           HealthFacility hf) {
-        final String flowCode   = (flow   == null) ? null : flow.code();
-        final String statusCode = (status == null) ? null : status.code();
-        final Integer hfId      = (hf     == null) ? null : hf.getId();
 
-        List<Tutored> tutoreds = tutoredDao.findByFlowHistory(flowCode, statusCode, hfId);
+        // Se algum parâmetro essencial vier nulo, não há como filtrar corretamente
+        if (flow == null || status == null || hf == null) {
+            return java.util.Collections.emptyList();
+        }
+
+        List<Tutored> tutoreds =
+                tutoredDao.findByFlowHistory(flow, status, hf.getId());
+
         for (Tutored tutored : tutoreds) {
             try {
-                tutored.setEmployee(getApplication().getEmployeeService().getById(tutored.getEmployeeId()));
+                tutored.setEmployee(
+                        getApplication()
+                                .getEmployeeService()
+                                .getById(tutored.getEmployeeId())
+                );
+                tutored.setFlowHistory(flowHistoryDao.getByTutored(tutored.getId()));
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
+
         return tutoreds;
     }
+
 
     @Override
     public void updateFlowHistory(List<RondaMentee> rondaMentees, EnumFlowHistoryProgressStatus enumFlowHistoryProgressStatus) {
@@ -206,4 +270,53 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
         }
 
     }
+
+    @Override
+    public List<Tutored> getAllByStageFilter(StageFilter filter,
+                                             List<Location> mentorLocations) throws SQLException {
+
+        // Se for ALL, mantém comportamento original (sem filtrar por fluxo)
+        if (filter == null || filter == StageFilter.ALL) {
+            return getAllPagenated(mentorLocations, 0, 9999); // ou o método que já usas
+        }
+
+        // Extrai IDs de unidades sanitárias
+        List<Integer> hfIds = new ArrayList<>();
+        if (mentorLocations != null) {
+            for (Location loc : mentorLocations) {
+                if (loc != null && loc.getHealthFacilityId() != null) {
+                    hfIds.add(loc.getHealthFacilityId());
+                }
+            }
+        }
+        if (hfIds.isEmpty()) return new ArrayList<>();
+
+        // Mapeia StageFilter -> (flow, status)
+        EnumFlowHistory flow;
+        EnumFlowHistoryProgressStatus status = EnumFlowHistoryProgressStatus.AGUARDA_INICIO;
+
+        switch (filter) {
+            case AWAIT_ZERO:
+                flow = EnumFlowHistory.SESSAO_ZERO;
+                break;
+            case START_ROUND:
+                flow = EnumFlowHistory.RONDA_CICLO;
+                break;
+            case SEMESTRAL:
+                flow = EnumFlowHistory.SESSAO_SEMESTRAL;
+                break;
+            case ALL:
+            default:
+                // já tratado acima, mas por segurança:
+                return getAllPagenated(mentorLocations, 0, 9999);
+        }
+
+        List<Tutored> tutoreds = tutoredDao.findByLatestFlowAndStatus(hfIds, flow, status);
+        for (Tutored tutored : tutoreds) {
+            tutored.setEmployee(getApplication().getEmployeeService().getById(tutored.getEmployeeId()));
+            tutored.setFlowHistory(flowHistoryDao.getByTutored(tutored.getId()));
+        }
+        return tutoreds;
+    }
+
 }

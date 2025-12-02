@@ -11,6 +11,7 @@ import mz.org.csaude.mentoring.model.ronda.RondaMentee;
 import mz.org.csaude.mentoring.model.tutored.EnumFlowHistory;
 import mz.org.csaude.mentoring.model.tutored.EnumFlowHistoryProgressStatus;
 import mz.org.csaude.mentoring.model.tutored.Tutored;
+import mz.org.csaude.mentoring.viewmodel.tutored.StageFilter;
 
 public interface TutoredService extends BaseService<Tutored> {
 
@@ -35,4 +36,8 @@ public interface TutoredService extends BaseService<Tutored> {
     List<Tutored> getByFlowHistory(EnumFlowHistory enumFlowHistory, EnumFlowHistoryProgressStatus enumFlowHistoryProgressStatus, HealthFacility healthFacility);
 
     void updateFlowHistory(List<RondaMentee> rondaMentees, EnumFlowHistoryProgressStatus enumFlowHistoryProgressStatus);
+
+    List<Tutored> getAllByStageFilter(StageFilter filter,
+                                      List<Location> mentorLocations) throws SQLException;
+
 }
