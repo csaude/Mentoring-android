@@ -572,4 +572,13 @@ public class DateUtilities {
         return cal.getTime();
     }
 
+    public static long diffInDays(Date referencia, Date hoje) {
+        if (referencia == null || hoje == null) return 0L;
+
+        long diffMillis = hoje.getTime() - referencia.getTime();
+        // Se por alguma razão referencia estiver no futuro, devolve 0 em vez de negativo
+        if (diffMillis <= 0) return 0L;
+
+        return diffMillis / (1000L * 60L * 60L * 24L);
+    }
 }

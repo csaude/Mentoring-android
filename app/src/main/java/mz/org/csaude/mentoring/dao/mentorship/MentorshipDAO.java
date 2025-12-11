@@ -8,6 +8,7 @@ import androidx.room.Update;
 import androidx.room.Transaction;
 import androidx.room.Upsert;
 
+import java.util.Date;
 import java.util.List;
 
 import mz.org.csaude.mentoring.model.mentorship.Mentorship;
@@ -65,5 +66,13 @@ public interface MentorshipDAO {
             "WHERE tutored_id = :menteeId " +
             "AND start_date >= strftime('%s', 'now', '-' || :days || ' day') * 1000")
     int countMentorshipsOnLastDays(Integer menteeId, Integer days);
+
+
+    @Query("SELECT MAX(m.performed_date) " +
+            "FROM mentorship m " +
+            "JOIN session s ON s.id = m.session_id " +
+            "WHERE m.tutored_id = :tutoredId " +
+            "AND s.ronda_id = :rondaId")
+    Date getLastPerformedDateForTutoredInRonda(Integer tutoredId, Integer rondaId);
 
 }

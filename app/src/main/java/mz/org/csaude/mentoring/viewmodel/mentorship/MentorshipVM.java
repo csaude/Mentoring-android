@@ -458,6 +458,7 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
                     mentorship.setEvaluationLocation(mentorship.getForm().getEvaluationLocation());
                     if (mentorship.getEvaluationLocation().isCommunityEvaluation()) {
                         mentorship.setCabinet(getApplication().getCabinetService().getByuuid(Cabinet.COMMUNITY_CABINET_UUID));
+                        mentorship.setDoor(getApplication().getDoorService().getByCode(Door.COMMUNITY_DOOR));
                     }
                 }
             }

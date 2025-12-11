@@ -50,7 +50,11 @@ public class TutoredServiceImpl extends BaseServiceImpl<Tutored> implements Tuto
 
     public Tutored save(Tutored tutored) throws SQLException {
         tutored.setId((int) this.tutoredDao.insert(tutored));
-        if (Utilities.listHasElements(tutored.getFlowHistory())) flowHistoryDao.insertAll(tutored.getFlowHistory());
+        if (Utilities.listHasElements(tutored.getFlowHistory())) {
+            tutored.getFlowHistory().forEach(mfh -> mfh.setTutoredId(tutored.getId()));
+            flowHistoryDao.insertAll(tutored.getFlowHistory());
+        }
+
         return tutored;
 
     }
