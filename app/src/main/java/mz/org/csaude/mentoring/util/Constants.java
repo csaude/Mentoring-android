@@ -20,7 +20,19 @@ public class Constants {
 
 
 
-    public static final String MUX_DAYS_ON_RONDA_WITHOUT_SESSION = "Mentee_ronda_removal_interval";
+    /**
+     * Setting keys used in the backend configuration.
+     */
+    public static final class SettingKeys {
+
+        private SettingKeys() {
+            // Prevent instantiation
+        }
+
+        /** Número de dias até remover mentorandos inactivos de uma ronda */
+        public static final String DAYS_ON_RONDA_WITHOUT_SESSION =
+                "mentoring.ronda.removal.inactiveDays";
+    }
 
 
 }

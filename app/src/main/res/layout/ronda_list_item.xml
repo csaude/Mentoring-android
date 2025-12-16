@@ -35,14 +35,15 @@
 
                 <ImageButton
                     android:id="@+id/bg_left_btn"
-                    style="?attr/borderlessButtonStyle"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_gravity="center"
-                    android:background="@android:color/transparent"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:backgroundTint="@null"
                     android:contentDescription="@string/remove"
                     android:src="@drawable/ic_remove"
                     app:tint="@android:color/white"/>
+
             </FrameLayout>
 
             <!-- LADO DIREITO: EDIT -->
@@ -57,14 +58,14 @@
 
                 <ImageButton
                     android:id="@+id/bg_right_btn"
-                    style="?attr/borderlessButtonStyle"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_gravity="center"
-                    android:background="@android:color/transparent"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:backgroundTint="@null"
                     android:contentDescription="@string/edit"
                     android:src="@drawable/baseline_edit_square_24"
-                    app:tint="@android:color/white"/>
+                    app:tint="@android:color/white" />
             </FrameLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -218,9 +219,10 @@
                 <!-- Botão more (⋮) -->
                 <ImageButton
                     android:id="@+id/btn_more"
-                    style="?attr/borderlessButtonStyle"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:backgroundTint="@null"
                     android:contentDescription="@string/more_options"
                     android:src="@drawable/ic_more_vert_24"
                     app:tint='?attr/colorOnSurface'

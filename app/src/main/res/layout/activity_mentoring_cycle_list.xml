@@ -43,9 +43,9 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/rcvCard"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="84dp"
-            android:layout_marginBottom="80dp"
+            android:layout_marginBottom="150dp"
             android:layout_marginStart="@dimen/dimen_10dp"
             android:layout_marginEnd="@dimen/dimen_10dp"
             android:visibility='@{Utilities.listHasElements(viewModel.searchResults) ? View.VISIBLE : View.GONE}'
@@ -58,7 +58,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rcvRondas"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:overScrollMode="never"
                 android:scrollbars="none"
                 android:layoutAnimation="@anim/layout_pop_in_bottom" />

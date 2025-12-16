@@ -198,7 +198,7 @@ public class RondaRestService extends BaseRestService {
                     public void onResponse(Call<List<RondaDTO>> call, Response<List<RondaDTO>> response) {
                         List<RondaDTO> data = response.body();
                         if (response.code() == 200) {
-                            getServiceExecutor().execute(()-> {
+                            getServiceExecutor().execute(() -> {
                                 try {
                                     List<Ronda> rondaList = getApplication().getRondaService().getAllNotSynced();
                                     for (Ronda ronda : rondaList) {

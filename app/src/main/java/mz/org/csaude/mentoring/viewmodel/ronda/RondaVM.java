@@ -495,6 +495,11 @@ public class RondaVM extends BaseViewModel implements mz.org.csaude.mentoring.li
     }
 
     private boolean isValid() {
+        if (!Utilities.stringHasValue(this.ronda.getMentorType())) {
+            Utilities.displayAlertDialog(getRelatedActivity(),
+                    getRelatedActivity().getString(R.string.mentor_type_required)).show();
+            return false;
+        }
         if (this.ronda.getStartDate() == null) {
             Utilities.displayAlertDialog(getRelatedActivity(),
                     getRelatedActivity().getString(R.string.start_date_required)).show();

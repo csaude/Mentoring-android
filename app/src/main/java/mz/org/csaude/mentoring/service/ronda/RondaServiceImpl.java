@@ -1,6 +1,7 @@
 package mz.org.csaude.mentoring.service.ronda;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.room.Transaction;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 import mz.org.csaude.mentoring.base.application.MentoringApplication;
 import mz.org.csaude.mentoring.base.service.BaseServiceImpl;
+import mz.org.csaude.mentoring.dao.flowhistory.FlowHistoryDao;
 import mz.org.csaude.mentoring.dao.location.DistrictDAO;
 import mz.org.csaude.mentoring.dao.location.HealthFacilityDAO;
 import mz.org.csaude.mentoring.dao.ronda.RondaDAO;
@@ -23,11 +25,15 @@ import mz.org.csaude.mentoring.dao.tutored.TutoredDao;
 import mz.org.csaude.mentoring.dto.ronda.RondaDTO;
 import mz.org.csaude.mentoring.dto.ronda.RondaMenteeDTO;
 import mz.org.csaude.mentoring.dto.ronda.RondaMentorDTO;
+import mz.org.csaude.mentoring.model.answer.Answer;
+import mz.org.csaude.mentoring.model.evaluationType.EvaluationType;
 import mz.org.csaude.mentoring.model.location.HealthFacility;
+import mz.org.csaude.mentoring.model.mentorship.Mentorship;
 import mz.org.csaude.mentoring.model.ronda.Ronda;
 import mz.org.csaude.mentoring.model.ronda.RondaMentee;
 import mz.org.csaude.mentoring.model.ronda.RondaMentor;
 import mz.org.csaude.mentoring.model.rondatype.RondaType;
+import mz.org.csaude.mentoring.model.session.Session;
 import mz.org.csaude.mentoring.model.tutor.Tutor;
 import mz.org.csaude.mentoring.model.tutored.EnumFlowHistory;
 import mz.org.csaude.mentoring.model.tutored.EnumFlowHistoryProgressStatus;
@@ -47,6 +53,7 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
     RondaTypeDAO rondaTypeDAO;
     TutorDAO tutorDAO;
     TutoredDao tutoredDao;
+    private FlowHistoryDao flowHistoryDao;
 
     public RondaServiceImpl(Application application) {
         super(application);
@@ -63,6 +70,7 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
         this.rondaTypeDAO = getDataBaseHelper().getRondaTypeDAO();
         this.tutorDAO = getDataBaseHelper().getTutorDAO();
         this.tutoredDao = getDataBaseHelper().getTutoredDao();
+        this.flowHistoryDao = getDataBaseHelper().getFlowHistoryDao();
     }
 
     @Override
@@ -78,13 +86,21 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
                 r.setRondaMentees(rondaMenteeDAO.getAllOfRonda(ronda.getId()));
                 for (RondaMentee rondaMentee: r.getRondaMentees()) {
                     Tutored t = this.tutoredDao.queryForId(rondaMentee.getMenteeId());
-                    for (FlowHistory flowHistory: t.getFlowHistory()) {
-                        if (flowHistory.getEstagio().code().equals(EnumFlowHistory.RONDA_CICLO.code())) {
-                            flowHistory.setEstado(EnumFlowHistoryProgressStatus.AGUARDA_INICIO);
-                        }
-                    }
+                    t.setFlowHistory(flowHistoryDao.getByTutored(t.getId()));
+                    EnumFlowHistory enumFlowHistory = ronda.isRondaMentoria() ? EnumFlowHistory.RONDA_CICLO : EnumFlowHistory.SESSAO_ZERO;
+                    if (!t.isOnStatus(enumFlowHistory, EnumFlowHistoryProgressStatus.INICIO)) {
+                        FlowHistory fh = new FlowHistory(
+                                t.getId(),
+                                enumFlowHistory,
+                                EnumFlowHistoryProgressStatus.INICIO,
+                                0.0,
+                                LifeCycleStatus.ACTIVE,
+                                t.determineNextSeq()
+                        );
+                        t.getFlowHistory().add(fh);
+                        flowHistoryDao.insert(fh);
 
-                    tutoredDao.update(t);
+                    }
                 }
             } else {
                 this.rondaDAO.insert(ronda);
@@ -104,8 +120,7 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
             }
             for (RondaMentee rondaMentee: ronda.getRondaMentees()) {
                 Tutored t = this.tutoredDao.getByUuid(rondaMentee.getTutored().getUuid());
-                t.setFlowHistory(rondaMentee.getTutored().getFlowHistory());
-                tutoredDao.update(t);
+                t.setFlowHistory(flowHistoryDao.getByTutored(t.getId()));
 
                 rondaMentee.setRonda(ronda);
                 rondaMentee.setSyncStatus(ronda.getSyncStatus());
@@ -113,8 +128,25 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
                 rondaMentee.setTutored(t);
 
                 this.rondaMenteeDAO.insert(rondaMentee);
+
+                advanceFlowHistory(ronda, t);
+
             }
         return ronda;
+    }
+
+    private void advanceFlowHistory(Ronda ronda, Tutored t) {
+        EnumFlowHistory enumFlowHistory = ronda.isRondaMentoria() ? EnumFlowHistory.RONDA_CICLO : EnumFlowHistory.SESSAO_ZERO;
+        FlowHistory fh = new FlowHistory(
+                t.getId(),
+                enumFlowHistory,
+                EnumFlowHistoryProgressStatus.INICIO,
+                0.0,
+                LifeCycleStatus.ACTIVE,
+                t.determineNextSeq()
+        );
+        t.getFlowHistory().add(fh);
+        flowHistoryDao.insert(fh);
     }
 
     @Override
@@ -129,7 +161,11 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
             ronda.setRondaType(this.rondaTypeDAO.queryForId(ronda.getRondaTypeId()));
             ronda.setHealthFacility(getApplication().getHealthFacilityService().getById(ronda.getHealthFacilityId()));
             //ronda.setRondaMentors(this.rondaMentorDAO.getRondaMentors(ronda.getId()));
-            //ronda.setRondaMentees(this.rondaMenteeDAO.getAllOfRonda(ronda.getId()));
+            ronda.setRondaMentees(this.rondaMenteeDAO.getAllOfRonda(ronda.getId()));
+            for (RondaMentee rondaMentee : ronda.getRondaMentees()) {
+                rondaMentee.setTutored(tutoredDao.queryForId(rondaMentee.getMenteeId()));
+                rondaMentee.getTutored().setFlowHistory(flowHistoryDao.getByTutored(rondaMentee.getMenteeId()));
+            }
         }
         return rondas;
     }
@@ -256,12 +292,8 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
             this.rondaMentorDAO.deleteByRonda(record.getId());
             for (RondaMentee rm : record.getRondaMentees()) {
                 rm.setTutored(tutoredDao.queryForId(rm.getMenteeId()));
-                for (FlowHistory flowHistory: rm.getTutored().getFlowHistory()) {
-                    if (flowHistory.getEstagio().code().equals(EnumFlowHistory.RONDA_CICLO.code())) {
-                        flowHistory.setEstado(EnumFlowHistoryProgressStatus.AGUARDA_INICIO);
-                    }
-                }
-                tutoredDao.update(rm.getTutored());
+                rm.getTutored().setFlowHistory(flowHistoryDao.getByTutored(rm.getMenteeId()));
+                flowHistoryDao.delete(rm.getTutored().getLastFlowHistory().getId());
             }
             this.rondaMenteeDAO.deleteByRonda(record.getId());
             this.rondaDAO.delete(record);
@@ -307,12 +339,128 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
 
             if (ronda.isRondaCompleted()) {
                 ronda.setEndDate(endDate);
-                getApplication().getRondaService().closeRonda(ronda);
+                closeRonda(ronda);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Calcula e atualiza a classificação (desempenho) do mentorando para a Ronda,
+     * apenas no estágio RONDA_CICLO, usando as respostas da mentoria de tipo "Consulta".
+     */
+    private void calculateMenteePerformance(final Ronda ronda) {
+        if (ronda == null || !Utilities.listHasElements(ronda.getRondaMentees())) return;
+
+        for (RondaMentee rondaMentee : ronda.getRondaMentees()) {
+            if (rondaMentee == null || rondaMentee.getTutored() == null) continue;
+
+            Tutored tutored = rondaMentee.getTutored();
+
+            Mentorship mentorship = retrievePerformanceMentorship(ronda, tutored);
+            Double performance = calculatePerformance(mentorship);
+
+            if (performance == null) continue;
+
+            int nextSeq = determineNextSeq(tutored.getId());
+
+            if (ronda.isRondaMentoria()) {
+                EnumFlowHistoryProgressStatus status =
+                        (performance >= 86)
+                                ? EnumFlowHistoryProgressStatus.TERMINADO
+                                : EnumFlowHistoryProgressStatus.AGUARDA_INICIO;
+
+                FlowHistory fh = new FlowHistory(
+                        tutored.getId(),
+                        EnumFlowHistory.RONDA_CICLO,
+                        status,
+                        performance,
+                        LifeCycleStatus.ACTIVE,
+                        nextSeq
+                );
+                flowHistoryDao.insert(fh);
+
+            } else if (ronda.isRondaZero()) {
+
+                FlowHistory fh = new FlowHistory(
+                        tutored.getId(),
+                        EnumFlowHistory.RONDA_CICLO,
+                        EnumFlowHistoryProgressStatus.AGUARDA_INICIO,
+                        performance,
+                        LifeCycleStatus.ACTIVE,
+                        nextSeq
+                );
+                flowHistoryDao.insert(fh);
+            }
+        }
+    }
+
+    private int determineNextSeq(int tutoredId) {
+        Integer max = flowHistoryDao.getMaxSeqForTutored(tutoredId);
+        return (max == null ? 1 : max + 1);
+    }
+
+
+
+    /**
+     * Retorna o desempenho em percentagem considerando apenas respostas SIM e NAO:
+     * desempenho = (SIM) / (SIM + NAO) * 100
+     *
+     * @return percentagem (0..100) ou null se não houver dados válidos (sem SIM/NAO)
+     */
+    private Double calculatePerformance(final Mentorship mentorship) {
+        if (mentorship == null || !Utilities.listHasElements(mentorship.getAnswers())) return null;
+
+        int yes = 0;
+        int no  = 0;
+
+        for (Answer a : mentorship.getAnswers()) {
+            if (a == null || a.getValue() == null) continue;
+            if (a.isYesAnswer())      yes++;
+            else if (a.isNoAnswer())  no++;
+            // ignora NA e quaisquer outros valores
+        }
+
+        int denom = yes + no;
+        if (denom == 0) return null;
+
+        // arredondar a 2 casas decimais mantendo double
+        double raw = (yes * 100.0) / denom;
+        return Math.round(raw * 100.0) / 100.0;
+    }
+
+    /**
+     * Obtém a mentoria a usar para cálculo de desempenho:
+     * - escolhe a última Session (por startDate) do Tutored nesta Ronda;
+     * - dentro dessa Session, retorna a primeira Mentorship de tipo "Consulta".
+     */
+    private Mentorship retrievePerformanceMentorship(final Ronda ronda, final Tutored tutored) {
+        if (ronda == null || tutored == null || !Utilities.listHasElements(ronda.getSessions())) return null;
+
+        // 1) última sessão do mentorando pela startDate
+        Session latestSession = null;
+        for (Session s : ronda.getSessions()) {
+            if (s == null || s.getTutored() == null || s.getStartDate() == null) continue;
+            if (!s.getTutored().equals(tutored)) continue;
+
+            if (latestSession == null || s.getStartDate().after(latestSession.getStartDate())) {
+                latestSession = s;
+            }
+        }
+        if (latestSession == null || !Utilities.listHasElements(latestSession.getMentorships())) return null;
+
+        // 2) primeira mentorship do tipo "Consulta"
+        for (Mentorship m : latestSession.getMentorships()) {
+            if (m == null) continue;
+            EvaluationType et = m.getEvaluationType();
+            if (et != null && (EvaluationType.CONSULTA.equals(et.getCode()) || m.isPatientEvaluation())) {
+                return m;
+            }
+        }
+        return null;
+    }
+
 
     @Override
     public void closeRonda(Ronda ronda) {
@@ -320,6 +468,7 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
             this.update(ronda);
             getApplication().getRondaMenteeService().closeAllActiveOnRonda(ronda);
             getApplication().getRondaMentorService().closeAllActiveOnRonda(ronda);
+            calculateMenteePerformance(ronda);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

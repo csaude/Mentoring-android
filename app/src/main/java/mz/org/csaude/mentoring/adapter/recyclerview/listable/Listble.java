@@ -2,7 +2,6 @@ package mz.org.csaude.mentoring.adapter.recyclerview.listable;
 
 public interface Listble {
 
-
     Integer getId();
 
     default int getListPosition() {
@@ -23,14 +22,15 @@ public interface Listble {
     String getListType();
 
     default void setListType(ListTypes type) {
-
+        // default no-op (override in models that support listType)
     }
 
     String getExtraInfo();
 
-    public enum ListTypes {
+    enum ListTypes {
         SELECTION_LIST,
         NORMAL,
-        UNDEFINED
+        UNDEFINED,
+        MENTORSHIP_MENTEE_SELECTION   // <--- NEW TYPE
     }
 }

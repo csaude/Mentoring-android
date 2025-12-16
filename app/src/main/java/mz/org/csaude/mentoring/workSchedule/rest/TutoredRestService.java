@@ -148,7 +148,7 @@ public class TutoredRestService extends BaseRestService {
                 TutoredDTO data = response.body();
                 if (response.code() == 201) {
                     getServiceExecutor().execute(()-> {
-                        tutored.setFlowHistory(data.getFlowHistoryMenteeAuxDTO());
+                        //tutored.setFlowHistory(data.getFlowHistoryMenteeAuxDTO());
                         try {
                             getApplication().getTutoredService().savedOrUpdateTutored(tutored);
 

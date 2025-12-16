@@ -19,14 +19,18 @@ public class FlowHistoryMenteeAuxDTO {
     @Nullable
     private Integer classificacao;
 
+    Integer seq;
+
     public FlowHistoryMenteeAuxDTO() {}
 
     public FlowHistoryMenteeAuxDTO(EnumFlowHistory estagio,
                        EnumFlowHistoryProgressStatus estado,
-                       @Nullable Integer classificacao) {
+                       @Nullable Integer classificacao,
+                                   Integer seq) {
         this.estagio = estagio;
         this.estado = estado;
         this.classificacao = classificacao;
+        this.seq = seq;
     }
 
     public EnumFlowHistory getEstagio() { return estagio; }
@@ -37,4 +41,12 @@ public class FlowHistoryMenteeAuxDTO {
 
     @Nullable public Integer getClassificacao() { return classificacao; }
     public void setClassificacao(@Nullable Integer classificacao) { this.classificacao = classificacao; }
+
+    public Integer getSeq() {
+        return seq;
+    }
+
+    public void setSeq(Integer seq) {
+        this.seq = seq;
+    }
 }

@@ -102,7 +102,7 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/rcvCard"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="12dp"
             android:layout_marginTop="8dp"
@@ -117,7 +117,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rcv_resources"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:overScrollMode="never"
                 android:scrollbars="none"
                 android:layoutAnimation="@anim/layout_pop_in_bottom" />

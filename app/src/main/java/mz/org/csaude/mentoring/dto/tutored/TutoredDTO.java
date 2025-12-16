@@ -1,5 +1,6 @@
 package mz.org.csaude.mentoring.dto.tutored;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
@@ -25,7 +26,8 @@ public class TutoredDTO extends BaseEntityDTO {
      * NEW: preferred list field for flow history (array in JSON)
      */
     @SerializedName("flowHistoryMenteeAuxDTO")
-    private List<FlowHistory> flowHistoryMenteeAuxDTO;
+    private List<FlowHistoryDTO> flowHistoryMenteeAuxDTO;
+
 
     public TutoredDTO() {
     }
@@ -37,10 +39,11 @@ public class TutoredDTO extends BaseEntityDTO {
         this.setEmployeeDTO(tutored.getEmployee() != null ? new EmployeeDTO(tutored.getEmployee()) : null);
 
         // Map entity -> DTO list (preferred)
-        if (tutored.getFlowHistory() != null && !tutored.getFlowHistory().isEmpty()) {
-            this.flowHistoryMenteeAuxDTO = new ArrayList<>(tutored.getFlowHistory());
-        } else {
-            this.flowHistoryMenteeAuxDTO = null;
+        if (tutored.getFlowHistory() != null) {
+            this.flowHistoryMenteeAuxDTO = new ArrayList<>();
+            for (FlowHistory fh : tutored.getFlowHistory()) {
+                this.flowHistoryMenteeAuxDTO.add(new FlowHistoryDTO(fh));
+            }
         }
 
         // No need to populate the legacy single field on output, but you may set it if required:
@@ -73,17 +76,18 @@ public class TutoredDTO extends BaseEntityDTO {
     }
 
     // -------- NEW / PREFERRED LIST ACCESSORS --------
-    public List<FlowHistory> getFlowHistoryMenteeAuxDTO() {
+    public List<FlowHistoryDTO> getFlowHistoryMenteeAuxDTO() {
         return flowHistoryMenteeAuxDTO;
     }
 
-    public void setFlowHistoryMenteeAuxDTO(List<FlowHistory> flowHistoryMenteeAuxDTO) {
+    public void setFlowHistoryMenteeAuxDTO(List<FlowHistoryDTO> flowHistoryMenteeAuxDTO) {
         this.flowHistoryMenteeAuxDTO = flowHistoryMenteeAuxDTO;
     }
 
     /**
      * Map DTO -> Entity (wrap legacy single value into a list if list is null/empty)
      */
+    @JsonIgnore
     public Tutored getMentee() {
         Tutored tutored = new Tutored();
         tutored.setUuid(this.getUuid());
@@ -99,10 +103,14 @@ public class TutoredDTO extends BaseEntityDTO {
             tutored.setEmployee(this.getEmployeeDTO().getEmployee());
         }
 
-        // Preferred: list
-        List<FlowHistory> list = this.flowHistoryMenteeAuxDTO;
+        if (this.flowHistoryMenteeAuxDTO != null) {
+            List<FlowHistory> list = new ArrayList<>();
+            for (FlowHistoryDTO dto : this.flowHistoryMenteeAuxDTO) {
+                list.add(dto.toEntity());
+            }
+            tutored.setFlowHistory(list);
+        }
 
-        tutored.setFlowHistory(list);
         return tutored;
     }
 }

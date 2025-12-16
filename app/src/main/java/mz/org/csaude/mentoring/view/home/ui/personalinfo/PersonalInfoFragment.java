@@ -87,25 +87,21 @@ public class PersonalInfoFragment extends GenericFragment {
                     // Ensure the lists are not empty before using them
                     if (provinces != null && !provinces.isEmpty()) {
                         provinceAdapter = new ListableSpinnerAdapter(this.getActivity(), R.layout.simple_auto_complete_item, provinces);
-                        binding.spnProvince.setAdapter(provinceAdapter);
                         binding.setProvinceAdapter(provinceAdapter);
                     }
 
                     if (professionalCategories != null && !professionalCategories.isEmpty()) {
                         professionalCategoryAdapter = new ListableSpinnerAdapter(this.getActivity(), R.layout.simple_auto_complete_item, professionalCategories);
-                        binding.spnProfessionalCategory.setAdapter(professionalCategoryAdapter);
                         binding.setProfessionalCategoryAdapter(professionalCategoryAdapter);
                     }
 
                     if (menteeLabors != null && !menteeLabors.isEmpty()) {
                         menteeLaborfoAdapter = new ListableSpinnerAdapter(this.getActivity(), R.layout.simple_auto_complete_item, menteeLabors);
-                        binding.spnMenteeLaborInfo.setAdapter(menteeLaborfoAdapter);
                         binding.setMenteeLaborfoAdapter(menteeLaborfoAdapter);
                     }
 
                     if (partners != null && !partners.isEmpty()) {
                         ngoAdapter = new ListableSpinnerAdapter(this.getActivity(), R.layout.simple_auto_complete_item, partners);
-                        binding.spnNgo.setAdapter(ngoAdapter);
                         binding.setNgoAdapter(ngoAdapter);
                     }
                 });
@@ -121,13 +117,11 @@ public class PersonalInfoFragment extends GenericFragment {
 
     public void reloadDistrcitAdapter() {
         districtAdapter = new ListableSpinnerAdapter(this.getActivity(), R.layout.simple_auto_complete_item, getRelatedViewModel().getDistricts());
-        binding.spnDistrict.setAdapter(districtAdapter);
         binding.setDistrictAdapter(districtAdapter);
     }
 
     public void reloadHealthFacility(){
         healthfacilityAdapter = new ListableSpinnerAdapter(this.getActivity(), R.layout.simple_auto_complete_item, getRelatedViewModel().getHealthFacilities());
-        binding.spnHealthfacility.setAdapter(healthfacilityAdapter);
         binding.setHealthfacilityAdapter(healthfacilityAdapter);
 
     }
@@ -165,11 +159,15 @@ public class PersonalInfoFragment extends GenericFragment {
                 Utilities.expand(binding.identificationDataLyt);
                 binding.btnIdentificationData.setImageResource(R.drawable.baseline_arrow_drop_down_24);
             }
-        } else if(view.equals(binding.spnMenteeLaborInfo)){
-            if (binding.spnMenteeLaborInfo.getSelectedItem() == "ONG"){
-                binding.spnNgo.setVisibility(View.VISIBLE);
-            }else{
-                binding.spnNgo.setVisibility(View.GONE);
+        } else if (view.getId() == binding.actMenteeLaborInfo.getId()) {
+
+            CharSequence text = binding.actMenteeLaborInfo.getText();
+            String value = text != null ? text.toString().trim() : "";
+
+            if ("ONG".equalsIgnoreCase(value)) {
+                binding.actNgo.setVisibility(View.VISIBLE);
+            } else {
+                binding.actNgo.setVisibility(View.GONE);
             }
         }
     }

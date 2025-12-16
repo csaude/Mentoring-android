@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 import mz.org.csaude.mentoring.base.model.BaseModel;
+import mz.org.csaude.mentoring.dto.tutored.FlowHistoryDTO;
 import mz.org.csaude.mentoring.dto.tutored.TutoredDTO;
 import mz.org.csaude.mentoring.model.employee.Employee;
 
@@ -27,7 +28,6 @@ public class Tutored extends BaseModel {
     public static final String COLUMN_EMPLOYEE = "employee_id";
     public static final String COLUMN_ZERO_EVALUATION_STATUS = "zero_evaluation_status";
     public static final String COLUMN_ZERO_EVALUATION_SCORE = "zero_evaluation_score";
-    public static final String COLUMN_FLOW_HISTORY = "flow_history"; // JSON array
 
     @NonNull
     @ColumnInfo(name = COLUMN_EMPLOYEE)
@@ -42,9 +42,8 @@ public class Tutored extends BaseModel {
     @ColumnInfo(name = COLUMN_ZERO_EVALUATION_SCORE)
     private double zeroEvaluationScore;
 
-    // >>> changed from FlowHistory to List<FlowHistory>
-    @ColumnInfo(name = COLUMN_FLOW_HISTORY)
-    private List<FlowHistory> flowHistory; // stored as JSON array via TypeConverter
+    @Ignore
+    private List<FlowHistory> flowHistory;
 
     public Tutored() {}
 
@@ -69,19 +68,16 @@ public class Tutored extends BaseModel {
             this.employeeId = this.employee.getId();
         }
 
-        // Map DTO → List<FlowHistory>
-        // Prefer a list on the DTO; if only a single aux exists, wrap it.
         if (tutoredDTO.getFlowHistoryMenteeAuxDTO() != null &&
                 !tutoredDTO.getFlowHistoryMenteeAuxDTO().isEmpty()) {
 
             this.flowHistory = new ArrayList<>();
-            for (var fh : tutoredDTO.getFlowHistoryMenteeAuxDTO()) {
-                this.flowHistory.add(new FlowHistory(
-                        fh.getEstagio(),
-                        fh.getEstado(),
-                        fh.getClassificacao()
-                ));
+
+            for (FlowHistoryDTO fhDTO : tutoredDTO.getFlowHistoryMenteeAuxDTO()) {
+                FlowHistory fh = fhDTO.toEntity(); // <--- conversion from DTO → Entity
+                this.flowHistory.add(fh);
             }
+
         } else {
             this.flowHistory = null;
         }
@@ -133,5 +129,34 @@ public class Tutored extends BaseModel {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), employeeId);
+    }
+
+    public void addFlowHistory(FlowHistory fh) {
+        if (this.flowHistory == null) this.flowHistory = new ArrayList<>();
+        this.flowHistory.add(fh);
+    }
+
+    public boolean isOnStatus(EnumFlowHistory enumFlowHistory, EnumFlowHistoryProgressStatus enumFlowHistoryProgressStatus) {
+        FlowHistory maxfh = getLastFlowHistory();
+        if (maxfh != null && maxfh.getEstagio().equals(enumFlowHistory) && maxfh.getEstado().equals(enumFlowHistoryProgressStatus)) {
+            return true;
+        }
+        return false;
+    }
+
+    public Integer determineNextSeq() {
+        return getLastFlowHistory().getSeq() + 1;
+    }
+
+    public FlowHistory getLastFlowHistory() {
+        int maxSeq = 0;
+        FlowHistory maxfh = null;
+        for (FlowHistory fh : this.flowHistory) {
+            if (fh.getSeq() > maxSeq) {
+                maxSeq = fh.getSeq();
+                maxfh = fh;
+            }
+        }
+        return maxfh;
     }
 }

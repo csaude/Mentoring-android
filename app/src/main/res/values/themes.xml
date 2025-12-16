@@ -59,14 +59,19 @@
 
     <!-- (ainda podes usar estes dois em telas antigas) -->
     <style name="bottom_border_edit_text_style">
-        <item name="android:textColor">@color/black</item>
+        <!-- texto que adapta: claro no dark, escuro no light -->
+        <item name="android:textColor">@color/input_labels</item>
+
+        <!-- mantém o teu drawable (borda em baixo) -->
         <item name="android:background">@drawable/bottom_border_edit_text_border</item>
+
         <item name="android:paddingLeft">@dimen/dimen_15dp</item>
         <item name="android:paddingRight">@dimen/dimen_15dp</item>
         <item name="android:paddingTop">@dimen/dimen_6dp</item>
         <item name="android:paddingBottom">@dimen/dimen_6dp</item>
         <item name="android:layout_marginBottom">@dimen/dimen_2dp</item>
     </style>
+
 
     <!-- ======== SPINNERS (legado) ======== -->
     <style name="bottom_spinner_style" parent="android:Widget.Spinner">
@@ -85,11 +90,21 @@
     <style name="login_spinner_style" parent="android:Widget.Spinner">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+
+        <!-- mantém o teu drawable (podes ter um login_spinner_back.xml em drawable-night se quiseres) -->
         <item name="android:background">@drawable/login_spinner_back</item>
+
         <item name="android:paddingLeft">30dp</item>
-        <item name="android:popupBackground">@color/white</item>
+
+        <!-- popup com cor que pode ter variante em values-night -->
+        <item name="android:popupBackground">@color/spinner_back_color</item>
+
+        <!-- texto que respeita light/dark (usa input_labels, que vais sobrepor em values-night) -->
+        <item name="android:textColor">@color/input_labels</item>
+
         <item name="android:textSize">15sp</item>
     </style>
+
 
     <style name="spinner_style" parent="android:Widget.Spinner">
         <item name="android:layout_width">match_parent</item>
@@ -105,9 +120,11 @@
 
     <style name="spinner_label">
         <item name="android:textSize">15sp</item>
-        <item name="android:textColor">@color/black</item>
+        <!-- usa a cor de labels, que podes sobrepor em values-night -->
+        <item name="android:textColor">@color/input_labels</item>
         <item name="android:typeface">sans</item>
-        <item name="background">@color/white</item>
+        <!-- fundo que se adapta ao tema claro/escuro -->
+        <item name="android:background">?attr/colorSurface</item>
     </style>
 
     <!-- ======== LISTAS ======== -->
@@ -156,9 +173,13 @@
         <item name="boxCornerRadiusTopEnd">12dp</item>
         <item name="boxCornerRadiusBottomStart">12dp</item>
         <item name="boxCornerRadiusBottomEnd">12dp</item>
-        <item name="boxBackgroundColor">@android:color/white</item>
+        <item name="boxBackgroundColor">?attr/colorSurface</item>
+        <!-- ✅ cor da borda (normal / focado) -->
+        <item name="boxStrokeColor">?attr/colorOutline</item>
         <!-- keeps hint visible on light backgrounds -->
         <item name="hintTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="startIconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="endIconTint">?attr/colorOnSurfaceVariant</item>
     </style>
 
     <!-- Outlined dropdown (Exposed Dropdown Menu) -->
@@ -169,17 +190,25 @@
         <item name="boxCornerRadiusTopEnd">12dp</item>
         <item name="boxCornerRadiusBottomStart">12dp</item>
         <item name="boxCornerRadiusBottomEnd">12dp</item>
-        <item name="boxBackgroundColor">@android:color/white</item>
+        <item name="boxBackgroundColor">?attr/colorSurface</item>
         <item name="hintTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="boxStrokeColor">?attr/colorOutline</item>
+        <!-- texto do dropdown -->
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
     <!-- Card preenchido -->
     <style name="Mentor.M3.Card" parent="Widget.Material3.CardView.Filled">
         <item name="cardCornerRadius">16dp</item>
         <item name="strokeWidth">1dp</item>
-        <item name="cardBackgroundColor">@color/white</item>
-        <item name="strokeColor">@color/card_back</item>
+
+        <!-- Fundo do card adapta-se ao tema (light/dark) -->
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
+
+        <!-- Contorno usa a cor de outline do M3 -->
+        <item name="strokeColor">?attr/colorOutlineVariant</item>
     </style>
+
 
     <!-- Botão "filled" M3: usa base genérica para evitar variações de nome -->
     <style name="Mentor.M3.Button" parent="Widget.Material3.Button">

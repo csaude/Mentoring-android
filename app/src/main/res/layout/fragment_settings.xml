@@ -1,4 +1,6 @@
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <variable
@@ -8,157 +10,175 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface">
 
         <LinearLayout
             android:orientation="vertical"
-            android:padding="16dp"
+            android:padding="@dimen/dimen_16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- Auto Sync Switch -->
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Mentor.M3.Card"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:text="@string/enable_auto_sync"
-                    android:textSize="15sp"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/text_primary_light"
-                    android:layout_height="wrap_content" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/dimen_16dp">
 
-                <Switch
-                    android:id="@+id/switch_auto_sync"
-                    android:checked="@{viewModel.isAutoSyncEnabled}"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    <!-- Auto Sync Switch -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-            </LinearLayout>
+                        <TextView
+                            android:text="@string/enable_auto_sync"
+                            android:textSize="15sp"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="?attr/colorOnSurface" />
 
-            <!-- Biometric Authentication Toggle -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="@dimen/dimen_20dp"
-                android:gravity="center_vertical">
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switch_auto_sync"
+                            android:checked="@{viewModel.isAutoSyncEnabled}"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
 
-                <TextView
-                    android:text="@string/enable_biometric_auth"
-                    android:textSize="15sp"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/text_primary_light"
-                    android:layout_height="wrap_content" />
+                    <!-- Biometric Authentication Toggle -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="@dimen/dimen_20dp"
+                        android:gravity="center_vertical">
 
-                <Switch
-                    android:id="@+id/switch_biometric_auth"
-                    android:checked="@{viewModel.isBiometricEnabled}"
-                    android:onCheckedChanged="@{(buttonView, isChecked) -> viewModel.onBiometricToggleChanged(isChecked)}"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-            <!-- Sync Interval Input -->
-            <TextView
-                android:text="@string/sync_interval"
-                android:textSize="15sp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="@dimen/dimen_5dp"
-                android:layout_width="wrap_content"
-                android:textColor="@color/text_primary_light"
-                android:layout_height="wrap_content" />
+                        <TextView
+                            android:text="@string/enable_biometric_auth"
+                            android:textSize="15sp"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="?attr/colorOnSurface" />
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical">
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switch_biometric_auth"
+                            android:checked="@{viewModel.isBiometricEnabled}"
+                            android:onCheckedChanged="@{(buttonView, isChecked) -> viewModel.onBiometricToggleChanged(isChecked)}"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
 
-                <EditText
-                    android:id="@+id/editTextSyncInterval"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/rounded_field"
-                    android:padding="12dp"
-                    android:text="@={viewModel.syncInterval}"
-                    android:hint="@string/enter_hours"
-                    android:inputType="number" />
+                    <!-- Sync Interval Input -->
+                    <TextView
+                        android:text="@string/sync_interval"
+                        android:textSize="15sp"
+                        android:layout_marginTop="@dimen/dimen_16dp"
+                        android:layout_marginBottom="@dimen/dimen_5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="?attr/colorOnSurface" />
 
-                <Button
-                    android:id="@+id/buttonValidateSyncInterval"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/save"
-                    android:onClick="@{() -> viewModel.onValidateSyncIntervalClicked()}"
-                    android:background="@drawable/rounded_button"
-                    android:textColor="@android:color/white"/>
-            </LinearLayout>
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical">
 
-            <!-- Auto Logout Time -->
-            <TextView
-                android:text="@string/auto_logout_time"
-                android:textSize="15sp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="@dimen/dimen_5dp"
-                android:layout_width="wrap_content"
-                android:textColor="@color/text_primary_light"
-                android:layout_height="wrap_content" />
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Mentor.M3.TextInput.Outlined"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="@string/enter_hours">
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/editTextSyncInterval"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:text='@={viewModel.syncInterval}' />
+                        </com.google.android.material.textfield.TextInputLayout>
 
-                <EditText
-                    android:id="@+id/editTextAutoLogoutTime"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/rounded_field"
-                    android:padding="12dp"
-                    android:text="@={viewModel.autoLogoutTime}"
-                    android:hint="@string/enter_minutes"
-                    android:inputType="number" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonValidateSyncInterval"
+                            style="@style/Mentor.M3.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dimen_8dp"
+                            android:text="@string/save"
+                            android:onClick="@{() -> viewModel.onValidateSyncIntervalClicked()}" />
+                    </LinearLayout>
 
-                <Button
-                    android:id="@+id/buttonValidateAutoLogoutTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/save"
-                    android:onClick="@{() -> viewModel.onValidateAutoLogoutTimeClicked()}"
-                    android:background="@drawable/rounded_button"
-                    android:textColor="@android:color/white"/>
-            </LinearLayout>
-            <!-- Sync Buttons -->
-            <Button
-                android:id="@+id/button_sync_now"
-                android:text="@string/sync_now"
-                android:onClick="@{() -> viewModel.onSyncNowClicked()}"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/rounded_button"
-                android:textColor="@android:color/white"/>
+                    <!-- Auto Logout Time -->
+                    <TextView
+                        android:text="@string/auto_logout_time"
+                        android:textSize="15sp"
+                        android:layout_marginTop="@dimen/dimen_16dp"
+                        android:layout_marginBottom="@dimen/dimen_5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="?attr/colorOnSurface" />
 
-            <Button
-                android:id="@+id/button_sync_meta_now"
-                android:text="@string/sync_metadata_now"
-                android:onClick="@{() -> viewModel.onSyncMetadateNowClicked()}"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/rounded_button"
-                android:textColor="@android:color/white"/>
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical">
 
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Mentor.M3.TextInput.Outlined"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="@string/enter_minutes">
 
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/editTextAutoLogoutTime"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:text='@={viewModel.autoLogoutTime}' />
+                        </com.google.android.material.textfield.TextInputLayout>
 
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonValidateAutoLogoutTime"
+                            style="@style/Mentor.M3.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dimen_8dp"
+                            android:text="@string/save"
+                            android:onClick="@{() -> viewModel.onValidateAutoLogoutTimeClicked()}" />
+                    </LinearLayout>
 
+                    <!-- Sync Buttons -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_sync_now"
+                        style="@style/Mentor.M3.Button"
+                        android:text="@string/sync_now"
+                        android:onClick="@{() -> viewModel.onSyncNowClicked()}"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/dimen_24dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_sync_meta_now"
+                        style="@style/Mentor.M3.Button"
+                        android:text="@string/sync_metadata_now"
+                        android:onClick="@{() -> viewModel.onSyncMetadateNowClicked()}"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/dimen_16dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </ScrollView>

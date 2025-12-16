@@ -18,6 +18,7 @@
     <item
         android:id="@+id/nav_semestral"
         android:icon="@drawable/baseline_calendar_month_24"
+        android:visible="false"
     android:title="@string/sessao_semestral" />
 
     <item
