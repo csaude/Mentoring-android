@@ -94,6 +94,7 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
                                 enumFlowHistory,
                                 EnumFlowHistoryProgressStatus.INICIO,
                                 0.0,
+                                LifeCycleStatus.ACTIVE,
                                 t.determineNextSeq()
                         );
                         t.getFlowHistory().add(fh);
@@ -141,6 +142,7 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
                 enumFlowHistory,
                 EnumFlowHistoryProgressStatus.INICIO,
                 0.0,
+                LifeCycleStatus.ACTIVE,
                 t.determineNextSeq()
         );
         t.getFlowHistory().add(fh);
@@ -361,8 +363,6 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
 
             if (performance == null) continue;
 
-            // Carrega histórico atual desse mentorando
-            List<FlowHistory> history = flowHistoryDao.getByTutored(tutored.getId());
             int nextSeq = determineNextSeq(tutored.getId());
 
             if (ronda.isRondaMentoria()) {
@@ -376,6 +376,7 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
                         EnumFlowHistory.RONDA_CICLO,
                         status,
                         performance,
+                        LifeCycleStatus.ACTIVE,
                         nextSeq
                 );
                 flowHistoryDao.insert(fh);
@@ -387,6 +388,7 @@ public class RondaServiceImpl extends BaseServiceImpl<Ronda> implements RondaSer
                         EnumFlowHistory.RONDA_CICLO,
                         EnumFlowHistoryProgressStatus.AGUARDA_INICIO,
                         performance,
+                        LifeCycleStatus.ACTIVE,
                         nextSeq
                 );
                 flowHistoryDao.insert(fh);

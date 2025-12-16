@@ -14,6 +14,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 import mz.org.csaude.mentoring.base.model.BaseModel;
+import mz.org.csaude.mentoring.util.LifeCycleStatus;
 
 @Entity(
         tableName = FlowHistory.TABLE_NAME,
@@ -58,12 +59,14 @@ public class FlowHistory extends BaseModel {
                        EnumFlowHistory estagio,
                        EnumFlowHistoryProgressStatus estado,
                        @Nullable Double classificacao,
+                       LifeCycleStatus lifeCycleStatus,
                        Integer seq) {
         this.tutoredId = tutoredId;
         this.estagio = estagio;
         this.estado = estado;
         this.classificacao = classificacao;
         this.seq = seq;
+        this.lifeCycleStatus = lifeCycleStatus;
     }
 
     @NonNull

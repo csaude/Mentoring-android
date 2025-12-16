@@ -58,7 +58,7 @@ public abstract class BaseModel implements Serializable, Listble {
     private String updatedByUuid;
 
     @ColumnInfo(name = COLUMN_LIFE_CYCLE_STATUS)
-    private LifeCycleStatus lifeCycleStatus = LifeCycleStatus.ACTIVE;
+    protected LifeCycleStatus lifeCycleStatus = LifeCycleStatus.ACTIVE;
 
     @Ignore
     protected int listPosition;

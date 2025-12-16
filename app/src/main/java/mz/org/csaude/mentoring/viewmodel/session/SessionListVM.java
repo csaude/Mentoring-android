@@ -131,10 +131,18 @@ public class SessionListVM extends SearchVM<Session>  implements IDialogListener
     }
 
     public void createSession() {
-        if (this.removedFromCurrRonda) {
-            String message = getRelatedActivity().getString(R.string.cannot_create_new_session_with_onpen_session);
-            Utilities.displayAlertDialog(getRelatedActivity(), message).show();
-            return;
+        Setting setting = getApplication().getSetting(Constants.SettingKeys.DAYS_ON_RONDA_WITHOUT_SESSION);
+        if (setting != null && setting.getEnabled()) {
+            int daysThreshold = setting.getSettingValueAsInt();
+            if (this.removedFromCurrRonda) {
+                String message = getRelatedActivity().getString(
+                        R.string.ronda_mentee_closed,
+                        daysThreshold,
+                        selectedMentee.getEmployee().getFullName()
+                );
+                Utilities.displayAlertDialog(getRelatedActivity(), message).show();
+                return;
+            }
         }
         if (this.searchResults.size() < 4) {
             for (Session session : this.searchResults) {

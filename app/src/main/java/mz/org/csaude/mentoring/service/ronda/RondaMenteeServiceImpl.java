@@ -6,14 +6,20 @@ import java.sql.SQLException;
 import java.util.List;
 
 import mz.org.csaude.mentoring.base.service.BaseServiceImpl;
+import mz.org.csaude.mentoring.dao.flowhistory.FlowHistoryDao;
 import mz.org.csaude.mentoring.dao.ronda.RondaMenteeDAO;
 import mz.org.csaude.mentoring.model.ronda.Ronda;
 import mz.org.csaude.mentoring.model.ronda.RondaMentee;
+import mz.org.csaude.mentoring.model.tutored.EnumFlowHistory;
+import mz.org.csaude.mentoring.model.tutored.EnumFlowHistoryProgressStatus;
+import mz.org.csaude.mentoring.model.tutored.FlowHistory;
 import mz.org.csaude.mentoring.model.tutored.Tutored;
 import mz.org.csaude.mentoring.util.DateUtilities;
+import mz.org.csaude.mentoring.util.LifeCycleStatus;
 
 public class RondaMenteeServiceImpl extends BaseServiceImpl<RondaMentee> implements RondaMenteeService {
     private RondaMenteeDAO rondaMenteeDAO;
+    private FlowHistoryDao flowHistoryDao;
     public RondaMenteeServiceImpl(Application application) {
         super(application);
     }
@@ -22,6 +28,7 @@ public class RondaMenteeServiceImpl extends BaseServiceImpl<RondaMentee> impleme
     public void init(Application application) throws SQLException {
         super.init(application);
         this.rondaMenteeDAO = getDataBaseHelper().getRondaMenteeDAO();
+        this.flowHistoryDao = getDataBaseHelper().getFlowHistoryDao();
     }
 
     @Override
@@ -94,6 +101,30 @@ public class RondaMenteeServiceImpl extends BaseServiceImpl<RondaMentee> impleme
     @Override
     public void closeRondaMentee(Ronda currRonda, Tutored selectedMentee) {
         rondaMenteeDAO.closeOneActiveOnRonda(currRonda.getId(), DateUtilities.getCurrentDate(), selectedMentee.getId());
+        Integer max = flowHistoryDao.getMaxSeqForTutored(selectedMentee.getId());
+
+        int nextSeq = max == null ? 1 : max + 1;
+
+        if (currRonda.isRondaMentoria()) {
+            FlowHistory fh = new FlowHistory(
+                    selectedMentee.getId(),
+                    EnumFlowHistory.RONDA_CICLO,
+                    EnumFlowHistoryProgressStatus.INTERROMPIDO,
+                    0.0,
+                    LifeCycleStatus.ACTIVE,
+                    nextSeq
+            );
+            flowHistoryDao.insert(fh);
+            FlowHistory fhR = new FlowHistory(
+                    selectedMentee.getId(),
+                    EnumFlowHistory.RONDA_CICLO,
+                    EnumFlowHistoryProgressStatus.AGUARDA_INICIO,
+                    0.0,
+                    LifeCycleStatus.ACTIVE,
+                    nextSeq+1
+            );
+            flowHistoryDao.insert(fhR);
+        }
     }
 
     @Override
