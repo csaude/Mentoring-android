@@ -359,5 +359,6 @@
     <string name="error_network">Erro de ligação. Verifique a internet.</string>
     <string name="required_username">Informe o utilizador</string>
     <string name="required_password">Informe a senha</string>
+    <string name="forgot_password">Esqueci a senha</string>
 
 </resources>
