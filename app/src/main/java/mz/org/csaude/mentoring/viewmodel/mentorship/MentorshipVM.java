@@ -868,7 +868,7 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
 
     @Override
     public void doOnDeny() {
-        getRelatedActivity().onBackPressed();
+        //getRelatedActivity().onBackPressed();
     }
 
     public void setQuestionAnswer(FormSectionQuestion formSectionQuestion, String answerValue) {

@@ -19,6 +19,9 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.MaterialDatePicker;
+
 import java.util.Calendar;
 import java.util.List;
 
@@ -71,25 +74,35 @@ public class SessionActivity extends BaseActivity implements ClickListener.OnIte
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle(R.string.sess_es_de_mentoria);
 
-        sessionBinding.startDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int mYear, mMonth, mDay;
+        sessionBinding.startDate.setOnClickListener(v -> {
 
-                final Calendar c = Calendar.getInstance();
-                mYear = c.get(Calendar.YEAR);
-                mMonth = c.get(Calendar.MONTH);
-                mDay = c.get(Calendar.DAY_OF_MONTH);
+            // (Opcional) Restringir datas futuras (até hoje)
+            CalendarConstraints constraints = new CalendarConstraints.Builder()
+                    .setEnd(MaterialDatePicker.todayInUtcMilliseconds())
+                    .build();
 
-                DatePickerDialog datePickerDialog = new DatePickerDialog(SessionActivity.this, R.style.CustomDatePickerDialogTheme, (view1, year, monthOfYear, dayOfMonth) ->
-                        getRelatedViewModel().setStartDate(DateUtilities.createDate(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year, DateUtilities.DATE_FORMAT)), mYear, mMonth, mDay);
-                datePickerDialog.show();
-                Button positiveButton = datePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-                Button negativeButton = datePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+            MaterialDatePicker<Long> picker = MaterialDatePicker.Builder
+                    .datePicker()
+                    .setTitleText(R.string.select_date) // ex: "Selecionar data"
+                    .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                    .setCalendarConstraints(constraints)
+                    .setTheme(R.style.ThemeOverlay_App_DatePicker) // opcional
+                    .build();
 
-                if (positiveButton != null) positiveButton.setTextColor(Color.BLACK);
-                if (negativeButton != null) negativeButton.setTextColor(Color.BLACK);
-            }
+            picker.addOnPositiveButtonClickListener(utcMillis -> {
+                // MaterialDatePicker devolve a seleção em UTC millis (meia-noite UTC).
+                // Convertemos e "normalizamos" para meia-noite no timezone do device.
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(utcMillis);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                getRelatedViewModel().setStartDate(cal.getTime());
+            });
+
+            picker.show(getSupportFragmentManager(), "session_start_date");
         });
 
     }
