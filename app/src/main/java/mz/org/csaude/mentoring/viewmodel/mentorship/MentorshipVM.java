@@ -1040,4 +1040,30 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
         EvaluationLocation loc = this.mentorship.getEvaluationLocation();
         return loc != null && loc.isHealthFacilityEvaluation();
     }
+
+    public void goBack() {
+        if (getMentorship().getSession().getRonda().isRondaMentoria() || (getMentorship().getId() != null && (getMentorship().getSession().getRonda().isRondaZero() || getMentorship().getSession().getRonda().isRondaSemestral()))) {
+            if (isPeriodSelectionStep()) {
+                getRelatedActivity().onBackPressed();
+            } else if (isQuestionSelectionStep()) {
+                setCurrMentorshipStep(CURR_MENTORSHIP_STEP_PERIOD_SELECTION);
+            } else if (isDemostrationSelectionStep()) {
+                setCurrMentorshipStep(CURR_MENTORSHIP_STEP_QUESTION_SELECTION);
+            } else {
+                getRelatedActivity().onBackPressed();
+            }
+        } else if (getMentorship().getId() == null && (getMentorship().getSession().getRonda().isRondaZero() || getMentorship().getSession().getRonda().isRondaSemestral())) {
+            if (isTableSelectionStep()) {
+                getRelatedActivity().onBackPressed();
+            } else if (isMenteeSelectionStep()) {
+                setCurrMentorshipStep(CURR_MENTORSHIP_STEP_TABLE_SELECTION);
+            } else if (isPeriodSelectionStep()) {
+                setCurrMentorshipStep(CURR_MENTORSHIP_STEP_MENTEE_SELECTION);
+            } else if (isQuestionSelectionStep()) {
+                setCurrMentorshipStep(CURR_MENTORSHIP_STEP_PERIOD_SELECTION);
+            } else {
+                getRelatedActivity().onBackPressed();
+            }
+        }
+    }
 }

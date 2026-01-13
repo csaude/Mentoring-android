@@ -130,8 +130,8 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 public class MentoringApplication  extends Application {
 
     private static MentoringApplication mInstance;
-    //public static final String BASE_URL = "https://mentdev.csaude.org.mz/api/";
-    public static final String BASE_URL = "http://10.10.12.115:8087/api/";
+    public static final String BASE_URL = "https://mentdev.csaude.org.mz/api/";
+    //public static final String BASE_URL = "http://10.10.12.115:8087/api/";
     //public static final String BASE_URL = "http://192.168.1.32:8087/api/";
     private User authenticatedUser;
 
@@ -287,6 +287,8 @@ public class MentoringApplication  extends Application {
     }
 
     public Setting getSetting(String designation) {
+        if (!Utilities.listHasElements(settingList)) loadAppSettings();
+
         for (Setting setting : settingList) {
             if (setting.getDesignation().equals(designation)) {
                 return setting;

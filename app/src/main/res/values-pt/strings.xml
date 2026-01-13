@@ -360,5 +360,6 @@
     <string name="required_username">Informe o utilizador</string>
     <string name="required_password">Informe a senha</string>
     <string name="forgot_password">Esqueci a senha</string>
+    <string name="session_closure_title">Fecho da Sessão</string>
 
 </resources>
