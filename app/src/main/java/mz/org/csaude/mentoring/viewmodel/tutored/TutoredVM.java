@@ -586,6 +586,7 @@ public class TutoredVM extends SearchVM<Tutored>
 
         if (selectedMenteeLabor.getDescription().equals("ONG")) {
             setONGEmployee(true);
+            this.tutored.getEmployee().resetPartner();
         } else {
             setONGEmployee(false);
             getExecutorService().execute(() -> {

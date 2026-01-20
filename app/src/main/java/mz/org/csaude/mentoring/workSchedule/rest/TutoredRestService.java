@@ -138,39 +138,60 @@ public class TutoredRestService extends BaseRestService {
 
     }
 
-    public void restPostTutored(Tutored tutored, RestResponseListener<Tutored> listener){
-
+    public void restPostTutored(Tutored tutored, RestResponseListener<Tutored> listener) {
 
         Call<TutoredDTO> tutoredCall = syncDataService.postTutored(new TutoredDTO(tutored));
+
         tutoredCall.enqueue(new Callback<TutoredDTO>() {
             @Override
             public void onResponse(Call<TutoredDTO> call, Response<TutoredDTO> response) {
-                TutoredDTO data = response.body();
-                if (response.code() == 201) {
-                    getServiceExecutor().execute(()-> {
-                        //tutored.setFlowHistory(data.getFlowHistoryMenteeAuxDTO());
-                        try {
-                            getApplication().getTutoredService().savedOrUpdateTutored(tutored);
 
+                if (response.code() == 201) {
+                    TutoredDTO data = response.body();
+                    if (data == null) {
+                        listener.doOnRestErrorResponse("Resposta vazia do servidor (body null).");
+                        return;
+                    }
+
+                    getServiceExecutor().execute(() -> {
+                        try {
+                            // 1) preparar lista uma única vez
+                            tutored.setFlowHistory(new ArrayList<>());
+
+                            // 2) popular lista (sem resetar dentro do loop)
+                            if (Utilities.listHasElements(data.getFlowHistoryMenteeAuxDTO())) {
+                                data.getFlowHistoryMenteeAuxDTO().forEach(flowHistoryDTO -> {
+                                    var fh = flowHistoryDTO.toEntity();
+                                    tutored.addFlowHistory(fh);
+                                });
+                            }
+
+                            getApplication().getTutoredService().savedOrUpdateTutored(tutored);
                             listener.doOnResponse(BaseRestService.REQUEST_SUCESS, Utilities.parseToList(tutored));
+
                         } catch (SQLException e) {
-                            throw new RuntimeException(e);
+                            listener.doOnRestErrorResponse(e.getMessage());
                         }
                     });
-                } else {
-                    if (response.code() == HttpStatus.BAD_REQUEST) {
-                        // Parse custom error response
-                        try {
-                            Gson gson = new Gson();
-                            MentoringAPIError error = gson.fromJson(response.errorBody().string(), MentoringAPIError.class);
-                            listener.doOnRestErrorResponse(error.getMessage());
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+
+                    return;
+                }
+
+                // erros
+                if (response.code() == HttpStatus.BAD_REQUEST) {
+                    try {
+                        String err = response.errorBody() != null ? response.errorBody().string() : null;
+                        if (err == null) {
+                            listener.doOnRestErrorResponse("BAD_REQUEST sem corpo de erro.");
+                            return;
                         }
-                    } else {
-                        // Handle other error responses
-                        listener.doOnRestErrorResponse(response.message());
+                        MentoringAPIError error = new Gson().fromJson(err, MentoringAPIError.class);
+                        listener.doOnRestErrorResponse(error != null ? error.getMessage() : "Erro BAD_REQUEST.");
+                    } catch (IOException e) {
+                        listener.doOnRestErrorResponse(e.getMessage());
                     }
+                } else {
+                    listener.doOnRestErrorResponse(response.code() + " - " + response.message());
                 }
             }
 
@@ -180,8 +201,8 @@ public class TutoredRestService extends BaseRestService {
                 listener.doOnRestErrorResponse(t.getMessage());
             }
         });
-
     }
+
 
     public void restGetTutoredByUuid(String uuid, RestResponseListener<Tutored> listener) {
         Call<ResponseBody> call = syncDataService.getTutoredByUuid(uuid);

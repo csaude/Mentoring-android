@@ -413,7 +413,7 @@ public class CreateMentorshipActivity extends BaseActivity implements ClickListe
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                super.onBackPressed();
+                getRelatedViewModel().goBack();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -401,6 +401,7 @@
                             android:overScrollMode="always"
                             android:imeOptions="actionDone"
                             android:layout_marginTop="@dimen/dimen_4dp"
+                            android:enabled="@{viewModel.demostrationMade}"
                             android:text="@={viewModel.demostrationDetails}"
                             android:background="@drawable/listble_shape"
                             android:scrollbars="vertical"/>

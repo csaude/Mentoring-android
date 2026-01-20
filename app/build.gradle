@@ -3,7 +3,7 @@ plugins {
 }
 ext.versionMajor = 1
 ext.versionMinor = 0
-ext.versionPatch = 29
+ext.versionPatch = 32
 ext.versionClassifier = null
 ext.isSnapshot = true
 ext.minimumSdkVersion = 28
@@ -82,6 +82,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'androidx.security:security-crypto:1.0.0'
     implementation "androidx.viewpager2:viewpager2:1.0.0"
+    implementation "androidx.security:security-crypto:1.1.0-alpha06"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

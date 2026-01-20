@@ -312,6 +312,7 @@ public class MentorVM extends BaseViewModel implements RestResponseListener<Tuto
             SimpleValue selectSimpleValue = (SimpleValue) menteeLabor;
             if (selectSimpleValue.getDescription().equals("ONG")) {
                 setONGEmployee(true);
+                this.tutor.getEmployee().resetPartner();
             } else {
                 setONGEmployee(false);
                 getExecutorService().execute(() -> {
