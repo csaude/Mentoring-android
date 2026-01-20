@@ -57,7 +57,18 @@ public class RondaRestService extends BaseRestService {
         rondasCall.enqueue(new Callback<List<RondaDTO>>() {
             @Override
             public void onResponse(Call<List<RondaDTO>> call, Response<List<RondaDTO>> response) {
-                List<RondaDTO> dtoList = response.body();
+                if (!response.isSuccessful()) {
+                    listener.doOnRestErrorResponse("HTTP " + response.code());
+                    return;
+                }
+
+                final List<RondaDTO> dtoList = response.body();
+                if (dtoList == null || dtoList.isEmpty()) {
+                    // Nothing to process
+                    getServiceExecutor().execute(() ->
+                            listener.doOnResponse(BaseRestService.REQUEST_NO_DATA, Collections.emptyList()));
+                    return;
+                }
 
                 getServiceExecutor().execute(() -> {
                     try {
@@ -68,9 +79,11 @@ public class RondaRestService extends BaseRestService {
                         List<Ronda> fetchedRondas = convertAndPrepare(dtoList);
 
                         handleOldRondas(localRondas, fetchedRondas, rondaMentorService);
+
                         if (Utilities.listHasElements(fetchedRondas)) {
                             saveNewRondas(dtoList, localRondas, rondaService);
                         }
+
                         listener.doOnResponse(BaseRestService.REQUEST_SUCESS, fetchedRondas);
                     } catch (SQLException e) {
                         Log.e("RondaRestService", e.getMessage(), e);
@@ -86,6 +99,7 @@ public class RondaRestService extends BaseRestService {
             }
         });
     }
+
     private List<String> getAllTutorUUIDs() {
         try {
             List<Tutor> tutors = getApplication().getTutorService().getAll();
@@ -184,7 +198,7 @@ public class RondaRestService extends BaseRestService {
                     public void onResponse(Call<List<RondaDTO>> call, Response<List<RondaDTO>> response) {
                         List<RondaDTO> data = response.body();
                         if (response.code() == 200) {
-                            getServiceExecutor().execute(()-> {
+                            getServiceExecutor().execute(() -> {
                                 try {
                                     List<Ronda> rondaList = getApplication().getRondaService().getAllNotSynced();
                                     for (Ronda ronda : rondaList) {

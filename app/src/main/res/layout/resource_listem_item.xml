@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/tools">
 
     <data>
         <variable
@@ -14,7 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="@dimen/dimen_5dp"
         android:background="@drawable/ronda_item_back"
         android:padding="8dp">
 
@@ -24,7 +24,8 @@
             android:layout_gravity="center_vertical"
             android:text="@{node.program}"
             android:textColor="#FF0000"
-            android:paddingRight="8dp" />
+            android:layout_marginHorizontal="@dimen/dimen_8dp"
+            android:paddingEnd="8dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -32,18 +33,47 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{node.name}"
-                android:textColor="?attr/textColorPrimary"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold" />
 
-            <TextView
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/ronda_status_card"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{node.subCategory}"
-                android:textColor="#FF0080" />
+                android:minHeight="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ronda_desc"
+                app:layout_constraintEnd_toStartOf="@id/btn_more"
+                app:layout_constraintBottom_toBottomOf="@id/ronda_desc"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="@dimen/dimen_4dp"
+                app:cardUseCompatPadding="false"
+                app:cardElevation="0dp"
+                app:contentPadding="0dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Pill"
+                app:cardBackgroundColor="@color/status_open_bg">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingVertical="4dp"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{node.subCategory}"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
         <ImageButton
@@ -52,7 +82,7 @@
             android:layout_height="match_parent"
             android:visibility="@{node.selected ? View.VISIBLE : View.GONE}"
             android:src="@drawable/ic_arrow_circle_down"
-            android:background="@color/resource_color"
+            android:background="?attr/colorSurfaceVariant"
             android:paddingStart="8dp" />
     </LinearLayout>
 

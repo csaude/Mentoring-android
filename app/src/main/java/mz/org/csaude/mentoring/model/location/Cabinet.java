@@ -48,6 +48,7 @@ public class Cabinet extends BaseModel {
     }
 
     public boolean isCommunityCabinet() {
+        if (getUuid() == null) return false;
         return getUuid().equals(COMMUNITY_CABINET_UUID);
     }
 }

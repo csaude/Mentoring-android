@@ -273,7 +273,7 @@ public class CreateMentorshipActivity extends BaseActivity implements ClickListe
         getRelatedViewModel().getExecutorService().execute(()-> {
             List<Tutored> tutoreds = getRelatedViewModel().getMentees();
             runOnUiThread(()->{
-                this.tutoredAdapter = new TutoredAdapter(mentorshipBinding.rcvTutored, tutoreds, this);
+                this.tutoredAdapter = new TutoredAdapter(mentorshipBinding.rcvTutored, tutoreds, this, null);
                 RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
                 mentorshipBinding.rcvTutored.setLayoutManager(mLayoutManager);
                 mentorshipBinding.rcvTutored.setItemAnimator(new DefaultItemAnimator());
@@ -413,7 +413,7 @@ public class CreateMentorshipActivity extends BaseActivity implements ClickListe
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                super.onBackPressed();
+                getRelatedViewModel().goBack();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -287,6 +287,8 @@ public class MentoringApplication  extends Application {
     }
 
     public Setting getSetting(String designation) {
+        if (!Utilities.listHasElements(settingList)) loadAppSettings();
+
         for (Setting setting : settingList) {
             if (setting.getDesignation().equals(designation)) {
                 return setting;

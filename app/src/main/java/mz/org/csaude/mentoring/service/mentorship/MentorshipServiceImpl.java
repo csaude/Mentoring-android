@@ -258,9 +258,11 @@ public class MentorshipServiceImpl extends BaseServiceImpl<Mentorship> implement
 
     @Override
     public int countMentorshipsOnLastDays(Tutored selectedMentee, Ronda ronda) {
-        Setting setting = getApplication().getSetting(Constants.MUX_DAYS_ON_RONDA_WITHOUT_SESSION);
+        Setting setting = getApplication().getSetting(Constants.SettingKeys.DAYS_ON_RONDA_WITHOUT_SESSION);
         int days = Integer.parseInt(setting.getValue());
         return mentorshipDAO.countMentorshipsOnLastDays(selectedMentee.getId(), days);
     }
+
+
 
 }

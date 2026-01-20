@@ -185,7 +185,7 @@ public class Employee extends BaseModel implements Listble {
 
     public void setProfessionalCategory(ProfessionalCategory professionalCategory) {
         this.professionalCategory = professionalCategory;
-        this.professionalCategoryId = professionalCategory.getId();
+       if (professionalCategory != null) this.professionalCategoryId = professionalCategory.getId();
     }
 
     public Integer getTrainingYear() {
@@ -218,7 +218,7 @@ public class Employee extends BaseModel implements Listble {
 
     public void setPartner(Partner partner) {
         this.partner = partner;
-        this.partnerId = partner.getId();
+        if (partner != null) this.partnerId = partner.getId();
     }
 
     public List<Location> getLocations() {
@@ -257,6 +257,7 @@ public class Employee extends BaseModel implements Listble {
         if (!Utilities.stringHasValue(getEmail())) return "Campo Email não pode estar vazio";
         if (!PatternsCompat.EMAIL_ADDRESS.matcher(getEmail()).matches()) return "Por favor indique um endereço de Email válido";
         if (this.getProfessionalCategory() == null) return "Campo Categoria Profissional não pode estar vazio";
+        if (this.getPartner() == null) return "Deve indicar a instituição do vinculo laboral";
         if (!Utilities.listHasElements(this.locations)) return "Por favor indique a unidade sanitária.";
         if (!Utilities.stringHasValue(String.valueOf(getNuit())) || getNuit() == 0L) return "Campo NUIT não pode estar vazio";
         if (Long.toString(getNuit()).length() != 9) return "Campo do NUIT deve ter 9 dígitos";
@@ -314,5 +315,9 @@ public class Employee extends BaseModel implements Listble {
 
     public void setPartnerId(Integer partnerId) {
         this.partnerId = partnerId;
+    }
+
+    public void resetPartner() {
+        this.partner = null;
     }
 }

@@ -2,6 +2,7 @@ package mz.org.csaude.mentoring.viewmodel.session;
 
 import android.app.Application;
 import android.app.Dialog;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -47,7 +48,7 @@ public class SessionListVM extends SearchVM<Session>  implements IDialogListener
     private Session selectedSession;
 
     private RondaMentee currRondaMentee;
-
+    private boolean removedFromCurrRonda;
 
 
     public SessionListVM(@NonNull Application application) {
@@ -74,6 +75,8 @@ public class SessionListVM extends SearchVM<Session>  implements IDialogListener
 
 
     public void setSelectedMentee(Listble selectedMentee) {
+        this.removedFromCurrRonda = false;
+
         Dialog progress = Utilities.showLoadingDialog(getRelatedActivity(), getRelatedActivity().getString(R.string.processando));
 
         getExecutorService().execute(() -> {
@@ -84,7 +87,7 @@ public class SessionListVM extends SearchVM<Session>  implements IDialogListener
                 throw new RuntimeException(e);
             }
 
-            Setting setting = getApplication().getSetting(Constants.MUX_DAYS_ON_RONDA_WITHOUT_SESSION);
+            Setting setting = getApplication().getSetting(Constants.SettingKeys.DAYS_ON_RONDA_WITHOUT_SESSION);
             if (setting != null && setting.getEnabled()) {
                 int daysThreshold = setting.getSettingValueAsInt(); // safest
 
@@ -95,6 +98,7 @@ public class SessionListVM extends SearchVM<Session>  implements IDialogListener
                     int mentorshipCount = getApplication().getMentorshipService().countMentorshipsOnLastDays((Tutored) selectedMentee, this.currRonda);
 
                     if (mentorshipCount == 0) {
+                        this.removedFromCurrRonda = true;
                         getApplication().getRondaMenteeService().closeRondaMentee(this.currRonda, (Tutored) selectedMentee);
                         runOnMainThread(() -> {
                             String message = getRelatedActivity().getString(
@@ -127,16 +131,19 @@ public class SessionListVM extends SearchVM<Session>  implements IDialogListener
     }
 
     public void createSession() {
-
-        if (currRondaMentee.getEndDate() != null) {
-            Setting setting = getApplication().getSetting(Constants.MUX_DAYS_ON_RONDA_WITHOUT_SESSION);
-            String message = getRelatedActivity().getString(
-                    R.string.ronda_mentee_closed,
-                    setting.getSettingValueAsInt(),
-                    selectedMentee.getEmployee().getFullName()
-            );
-            Utilities.displayAlertDialog(getRelatedActivity(), message).show();
-        } else
+        Setting setting = getApplication().getSetting(Constants.SettingKeys.DAYS_ON_RONDA_WITHOUT_SESSION);
+        if (setting != null && setting.getEnabled()) {
+            int daysThreshold = setting.getSettingValueAsInt();
+            if (this.removedFromCurrRonda) {
+                String message = getRelatedActivity().getString(
+                        R.string.ronda_mentee_closed,
+                        daysThreshold,
+                        selectedMentee.getEmployee().getFullName()
+                );
+                Utilities.displayAlertDialog(getRelatedActivity(), message).show();
+                return;
+            }
+        }
         if (this.searchResults.size() < 4) {
             for (Session session : this.searchResults) {
                 if (!session.isCompleted()) {

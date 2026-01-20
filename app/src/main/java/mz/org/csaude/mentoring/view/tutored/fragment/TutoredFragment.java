@@ -1,149 +1,140 @@
 package mz.org.csaude.mentoring.view.tutored.fragment;
 
-import android.app.Dialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import mz.org.csaude.mentoring.R;
 import mz.org.csaude.mentoring.adapter.tutored.TutoredAdapter;
 import mz.org.csaude.mentoring.base.fragment.GenericFragment;
 import mz.org.csaude.mentoring.base.viewModel.BaseViewModel;
-import mz.org.csaude.mentoring.databinding.FragmentTutoredsBinding;
-import mz.org.csaude.mentoring.listner.dialog.IListbleDialogListener;
+import mz.org.csaude.mentoring.databinding.FragmentTutoredBinding;
 import mz.org.csaude.mentoring.model.tutored.Tutored;
-import mz.org.csaude.mentoring.util.RecyclerItemTouchHelper;
-import mz.org.csaude.mentoring.util.SpacingItemDecoration;
-import mz.org.csaude.mentoring.util.Utilities;
+import mz.org.csaude.mentoring.view.common.VerticalSpaceItemDecoration;
+import mz.org.csaude.mentoring.viewmodel.tutored.StageFilter;
 import mz.org.csaude.mentoring.viewmodel.tutored.TutoredVM;
 
 /**
- * @author Jose Julai Ritsure
+ * Lista de mentorandos. Reutilizada 4x no NavGraph com argumento "stage".
+ * Implementa Searchable para receber o texto da SearchBar.
  */
-public class TutoredFragment extends GenericFragment implements IListbleDialogListener, TutoredAdapter.OnTutoredActionListener {
-    private FragmentTutoredsBinding fragmentTutoredBinding;
+public class TutoredFragment extends GenericFragment
+        implements Searchable, TutoredRefreshable, TutoredAdapter.OnTutoredActionListener {
 
-    private RecyclerView rcvTutoreds;
+    private FragmentTutoredBinding binding;
+    private TutoredAdapter adapter;
 
-    private List<Tutored> tutoreds;
-
-    private TutoredAdapter tutoredItemAdapter;
-
-    public TutoredFragment() {
-
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_tutored, container, false);
+        return binding.getRoot();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        super.onCreateView(inflater, container, savedInstanceState);
-        fragmentTutoredBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_tutoreds, container, false);
-        return fragmentTutoredBinding.getRoot();
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view,
+                              @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        fragmentTutoredBinding.setViewModel(getRelatedViewModel());
 
-        this.rcvTutoreds = fragmentTutoredBinding.rcvTutoreds;
-        getRelatedViewModel().initSearch();
+        binding.setViewModel(getRelatedViewModel());
+        binding.setLifecycleOwner(getViewLifecycleOwner());
 
-        displaySearchResults();
+        // Recycler + Adapter
+        binding.rcvTutoreds.setLayoutManager(new LinearLayoutManager(requireContext()));
+        int space = getResources().getDimensionPixelSize(R.dimen.dimen_8dp);
+        binding.rcvTutoreds.addItemDecoration(
+                new VerticalSpaceItemDecoration(space, true)); // true = também top/bottom
 
-        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, (viewHolder, direction, position) -> {
-            if (viewHolder instanceof TutoredAdapter.TutoredViewHolder) {
-                tutoredItemAdapter.setSwipedPosition(position); // marca como swiped
-                Tutored deleted = getRelatedViewModel().getSearchResults().get(position);
-                //tutoredItemAdapter.actionListener.onEdit(deleted); // trigger edit
-                //tutoredItemAdapter.notifyItemChanged(position); // reset
-            }
-        });
+        // Lista inicial (caso o VM já tenha resultados de antes)
+        List<Tutored> initial =
+                getRelatedViewModel().getSearchResults() != null
+                        ? new ArrayList<>(getRelatedViewModel().getSearchResults())
+                        : new ArrayList<>();
 
-        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(rcvTutoreds);
+        adapter = new TutoredAdapter(binding.rcvTutoreds, initial, getMyActivity(), this);
+        binding.rcvTutoreds.setAdapter(adapter);
+        binding.rcvTutoreds.scheduleLayoutAnimation();
 
-        rcvTutoreds.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING && !tutoredItemAdapter.isIgnoreCloseSwipe()) {
-                    tutoredItemAdapter.closeSwipedItem();
+        // Lê o argumento "stage" e aplica no VM antes do primeiro carregamento
+        StageFilter filter = StageFilter.ALL;
+        Bundle args = getArguments();
+        if (args != null) {
+            String fromNav = args.getString("stage");
+            if (fromNav != null) {
+                try {
+                    filter = StageFilter.valueOf(fromNav);
+                } catch (IllegalArgumentException ex) {
+                    // valor inesperado, mantém ALL
+                    filter = StageFilter.ALL;
                 }
-                tutoredItemAdapter.setIgnoreCloseSwipe(false); // reset do flag
             }
-        });
-
-
-    }
-
-
-    public void displaySearchResults() {
-        try {
-            this.tutoredItemAdapter = new TutoredAdapter(rcvTutoreds, getRelatedViewModel().getSearchResults(), getMyActivity(), this);
-            displayDataOnRecyclerView(rcvTutoreds, tutoredItemAdapter, getContext(), LinearLayoutManager.VERTICAL);
-        } catch (Exception e) {
-            // Log the error or handle it as necessary
-            Log.e("TutoredFragment", "Error loading data", e);
         }
-    }
+        getRelatedViewModel().setStageFilter(filter);
 
-
-    @Override
-    public void onResume() {
-        super.onResume();
+        // Dispara o primeiro carregamento (filtrando por estágio no BD)
+        getRelatedViewModel().reloadWithFilter();
     }
 
     @Override
     public TutoredVM getRelatedViewModel() {
-        return (TutoredVM) getMyActivity().getRelatedViewModel();
+        return (TutoredVM) super.getRelatedViewModel();
     }
 
-
+    // ===== Searchable =====
     @Override
-    public void remove(int position) {
+    public void onSearchQueryChanged(@NonNull String query) {
+        if (getRelatedViewModel() == null) return;
+        getRelatedViewModel().setCurrentQuery(query);
+        // dispara o recálculo no VM (BD + filtro texto)
+        getRelatedViewModel().reloadWithFilter();
+    }
 
-        String errorMsg = getRelatedViewModel().tutoredHasSessions();
+    // Chamado via TutoredRefreshable pelo VM
+    @Override
+    public void refreshList() {
+        updateList();
+    }
 
-        if (!Utilities.stringHasValue(errorMsg)) {
-            try {
-                tutoreds.remove(getRelatedViewModel().getTutored());
-                rcvTutoreds.getAdapter().notifyItemRemoved(position);
-                rcvTutoreds.removeViewAt(position);
-                rcvTutoreds.getAdapter().notifyItemRangeChanged(position, rcvTutoreds.getAdapter().getItemCount());
-                getRelatedViewModel().deleteTutored(getRelatedViewModel().getTutored());
-                Utilities.displayAlertDialog(TutoredFragment.this.getContext(), getString(R.string.record_sucessfully_removed)).show();
-            } catch (SQLException e) {
-                Utilities.displayAlertDialog(TutoredFragment.this.getContext(), errorMsg).show();
-            }
+    // Chamado explicitamente se quiseres do VM
+    public void displaySearchResults() {
+        updateList();
+    }
 
-        } else {
-            Utilities.displayAlertDialog(TutoredFragment.this.getContext(), errorMsg).show();
+    private void updateList() {
+        if (adapter == null) return;
+        List<Tutored> data = getRelatedViewModel().getSearchResults();
+        if (data == null) data = new ArrayList<>();
+        adapter.submitList(data);
+
+        // Exibir "sem registos" vs lista
+        boolean hasData = data != null && !data.isEmpty();
+        binding.rcvTutoreds.setVisibility(hasData ? View.VISIBLE : View.GONE);
+        binding.noRecordsText.setVisibility(hasData ? View.GONE : View.VISIBLE);
+
+        if (hasData) {
+            binding.rcvTutoreds.scheduleLayoutAnimation();
         }
-    }
-
-
-    @Override
-    public BaseViewModel initViewModel() {
-        return new ViewModelProvider(this).get(TutoredVM.class);
     }
 
     @Override
     public void onEdit(Tutored tutored) {
+        getRelatedViewModel().edit(tutored);
+    }
 
-        if (tutored != null) {
-            getRelatedViewModel().initMenteeEdition(tutored);
-        }
+    @Override
+    public BaseViewModel initViewModel() {
+        return new ViewModelProvider(requireActivity()).get(TutoredVM.class);
     }
 }

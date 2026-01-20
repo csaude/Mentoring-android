@@ -31,6 +31,7 @@ import mz.org.csaude.mentoring.base.viewModel.BaseViewModel;
 import mz.org.csaude.mentoring.databinding.ActivitySessionSummaryBinding;
 import mz.org.csaude.mentoring.model.session.Session;
 import mz.org.csaude.mentoring.util.Utilities;
+import mz.org.csaude.mentoring.view.common.VerticalSpaceItemDecoration;
 import mz.org.csaude.mentoring.viewmodel.session.SessionSummaryVM;
 
 public class SessionSummaryActivity extends BaseActivity {
@@ -82,13 +83,17 @@ public class SessionSummaryActivity extends BaseActivity {
     @Override
     public void displaySearchResults() {
         super.displaySearchResults();
+
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         binding.rcvSummary.setLayoutManager(mLayoutManager);
-        binding.rcvSummary.setItemAnimator(new DefaultItemAnimator());
-        binding.rcvSummary.addItemDecoration(new DividerItemDecoration(getApplicationContext(), 0));
+        if (binding.rcvSummary.getItemDecorationCount() == 0) {
+            int space = getResources().getDimensionPixelSize(R.dimen.dimen_8dp);
+            binding.rcvSummary.addItemDecoration(new VerticalSpaceItemDecoration(space, false));
+        }
 
         sessionSummaryAdapter = new SessionSummaryAdapter(binding.rcvSummary, getRelatedViewModel().getSessionSummaryList(), this);
         binding.rcvSummary.setAdapter(sessionSummaryAdapter);
+        binding.rcvSummary.scheduleLayoutAnimation();
     }
 
     @Override

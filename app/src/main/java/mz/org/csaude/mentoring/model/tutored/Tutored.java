@@ -6,9 +6,12 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import mz.org.csaude.mentoring.base.model.BaseModel;
+import mz.org.csaude.mentoring.dto.tutored.FlowHistoryDTO;
 import mz.org.csaude.mentoring.dto.tutored.TutoredDTO;
 import mz.org.csaude.mentoring.model.employee.Employee;
 
@@ -30,7 +33,7 @@ public class Tutored extends BaseModel {
     @ColumnInfo(name = COLUMN_EMPLOYEE)
     private Integer employeeId;
 
-    @Ignore // Room will ignore this field since it's not stored directly in the Tutored table.
+    @Ignore
     private Employee employee;
 
     @ColumnInfo(name = COLUMN_ZERO_EVALUATION_STATUS)
@@ -39,27 +42,44 @@ public class Tutored extends BaseModel {
     @ColumnInfo(name = COLUMN_ZERO_EVALUATION_SCORE)
     private double zeroEvaluationScore;
 
-    public Tutored() {
-    }
+    @Ignore
+    private List<FlowHistory> flowHistory;
+
+    public Tutored() {}
 
     public Tutored(Integer employeeId) {
         this.employeeId = employeeId;
     }
 
-    @Ignore // This constructor should be ignored by Room because it involves complex object initialization.
+    @Ignore
     public Tutored(Employee employee) {
         this.employeeId = employee.getId();
         this.employee = employee;
     }
 
-    @Ignore // This constructor should be ignored by Room as it’s used for DTO to Entity conversion.
+    @Ignore
     public Tutored(TutoredDTO tutoredDTO) {
         super(tutoredDTO);
         this.zeroEvaluationDone = tutoredDTO.isZeroEvaluationDone();
         this.zeroEvaluationScore = tutoredDTO.getZeroEvaluationScore();
+
         if (tutoredDTO.getEmployeeDTO() != null) {
             this.employee = new Employee(tutoredDTO.getEmployeeDTO());
             this.employeeId = this.employee.getId();
+        }
+
+        if (tutoredDTO.getFlowHistoryMenteeAuxDTO() != null &&
+                !tutoredDTO.getFlowHistoryMenteeAuxDTO().isEmpty()) {
+
+            this.flowHistory = new ArrayList<>();
+
+            for (FlowHistoryDTO fhDTO : tutoredDTO.getFlowHistoryMenteeAuxDTO()) {
+                FlowHistory fh = fhDTO.toEntity(); // <--- conversion from DTO → Entity
+                this.flowHistory.add(fh);
+            }
+
+        } else {
+            this.flowHistory = null;
         }
     }
 
@@ -67,42 +87,25 @@ public class Tutored extends BaseModel {
     public String validade() {
         return employee.validade();
     }
-    // Getters and Setters
 
-    public Integer getEmployeeId() {
-        return employeeId;
-    }
+    // Getters/Setters
+    public Integer getEmployeeId() { return employeeId; }
+    public void setEmployeeId(Integer employeeId) { this.employeeId = employeeId; }
 
-    public void setEmployeeId(Integer employeeId) {
-        this.employeeId = employeeId;
-    }
-
-    public Employee getEmployee() {
-        return employee;
-    }
-
+    public Employee getEmployee() { return employee; }
     public void setEmployee(Employee employee) {
         this.employee = employee;
-        if (employee != null) {
-            this.employeeId = employee.getId();
-        }
+        if (employee != null) this.employeeId = employee.getId();
     }
 
-    public boolean isZeroEvaluationDone() {
-        return zeroEvaluationDone;
-    }
+    public boolean isZeroEvaluationDone() { return zeroEvaluationDone; }
+    public void setZeroEvaluationDone(boolean zeroEvaluationDone) { this.zeroEvaluationDone = zeroEvaluationDone; }
 
-    public void setZeroEvaluationDone(boolean zeroEvaluationDone) {
-        this.zeroEvaluationDone = zeroEvaluationDone;
-    }
+    public double getZeroEvaluationScore() { return zeroEvaluationScore; }
+    public void setZeroEvaluationScore(double zeroEvaluationScore) { this.zeroEvaluationScore = zeroEvaluationScore; }
 
-    public double getZeroEvaluationScore() {
-        return zeroEvaluationScore;
-    }
-
-    public void setZeroEvaluationScore(double zeroEvaluationScore) {
-        this.zeroEvaluationScore = zeroEvaluationScore;
-    }
+    public List<FlowHistory> getFlowHistory() { return flowHistory; }
+    public void setFlowHistory(List<FlowHistory> flowHistory) { this.flowHistory = flowHistory; }
 
     @Override
     public String getDescription() {
@@ -111,7 +114,7 @@ public class Tutored extends BaseModel {
 
     @Override
     public String toString() {
-        return this.getEmployee().getFullName(); // ou outro campo desejado
+        return this.getEmployee() != null ? this.getEmployee().getFullName() : super.toString();
     }
 
     @Override
@@ -126,5 +129,34 @@ public class Tutored extends BaseModel {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), employeeId);
+    }
+
+    public void addFlowHistory(FlowHistory fh) {
+        if (this.flowHistory == null) this.flowHistory = new ArrayList<>();
+        this.flowHistory.add(fh);
+    }
+
+    public boolean isOnStatus(EnumFlowHistory enumFlowHistory, EnumFlowHistoryProgressStatus enumFlowHistoryProgressStatus) {
+        FlowHistory maxfh = getLastFlowHistory();
+        if (maxfh != null && maxfh.getEstagio().equals(enumFlowHistory) && maxfh.getEstado().equals(enumFlowHistoryProgressStatus)) {
+            return true;
+        }
+        return false;
+    }
+
+    public Integer determineNextSeq() {
+        return getLastFlowHistory().getSeq() + 1;
+    }
+
+    public FlowHistory getLastFlowHistory() {
+        int maxSeq = 0;
+        FlowHistory maxfh = null;
+        for (FlowHistory fh : this.flowHistory) {
+            if (fh.getSeq() > maxSeq) {
+                maxSeq = fh.getSeq();
+                maxfh = fh;
+            }
+        }
+        return maxfh;
     }
 }

@@ -212,9 +212,10 @@
     <string name="current_password">Senha Atual</string>
     <string name="new_password">Nova Senha</string>
     <string name="confirm_password">Confirmar Nova Senha</string>
-    <string name="rounds">Rondas/Ciclos de Mentoria</string>
+    <string name="rounds">Rondas/Ciclos</string>
     <string name="zero_sessions">Sessões Zero</string>
     <string name="mentees">Mentorandos</string>
+    <string name="mentees_ronda_sessao">Provedores/Rondas/Sessões</string>
     <string name="ea_resources">Recursos de EA</string>
     <string name="enable_auto_sync">Habilitar Sincronização Automática</string>
     <string name="sync_interval">Intervalo de Sincronização (Horas)</string>
@@ -243,6 +244,7 @@
     <string name="meus_dados">Meus Dados</string>
     <string name="mentor">Mentor</string>
     <string name="sair">Sair</string>
+    <string name="home">Inicio</string>
 
     <string name="evaluation_end">Fim da Avaliação</string>
     <string name="demostration_needed">Houve necessidade de demonstração</string>
@@ -293,8 +295,71 @@
     <string name="session_start_date_future_error">A data de início da sessão não pode ser futura.</string>
     <string name="verifying_connection">Verificando conexão ao servidor...</string>
     <string name="community">Comunidade</string>
-    <string name="error_evaluation_location">Não possivel encontrar o parâmetro comunidade, sincronize os metadados.</string>
+    <string name="error_evaluation_location">Não foi possivel encontrar o parâmetro comunidade, sincronize os metadados.</string>
     <string name="app_name_checkPoint">Checkpoint</string>
+    <string name="sem_mentorandos_neste_estagio">Sem Mentorandos Neste Estágio</string>
+    <string name="mentorandos">Mentorandos</string>
+    <string name="tab_estagios">Estágios</string>
+    <string name="tab_lista">Lista</string>
+    <string name="expand">Expandir/Colapsar</string>
+    <string name="edit">Editar</string>
+    <string name="aguardam_sessao_zero">Sessão zero</string>
+    <string name="inicio_de_ronda">Ronda/Ciclo</string>
+    <string name="sessao_semestral">Semestral</string>
+    <string name="todos">Todos</string>
+    <string name="voice_search">Pesquisar</string>
+    <string name="more_options">Acções</string>
+    <string name="call">Ligar</string>
+    <string name="no_phone_available">Sem contacto</string>
 
+
+    <string name="saving_tutored">A guardar mentorando…</string>
+    <string name="tutored_data_saved_success">Mentorando guardado com sucesso!</string>
+    <string name="try_again">Tentar novamente</string>
+    <string name="continue_label">Continuar</string>
+    <string name="success">Sucesso</string>
+    <string name="error">Erro</string>
+    <string name="skip_zero_session_label">Isentar da sessão zero</string>
+    <string name="skip_zero_session_hint">Não será necessária a sessão zero para este mentorando.</string>
+
+    <string name="speak_now">Fale agora…</string>
+    <string name="voice_search_not_available">Reconhecimento de voz não disponível neste dispositivo.</string>
+    <string name="mic_permission_denied">Permissão do microfone negada.</string>
+    <string name="clear">Limpar</string>
+    <string name="details">Detalhes</string>
+    <string name="delete">Apagar</string>
+    <string name="date">Período</string>
+    <string name="terminado">Terminado</string>
+    <string name="em_curso">Em curso</string>
+    <string name="sem_rondas">Nenhum cliclo/ronda para visualizar</string>
+
+    <string name="select_mentees">Selecionar mentorandos</string>
+    <string name="error_loading">Ocorreu um erro durante o carregamento de dados.</string>
+    <string name="select_date">Selecionar data</string>
+    <string name="download">Baixar</string>
+    <string name="sem_registos">Nenhum recurso disponível para visualizar.</string>
+    <string name="ronda_semestral">Sessão Semestral</string>
+    <string name="saved_successfully">Ronda/Ciclo guardado com sucesso.</string>
+    <string name="empty_evaluation_location">Deve indicar o local da avaliação.</string>
+    <string name="identification">Identificação</string>
+    <string name="nav_credentials">Credenciais</string>
+    <string name="nav_logout">Sair</string>
+    <string name="nav_personal_info">Meus Dados</string>
+    <string name="nav_settings">Configurações</string>
+    <string name="mentor_type_required">Por favor indicar o tipo de mentor!</string>
+    <string name="error_loading_evaluation_location">Não foi possível identificar o locar da avaliação.</string>
+    <string name="no_evaluation_location_selected">Por favor indicar o locar da avaliação.</string>
+    <string name="select_session_end_date">Data fim da sessão</string>
+    <string name="select_next_session_date">Data da próxima sessão</string>
+
+    <string name="nav_home">Inicio</string>
+    <string name="error_invalid_credentials">Utilizador ou senha inválidos.</string>
+    <string name="error_unauthorized">Não tem autorização para aceder.</string>
+    <string name="error_generic">Ocorreu um erro. Tente novamente.</string>
+    <string name="error_network">Erro de ligação. Verifique a internet.</string>
+    <string name="required_username">Informe o utilizador</string>
+    <string name="required_password">Informe a senha</string>
+    <string name="forgot_password">Esqueci a senha</string>
+    <string name="session_closure_title">Fecho da Sessão</string>
 
 </resources>

@@ -35,6 +35,7 @@ import mz.org.csaude.mentoring.model.sync.SyncStatus;
 import mz.org.csaude.mentoring.model.user.User;
 import mz.org.csaude.mentoring.service.user.UserService;
 import mz.org.csaude.mentoring.service.user.UserSyncService;
+import mz.org.csaude.mentoring.util.AuthErrorMapper;
 import mz.org.csaude.mentoring.util.Constants;
 import mz.org.csaude.mentoring.util.DateUtilities;
 import mz.org.csaude.mentoring.util.Utilities;
@@ -128,6 +129,8 @@ public class LoginVM extends BaseViewModel implements RestResponseListener<User>
     }
 
     public void doLogin() {
+        if (!isValidForm()) return;
+
         getExecutorService().execute(() -> {
             setAuthenticating(true);
             if (AppHasUser() && getApplication().isInitialSetupComplete()) {
@@ -143,6 +146,25 @@ public class LoginVM extends BaseViewModel implements RestResponseListener<User>
             getApplication().saveDefaultLastSyncDate(DateUtilities.getCurrentDate());
         });
     }
+
+    private boolean isValidForm() {
+        String username = Utilities.stringHasValue(getUserName()) ? getUserName().trim() : "";
+        String password = Utilities.stringHasValue(getUserPassword()) ? getUserPassword().trim() : "";
+
+        if (!Utilities.stringHasValue(username)) {
+            Utilities.displayAlertDialog(getRelatedActivity(),
+                    getRelatedActivity().getString(R.string.required_username)).show();
+            return false;
+        }
+
+        if (!Utilities.stringHasValue(password)) {
+            Utilities.displayAlertDialog(getRelatedActivity(),
+                    getRelatedActivity().getString(R.string.required_password)).show();
+            return false;
+        }
+        return true;
+    }
+
 
     private void doOnlineLogin() {
         runOnMainThread(() -> setAuthenticating(true));
@@ -463,16 +485,22 @@ public class LoginVM extends BaseViewModel implements RestResponseListener<User>
     @Override
     public void doOnRestErrorResponse(String errormsg) {
         runOnMainThread(() -> {
-            if (Utilities.stringHasValue(errormsg)) {
-                Log.e("LoginVM", "doOnRestErrorResponse: " + errormsg);
-                Utilities.displayAlertDialog(getRelatedActivity(), errormsg).show();
-            } else {
-                String invalidMessage = getRelatedActivity().getString(R.string.invalid_user_or_password);
-                Utilities.displayAlertDialog(getRelatedActivity(), invalidMessage).show();
-            }
+
+            Log.e("LoginVM", "Login error: " + errormsg);
+
+            String message = AuthErrorMapper.map(
+                    getRelatedActivity(),
+                    errormsg
+            );
+
+            Utilities
+                    .displayAlertDialog(getRelatedActivity(), message)
+                    .show();
+
             setAuthenticating(false);
         });
     }
+
 
     public void showBiometricPrompt() {
         getRelatedActivity().showBiometricPrompt();

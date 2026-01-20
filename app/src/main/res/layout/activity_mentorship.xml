@@ -168,7 +168,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:focusableInTouchMode="false"
-                            android:drawableLeft="@drawable/ic_calendar"
+                            android:drawableStart="@drawable/ic_calendar"
                             android:drawablePadding="@dimen/dimen_5dp"
                             android:text="@{DateUtilities.formatToDDMMYYYY(viewModel.startDate)}"
                             android:enabled="@{!viewModel.currentStep.applicationStepDisplay}"
@@ -193,7 +193,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/evaluation_location"
-                            android:visibility="@{viewModel.selectLocation ? View.VISIBLE : View.GONE}"
+                            android:visibility="@{viewModel.bothLocation ? View.VISIBLE : View.GONE}"
                             style="@style/input_labels" />
 
                         <RadioGroup
@@ -201,7 +201,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:visibility="@{viewModel.selectLocation ? View.VISIBLE : View.GONE}">
+                            android:visibility="@{viewModel.bothLocation ? View.VISIBLE : View.GONE}">
 
                             <RadioButton
                                 android:id="@+id/rb_community"
@@ -401,6 +401,7 @@
                             android:overScrollMode="always"
                             android:imeOptions="actionDone"
                             android:layout_marginTop="@dimen/dimen_4dp"
+                            android:enabled="@{viewModel.demostrationMade}"
                             android:text="@={viewModel.demostrationDetails}"
                             android:background="@drawable/listble_shape"
                             android:scrollbars="vertical"/>

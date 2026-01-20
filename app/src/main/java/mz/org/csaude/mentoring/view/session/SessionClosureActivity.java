@@ -1,37 +1,27 @@
 package mz.org.csaude.mentoring.view.session;
 
-import android.app.DatePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.DatePicker;
 
-import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.Calendar;
+import com.google.android.material.datepicker.MaterialDatePicker;
 
 import mz.org.csaude.mentoring.R;
 import mz.org.csaude.mentoring.base.activity.BaseActivity;
 import mz.org.csaude.mentoring.base.viewModel.BaseViewModel;
 import mz.org.csaude.mentoring.databinding.ActivitySessionClosureBinding;
-import mz.org.csaude.mentoring.model.ronda.Ronda;
 import mz.org.csaude.mentoring.model.session.Session;
-import mz.org.csaude.mentoring.model.tutored.Tutored;
 import mz.org.csaude.mentoring.util.DateUtilities;
 import mz.org.csaude.mentoring.util.Utilities;
-import mz.org.csaude.mentoring.view.ronda.CreateRondaActivity;
 import mz.org.csaude.mentoring.viewmodel.session.SessionClosureVM;
 
 public class SessionClosureActivity extends BaseActivity {
@@ -53,39 +43,10 @@ public class SessionClosureActivity extends BaseActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle(R.string.fecho_da_sess_o);
 
-        binding.sessionEndDate.setOnClickListener(view -> {
-            int mYear, mMonth, mDay;
+        binding.sessionEndDate.setOnClickListener(v -> showEndDatePicker());
 
-            final Calendar c = Calendar.getInstance();
-            mYear = c.get(Calendar.YEAR);
-            mMonth = c.get(Calendar.MONTH);
-            mDay = c.get(Calendar.DAY_OF_MONTH);
+        binding.nextSessionDate.setOnClickListener(v -> showNextSessionDatePicker());
 
-            DatePickerDialog datePickerDialog = new DatePickerDialog(SessionClosureActivity.this, R.style.CustomDatePickerDialogTheme, (view1, year, monthOfYear, dayOfMonth) -> getRelatedViewModel().setEndtDate(DateUtilities.createDate(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year, DateUtilities.DATE_FORMAT)), mYear, mMonth, mDay);
-            datePickerDialog.show();
-            Button positiveButton = datePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-            Button negativeButton = datePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-
-            if (positiveButton != null) positiveButton.setTextColor(Color.BLACK);
-            if (negativeButton != null) negativeButton.setTextColor(Color.BLACK);
-        });
-
-        binding.nextSessionDate.setOnClickListener(view -> {
-            int mYear, mMonth, mDay;
-
-            final Calendar c = Calendar.getInstance();
-            mYear = c.get(Calendar.YEAR);
-            mMonth = c.get(Calendar.MONTH);
-            mDay = c.get(Calendar.DAY_OF_MONTH);
-
-            DatePickerDialog datePickerDialog = new DatePickerDialog(SessionClosureActivity.this, R.style.CustomDatePickerDialogTheme, (view1, year, monthOfYear, dayOfMonth) -> getRelatedViewModel().setNextSessionDate(DateUtilities.createDate(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year, DateUtilities.DATE_FORMAT)), mYear, mMonth, mDay);
-            datePickerDialog.show();
-            Button positiveButton = datePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-            Button negativeButton = datePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-
-            if (positiveButton != null) positiveButton.setTextColor(Color.BLACK);
-            if (negativeButton != null) negativeButton.setTextColor(Color.BLACK);
-        });
 
         finishReceiver = new BroadcastReceiver() {
             @Override
@@ -98,6 +59,61 @@ public class SessionClosureActivity extends BaseActivity {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(finishReceiver, new IntentFilter("FINISH_ACTIVITY"));
 
+    }
+
+    private void showEndDatePicker() {
+        MaterialDatePicker<Long> datePicker =
+                MaterialDatePicker.Builder.datePicker()
+                        .setTitleText(R.string.select_session_end_date) // cria esse string se ainda não existir
+                        .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                        .build();
+
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            if (selection == null) return;
+
+            // Converter millis para dd-MM-yyyy
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(selection);
+
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH) + 1; // 0-based
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            String dateStr = day + "-" + month + "-" + year;
+
+            getRelatedViewModel().setEndtDate(
+                    DateUtilities.createDate(dateStr, DateUtilities.DATE_FORMAT)
+            );
+        });
+
+        datePicker.show(getSupportFragmentManager(), "END_DATE_PICKER");
+    }
+
+    private void showNextSessionDatePicker() {
+        MaterialDatePicker<Long> datePicker =
+                MaterialDatePicker.Builder.datePicker()
+                        .setTitleText(R.string.select_next_session_date) // cria esse string se ainda não existir
+                        .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                        .build();
+
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            if (selection == null) return;
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(selection);
+
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH) + 1; // 0-based
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            String dateStr = day + "-" + month + "-" + year;
+
+            getRelatedViewModel().setNextSessionDate(
+                    DateUtilities.createDate(dateStr, DateUtilities.DATE_FORMAT)
+            );
+        });
+
+        datePicker.show(getSupportFragmentManager(), "NEXT_SESSION_DATE_PICKER");
     }
 
     @Override

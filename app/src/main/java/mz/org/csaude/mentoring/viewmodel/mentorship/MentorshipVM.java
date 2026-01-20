@@ -220,50 +220,48 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
 
     public void nextStep() {
         if (isTableSelectionStep()) {
+
             getRelatedActivity().populateMenteesList();
+
             if (this.mentorship.getForm() == null) {
-                Utilities.displayAlertDialog(getRelatedActivity(), getRelatedActivity().getString(R.string.no_table_selected)).show();
+                Utilities.displayAlertDialog(
+                        getRelatedActivity(),
+                        getRelatedActivity().getString(R.string.no_table_selected)
+                ).show();
                 return;
             }
+
             setCurrMentorshipStep(CURR_MENTORSHIP_STEP_MENTEE_SELECTION);
 
         } else if (isMenteeSelectionStep()) {
+
             if (this.mentorship.getTutored() == null) {
-                Utilities.displayAlertDialog(getRelatedActivity(), getRelatedActivity().getString(R.string.no_mentee_selected)).show();
+                Utilities.displayAlertDialog(
+                        getRelatedActivity(),
+                        getRelatedActivity().getString(R.string.no_mentee_selected)
+                ).show();
                 return;
             }
+
             setCurrMentorshipStep(CURR_MENTORSHIP_STEP_PERIOD_SELECTION);
 
         } else if (isPeriodSelectionStep()) {
             if (!isValidPeriod()) return;
             // Perform background operations (like loadQuestion and initial save) in a background thread
             getExecutorService().execute(() -> {
-                if (!isMentoringMentorship()) { // Ronda Zero
-                    try {
-                        this.mentorship.setEvaluationLocation(getApplication().getEvaluationLocationService().getByCode(EvaluationLocation.HEALTH_FACILITY));
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
-                } else {
-                    if (!mentorship.getSession().getForm().getEvaluationLocation().isBoth()) {
-                        this.mentorship.setEvaluationLocation(mentorship.getSession().getForm().getEvaluationLocation());
-                } else if (!hasQuestionForSelectedLocation(mentorship.getSession().getForm(), mentorship.getEvaluationLocation())){
-                        runOnMainThread(() -> {
-                            Utilities.displayAlertDialog(getRelatedActivity(), getRelatedActivity().getString(R.string.no_questions_for_selected_location)).show();
-                        });
-
-                        return;
-                    }
-                }
 
                 loadQuestion();
 
                 for (FormSection formSection : this.mentorship.getForm().getFormSections()) {
                     int responded = 0;
                     for (FormSectionQuestion formSectionQuestion : formSection.getFormSectionQuestions()) {
-                        if (Utilities.stringHasValue(formSectionQuestion.getAnswer().getValue())) responded++;
+                        if (Utilities.stringHasValue(formSectionQuestion.getAnswer().getValue())) {
+                            responded++;
+                        }
                     }
-                    formSection.setExtraInfo(responded + "/" + formSection.getFormSectionQuestions().size());
+                    formSection.setExtraInfo(
+                            responded + "/" + formSection.getFormSectionQuestions().size()
+                    );
                 }
 
                 // Update UI on the main thread
@@ -274,9 +272,7 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
                     // Save the mentorship if it's not already saved
                     if (mentorship.getId() == null) {
                         // Save the mentorship in the background
-                        getExecutorService().execute(() -> {
-                            doMentorshipInitialSave();
-                        });
+                        getExecutorService().execute(this::doMentorshipInitialSave);
                     }
 
                     setCurrMentorshipStep(CURR_MENTORSHIP_STEP_QUESTION_SELECTION);
@@ -285,8 +281,12 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
             });
 
         } else if (isQuestionSelectionStep()) {
+
             if (!allQuestionsResponded()) {
-                Utilities.displayAlertDialog(getRelatedActivity(), getRelatedActivity().getString(R.string.missising_answers)).show();
+                Utilities.displayAlertDialog(
+                        getRelatedActivity(),
+                        getRelatedActivity().getString(R.string.missising_answers)
+                ).show();
                 return;
             }
 
@@ -297,17 +297,20 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
             }
 
         } else if (isDemostrationSelectionStep()) {
+
             finnalizeMentorship();
         }
 
         notifyPropertyChanged(BR.currMentorshipStep);
     }
 
+
+
     private boolean hasQuestionForSelectedLocation(Form form, EvaluationLocation evaluationLocation) {
         return getApplication().getFormService().hasQuestionsForSelectedLocation(form, evaluationLocation);
     }
 
-    public boolean isSelectLocation(){
+    public boolean isBothLocation(){
         if (!isMentoringMentorship()) return false;
         return mentorship.getSession().getForm().getEvaluationLocation().isBoth();
     }
@@ -364,16 +367,15 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
             return false;
 
         }
-
         if (DateUtilities.isDateAfterIgnoringTime(this.mentorship.getStartDate(), DateUtilities.getCurrentDate())) {
             Utilities.displayAlertDialog(getRelatedActivity(), getRelatedActivity().getString(R.string.mentorship_start_date_future)).show();
             return false;
         }
-        if (!Utilities.stringHasValue(mentorship.getCabinet().getUuid())) {
+        if (mentorship.getCabinet() == null || !Utilities.stringHasValue(mentorship.getCabinet().getUuid())) {
             Utilities.displayAlertDialog(getRelatedActivity(), getRelatedActivity().getString(R.string.empty_sector_error)).show();
             return false;
         }
-        if (!Utilities.stringHasValue(mentorship.getDoor().getUuid())) {
+        if (mentorship.getDoor() == null || !Utilities.stringHasValue(mentorship.getDoor().getUuid())) {
             Utilities.displayAlertDialog(getRelatedActivity(), getRelatedActivity().getString(R.string.empty_door_error)).show();
             return false;
         }
@@ -384,23 +386,9 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
         return true;
     }
 
-
     @Override
     public CreateMentorshipActivity getRelatedActivity() {
         return (CreateMentorshipActivity) super.getRelatedActivity();
-    }
-
-    public void previousStep() {
-        if (isTableSelectionStep()) {
-            setCurrMentorshipStep(CURR_MENTORSHIP_STEP_MENTEE_SELECTION);
-        } else if (isMenteeSelectionStep()) {
-            setCurrMentorshipStep(CURR_MENTORSHIP_STEP_PERIOD_SELECTION);
-        } else if (isPeriodSelectionStep()) {
-            setCurrMentorshipStep(CURR_MENTORSHIP_STEP_QUESTION_SELECTION);
-        } else if (isQuestionSelectionStep()) {
-            finnalizeMentorship();
-        }
-        notifyPropertyChanged(BR.currMentorshipStep);
     }
 
     public void setRonda(Ronda ronda) {
@@ -466,6 +454,13 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
                 this.session.getRonda().addSession(getApplication().getSessionService().getAllOfRonda(this.session.getRonda()));
 
                 this.mentorship.setForm(this.session.getForm());
+                if (!mentorship.getForm().getEvaluationLocation().isBoth()) {
+                    mentorship.setEvaluationLocation(mentorship.getForm().getEvaluationLocation());
+                    if (mentorship.getEvaluationLocation().isCommunityEvaluation()) {
+                        mentorship.setCabinet(getApplication().getCabinetService().getByuuid(Cabinet.COMMUNITY_CABINET_UUID));
+                        mentorship.setDoor(getApplication().getDoorService().getByCode(Door.COMMUNITY_DOOR));
+                    }
+                }
             }
 
         } catch (SQLException e) {
@@ -538,9 +533,10 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
 
     public List<Tutored> getMentees() {
         try {
-            this.tutoreds = getApplication().getTutoredService().getAllOfRondaForZeroEvaluation(this.mentorship.getSession().getRonda());
-            for (Tutored tutored :this.tutoreds) {
-                tutored.setListType(Listble.ListTypes.UNDEFINED);
+            this.tutoreds = getApplication().getTutoredService()
+                    .getAllOfRondaForZeroEvaluation(this.mentorship.getSession().getRonda());
+            for (Tutored tutored : this.tutoreds) {
+                tutored.setListType(Listble.ListTypes.MENTORSHIP_MENTEE_SELECTION);
             }
             return this.tutoreds;
         } catch (SQLException e) {
@@ -610,6 +606,7 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
     public List<Cabinet> getSectors() {
         try {
             List<Cabinet> cabinets = new ArrayList<>();
+            cabinets.add(new Cabinet());
             cabinets.addAll(getApplication().getCabinetService().getAll());
             return cabinets;
         } catch (SQLException e) {
@@ -871,7 +868,7 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
 
     @Override
     public void doOnDeny() {
-        getRelatedActivity().onBackPressed();
+        //getRelatedActivity().onBackPressed();
     }
 
     public void setQuestionAnswer(FormSectionQuestion formSectionQuestion, String answerValue) {
@@ -1042,5 +1039,31 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
     public boolean isHealthFacilityLocation() {
         EvaluationLocation loc = this.mentorship.getEvaluationLocation();
         return loc != null && loc.isHealthFacilityEvaluation();
+    }
+
+    public void goBack() {
+        if (getMentorship().getSession().getRonda().isRondaMentoria() || (getMentorship().getId() != null && (getMentorship().getSession().getRonda().isRondaZero() || getMentorship().getSession().getRonda().isRondaSemestral()))) {
+            if (isPeriodSelectionStep()) {
+                getRelatedActivity().onBackPressed();
+            } else if (isQuestionSelectionStep()) {
+                setCurrMentorshipStep(CURR_MENTORSHIP_STEP_PERIOD_SELECTION);
+            } else if (isDemostrationSelectionStep()) {
+                setCurrMentorshipStep(CURR_MENTORSHIP_STEP_QUESTION_SELECTION);
+            } else {
+                getRelatedActivity().onBackPressed();
+            }
+        } else if (getMentorship().getId() == null && (getMentorship().getSession().getRonda().isRondaZero() || getMentorship().getSession().getRonda().isRondaSemestral())) {
+            if (isTableSelectionStep()) {
+                getRelatedActivity().onBackPressed();
+            } else if (isMenteeSelectionStep()) {
+                setCurrMentorshipStep(CURR_MENTORSHIP_STEP_TABLE_SELECTION);
+            } else if (isPeriodSelectionStep()) {
+                setCurrMentorshipStep(CURR_MENTORSHIP_STEP_MENTEE_SELECTION);
+            } else if (isQuestionSelectionStep()) {
+                setCurrMentorshipStep(CURR_MENTORSHIP_STEP_PERIOD_SELECTION);
+            } else {
+                getRelatedActivity().onBackPressed();
+            }
+        }
     }
 }
