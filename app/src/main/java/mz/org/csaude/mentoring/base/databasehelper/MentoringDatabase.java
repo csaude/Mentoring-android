@@ -107,7 +107,7 @@ import mz.org.csaude.mentoring.util.Converters;
                 Resource.class, SessionRecommendedResource.class, FormSection.class, Section.class, EvaluationLocation.class,
                 FlowHistory.class
         },
-        version = 6,
+        version = 7,
         exportSchema = false
 )
 @TypeConverters({Converters.class})
@@ -180,6 +180,13 @@ public abstract class MentoringDatabase extends RoomDatabase {
         }
     };
 
+    static final Migration MIGRATION_6_7 = new Migration(6, 7) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            // boolean em Room = INTEGER (0/1)
+            db.execSQL("ALTER TABLE location ADD COLUMN interno INTEGER NOT NULL DEFAULT 0");
+        }
+    };
 
     public static MentoringDatabase getInstance(Context context, String passphrase) {
         if (INSTANCE == null) {
@@ -196,6 +203,7 @@ public abstract class MentoringDatabase extends RoomDatabase {
                             .openHelperFactory(factory)
                             .addMigrations(MIGRATION_4_5)
                             .addMigrations(MIGRATION_5_6)
+                            .addMigrations(MIGRATION_6_7)
                             .build();
                 }
             }

@@ -46,6 +46,8 @@ public class Location extends BaseModel implements Listble {
     public static final String COLUMN_DISTRICT = "district_id";
     public static final String COLUMN_HEALTH_FACILITY = "health_facility_id"; // Corrected typo from "health_hacility_id" to "health_facility_id"
     public static final String COLUMN_LOCATION_LEVEL = "location_level";
+    public static final String COLUMN_INTERNO = "interno";
+
 
     @NonNull
     @ColumnInfo(name = COLUMN_EMPLOYEE)
@@ -83,28 +85,51 @@ public class Location extends BaseModel implements Listble {
     @ColumnInfo(name = COLUMN_LOCATION_LEVEL)
     private String locationLevel;
 
+    @NonNull
+    @ColumnInfo(name = COLUMN_INTERNO)
+    private Boolean interno = Boolean.FALSE;
+
+
     public Location() {
     }
 
     @Ignore
-    public Location(Province province, District district, HealthFacility healthFacility, String locationLevel) {
+    public Location(Province province,
+                    District district,
+                    HealthFacility healthFacility,
+                    String locationLevel,
+                    Boolean interno) {
+
         this.province = province;
         this.provinceId = province.getId();
+
         this.district = district;
         this.districtId = district.getId();
+
         this.healthFacility = healthFacility;
         this.healthFacilityId = healthFacility.getId();
+
         this.locationLevel = locationLevel;
+        this.interno = interno != null ? interno : Boolean.FALSE;
     }
+
 
     @Ignore
     public Location(LocationDTO locationDTO) {
         this.setUuid(locationDTO.getUuid());
         this.setLocationLevel(locationDTO.getLocationLevel());
-        if (locationDTO.getProvinceDTO() != null) this.setProvince(new Province(locationDTO.getProvinceDTO()));
-        if (locationDTO.getDistrictDTO() != null) this.setDistrict(new District(locationDTO.getDistrictDTO()));
-        if (locationDTO.getHealthFacilityDTO() != null) this.setHealthFacility(new HealthFacility(locationDTO.getHealthFacilityDTO()));
+        this.setInterno(locationDTO.getInterno() != null ? locationDTO.getInterno() : Boolean.FALSE);
+
+        if (locationDTO.getProvinceDTO() != null)
+            this.setProvince(new Province(locationDTO.getProvinceDTO()));
+
+        if (locationDTO.getDistrictDTO() != null)
+            this.setDistrict(new District(locationDTO.getDistrictDTO()));
+
+        if (locationDTO.getHealthFacilityDTO() != null)
+            this.setHealthFacility(new HealthFacility(locationDTO.getHealthFacilityDTO()));
     }
+
 
     public Employee getEmployee() {
         return employee;
@@ -196,4 +221,13 @@ public class Location extends BaseModel implements Listble {
     public void setHealthFacilityId(Integer healthFacilityId) {
         this.healthFacilityId = healthFacilityId;
     }
+
+    public Boolean getInterno() {
+        return interno;
+    }
+
+    public void setInterno(Boolean interno) {
+        this.interno = interno;
+    }
+
 }
