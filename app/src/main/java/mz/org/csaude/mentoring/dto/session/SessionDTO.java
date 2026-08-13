@@ -1,7 +1,5 @@
 package mz.org.csaude.mentoring.dto.session;
 
-import com.j256.ormlite.field.DatabaseField;
-
 import java.util.Date;
 import java.util.List;
 

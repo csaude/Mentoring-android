@@ -4,11 +4,8 @@ import android.app.Application;
 
 import androidx.room.Transaction;
 
-import com.j256.ormlite.misc.TransactionManager;
-
 import java.sql.SQLException;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import mz.org.csaude.mentoring.base.service.BaseServiceImpl;
 import mz.org.csaude.mentoring.dao.answer.AnswerDAO;
