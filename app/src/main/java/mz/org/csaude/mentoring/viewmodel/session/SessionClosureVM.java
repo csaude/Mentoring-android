@@ -208,7 +208,7 @@ public class SessionClosureVM extends BaseViewModel {
 
     private boolean sessionCloseDateBeforeLastMentorship() {
         for (Mentorship mentorship : session.getMentorships()) {
-            if (DateUtilities.isDateBeforeIgnoringTime(session.getEndDate(), mentorship.getEndDate())) {
+            if (DateUtilities.isDateBeforeIgnoringTime(session.getEndDate(), mentorship.getStartDate())) {
                 return true;
             }
         }
