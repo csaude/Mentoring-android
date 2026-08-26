@@ -107,7 +107,7 @@ import mz.org.csaude.mentoring.util.Converters;
                 Resource.class, SessionRecommendedResource.class, FormSection.class, Section.class, EvaluationLocation.class,
                 FlowHistory.class
         },
-        version = 6,
+        version = 8,
         exportSchema = false
 )
 @TypeConverters({Converters.class})
@@ -180,6 +180,35 @@ public abstract class MentoringDatabase extends RoomDatabase {
         }
     };
 
+    static final Migration MIGRATION_6_7 = new Migration(6, 7) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            // boolean em Room = INTEGER (0/1)
+            db.execSQL("ALTER TABLE location ADD COLUMN interno INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    // Migration 7 -> 8: fix mentorship.end_date drifted from start_date by the
+    // old "stamp with wall-clock time on save" bug (see doSaveMentorship()).
+    // end_date should always mirror start_date; only rows already saved
+    // (end_date IS NOT NULL) are touched, so draft/in-progress mentorships
+    // are left untouched. Scoped to mentorships of sessions that are still
+    // open (not COMPLETE) — those are the only ones this bug could still be
+    // blocking; already-closed sessions are left alone.
+    static final Migration MIGRATION_7_8 = new Migration(7, 8) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL(
+                    "UPDATE mentorship SET end_date = start_date " +
+                            "WHERE end_date IS NOT NULL AND end_date != start_date " +
+                            "AND session_id IN (" +
+                            "  SELECT s.id FROM session s " +
+                            "  JOIN session_status ss ON ss.id = s.session_status_id " +
+                            "  WHERE ss.code != 'COMPLETE'" +
+                            ")"
+            );
+        }
+    };
 
     public static MentoringDatabase getInstance(Context context, String passphrase) {
         if (INSTANCE == null) {
@@ -196,6 +225,8 @@ public abstract class MentoringDatabase extends RoomDatabase {
                             .openHelperFactory(factory)
                             .addMigrations(MIGRATION_4_5)
                             .addMigrations(MIGRATION_5_6)
+                            .addMigrations(MIGRATION_6_7)
+                            .addMigrations(MIGRATION_7_8)
                             .build();
                 }
             }

@@ -747,7 +747,7 @@ public class MentorshipVM extends BaseViewModel implements IDialogListener {
                 this.session.setTutored(getApplication().getTutoredService().getById(this.session.getMenteeId()));
             }
 
-            this.mentorship.setEndDate(DateUtilities.getCurrentDate());
+            this.mentorship.setEndDate(this.mentorship.getStartDate());
             if (ronda.isRondaZero()) {
                 this.mentorship.getTutored().setZeroEvaluationDone(true);
                 this.mentorship.getSession().setTutored(this.mentorship.getTutored());

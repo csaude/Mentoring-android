@@ -15,16 +15,21 @@ public class LocationDTO extends BaseEntityDTO {
     private HealthFacilityDTO healthFacilityDTO;
     private String locationLevel;
 
+    // ✅ NOVO
+    private Boolean interno;
+
     public LocationDTO() {
     }
 
     public LocationDTO(Location location) {
         super(location);
         this.setLocationLevel(location.getLocationLevel());
-       if(location.getProvince() != null) this.setProvinceDTO(new ProvinceDTO((Province) location.getProvince()));
-       if(location.getDistrict() != null) this.setDistrictDTO(new DistrictDTO((District) location.getDistrict()));
-       if(location.getHealthFacility()!=null)  this.setHealthFacilityDTO(new HealthFacilityDTO(location.getHealthFacility()));
+        this.setInterno(location.getInterno()); // ✅ NOVO
 
+        if (location.getProvince() != null) this.setProvinceDTO(new ProvinceDTO((Province) location.getProvince()));
+        if (location.getDistrict() != null) this.setDistrictDTO(new DistrictDTO((District) location.getDistrict()));
+        if (location.getHealthFacility() != null) this.setHealthFacilityDTO(new HealthFacilityDTO(location.getHealthFacility()));
+        if (location.getEmployee() != null) this.setEmployeeDTO(new EmployeeDTO(location.getEmployee()));
     }
 
     public EmployeeDTO getEmployeeDTO() {
@@ -67,21 +72,36 @@ public class LocationDTO extends BaseEntityDTO {
         this.locationLevel = locationLevel;
     }
 
+    // ✅ NOVO
+    public Boolean getInterno() {
+        return interno;
+    }
+
+    public void setInterno(Boolean interno) {
+        this.interno = interno;
+    }
+
     public Location getLocation() {
         Location location = new Location();
         location.setUuid(this.getUuid());
-        if(this.getEmployeeDTO()!=null) {
+        location.setLocationLevel(this.getLocationLevel());
+
+        // ✅ NOVO (default false se vier null)
+        location.setInterno(this.getInterno() != null ? this.getInterno() : Boolean.FALSE);
+
+        if (this.getEmployeeDTO() != null) {
             location.setEmployee(this.employeeDTO.getEmployee());
         }
-        if(this.getDistrictDTO()!=null) {
+        if (this.getDistrictDTO() != null) {
             location.setDistrict(this.getDistrictDTO().getDistrict());
         }
-        if(this.getProvinceDTO()!=null) {
+        if (this.getProvinceDTO() != null) {
             location.setProvince(this.getProvinceDTO().getProvince());
         }
-        if(this.getHealthFacilityDTO()!=null) {
+        if (this.getHealthFacilityDTO() != null) {
             location.setHealthFacility(this.getHealthFacilityDTO().getHealthFacilityObj());
         }
+
         return location;
     }
 }
