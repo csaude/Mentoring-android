@@ -107,7 +107,7 @@ import mz.org.csaude.mentoring.util.Converters;
                 Resource.class, SessionRecommendedResource.class, FormSection.class, Section.class, EvaluationLocation.class,
                 FlowHistory.class
         },
-        version = 7,
+        version = 8,
         exportSchema = false
 )
 @TypeConverters({Converters.class})
@@ -188,6 +188,18 @@ public abstract class MentoringDatabase extends RoomDatabase {
         }
     };
 
+    // Migration 7 -> 8: fix mentorship.end_date drifted from start_date by the
+    // old "stamp with wall-clock time on save" bug (see doSaveMentorship()).
+    // end_date should always mirror start_date; only rows already saved
+    // (end_date IS NOT NULL) are touched, so draft/in-progress mentorships
+    // are left untouched.
+    static final Migration MIGRATION_7_8 = new Migration(7, 8) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("UPDATE mentorship SET end_date = start_date WHERE end_date IS NOT NULL AND end_date != start_date");
+        }
+    };
+
     public static MentoringDatabase getInstance(Context context, String passphrase) {
         if (INSTANCE == null) {
             synchronized (MentoringDatabase.class) {
@@ -204,6 +216,7 @@ public abstract class MentoringDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_4_5)
                             .addMigrations(MIGRATION_5_6)
                             .addMigrations(MIGRATION_6_7)
+                            .addMigrations(MIGRATION_7_8)
                             .build();
                 }
             }
