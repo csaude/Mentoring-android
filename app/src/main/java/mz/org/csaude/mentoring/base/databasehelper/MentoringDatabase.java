@@ -192,11 +192,21 @@ public abstract class MentoringDatabase extends RoomDatabase {
     // old "stamp with wall-clock time on save" bug (see doSaveMentorship()).
     // end_date should always mirror start_date; only rows already saved
     // (end_date IS NOT NULL) are touched, so draft/in-progress mentorships
-    // are left untouched.
+    // are left untouched. Scoped to mentorships of sessions that are still
+    // open (not COMPLETE) — those are the only ones this bug could still be
+    // blocking; already-closed sessions are left alone.
     static final Migration MIGRATION_7_8 = new Migration(7, 8) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase db) {
-            db.execSQL("UPDATE mentorship SET end_date = start_date WHERE end_date IS NOT NULL AND end_date != start_date");
+            db.execSQL(
+                    "UPDATE mentorship SET end_date = start_date " +
+                            "WHERE end_date IS NOT NULL AND end_date != start_date " +
+                            "AND session_id IN (" +
+                            "  SELECT s.id FROM session s " +
+                            "  JOIN session_status ss ON ss.id = s.session_status_id " +
+                            "  WHERE ss.code != 'COMPLETE'" +
+                            ")"
+            );
         }
     };
 
